@@ -40,9 +40,17 @@ Promise.all([
   // data = data.filter((listing) => parseFloat(listing.price) <= 3000);
 
   // or, divide them by 100 to fix the price
+  // data.forEach((listing) => {
+  //   if (parseFloat(listing.price) > 3000) {
+  //     listing.price = (parseFloat(listing.price) / 100).toString();
+  //   }
+  // });
+
+  // 2025 September data - fix specific price anomalies
   data.forEach((listing) => {
-    if (parseFloat(listing.price) > 3000) {
-      listing.price = (parseFloat(listing.price) / 100).toString();
+    const p = parseFloat(listing.price);
+    if (!Number.isNaN(p) && new Set([7000, 40000, 50000]).has(p)) {
+      listing.price = (p / 100).toString();
     }
   });
 
