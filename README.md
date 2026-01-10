@@ -1,4 +1,4 @@
-# Capital CrashPad: Visualizing the Airbnb Market in Washington, DC
+# Capital Crashpad: Visualizing the Airbnb Market in Washington, DC
 
 ![GitHub last commit](https://img.shields.io/github/last-commit/johbry17/Capital-Crashpad)
 
