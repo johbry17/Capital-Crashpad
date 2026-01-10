@@ -8,7 +8,9 @@
 🔗 [Tableau Dashboard](https://public.tableau.com/app/profile/bryan.johns6699/viz/DC-Airbnb/DCAirbnbMobile)  
 🔗 [Exploratory Data Analysis (EDA)](/exploratory_data_analysis/eda.ipynb)
 
-> ℹ️ Status: This project is maintained as a portfolio example. While not under active development, data and dashboards are refreshed semiannually as new information becomes available.
+> ⚠️ ℹ️ Status: This project is under active, rapid refinement. Adding a summary analysis and updating the dashboard for the GitHub Pages version.
+
+<!-- This project is maintained as a portfolio example. While not under active development, data and dashboards are refreshed semiannually as new information becomes available. -->
 
 ## Table of Contents
 
@@ -60,7 +62,7 @@ The goal is to visualize the availability, pricing, and neighborhood distributio
 - Navigate through the embedded Tableau dashboard
 
 ### ETL Pipeline
-- Edit and run `data_processing.ipynb` to clean and update source data
+- Edit and run `./notebooks/data_pipeline_postgres_export.ipynb` to clean and update source data
 - Automatically loads PostgreSQL tables and exports data for Flask and GitHub Pages
 
 ### Full-Stack Versions
@@ -75,7 +77,7 @@ pg_restore -U <username> -d <dbname> -1 airbnb.backup
 
 
 ### Note to Self
-- Run all cells in `data_processing.ipynb` to update the source data
+- Run all cells in `./notebooks/data_pipeline_postgres_export.ipynb` to update the source data
 - Recheck plotPriceAvailability annotations in `plots.js` after updates
 - Review `schema.sql` and `neighbourhoods_dict` in `data_processing.ipynb`
 - Export updated `map_listings` and `price_availability` views to CSV for GitHub Pages

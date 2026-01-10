@@ -3,8 +3,8 @@ config.py
 resources/data/cleaned_data/reviews_cleaned.csv
 resources/data/cleaned_data/calendar_cleaned.csv
 raw_data/
-
-
+resources/data/cleaned_data/
+resources/data/tableau_data/
 
 
 # Byte-compiled / optimized / DLL files

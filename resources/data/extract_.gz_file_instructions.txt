@@ -1,0 +1,1 @@
+gunzip -c input.csv.gz > output.csv
