@@ -99,7 +99,7 @@ function initializeOverlays(markerGroups, neighborhoods, listingsData) {
     "Airbnb's": markerGroups.default,
     "License Status": markerGroups.license,
     "Property Type": markerGroups.propertyType,
-    "Average Price": initializeChoroplethLayer(neighborhoods, listingsData),
+    "Median Price": initializeChoroplethLayer(neighborhoods, listingsData),
     "Total Airbnbs": initializeBubbleChartLayer(neighborhoods, listingsData),
   };
 }
@@ -134,9 +134,9 @@ function syncDropdownAndOverlay(
 
   // update overlays
   // choropleth layer
-  if (selectedOverlayName === "Average Price") {
+  if (selectedOverlayName === "Median Price") {
     activateOverlay(map, choroplethLayer);
-    activeLegend = addLegend("Average Price").addTo(map);
+    activeLegend = addLegend("Median Price").addTo(map);
     // bubble chart layer
   } else if (selectedOverlayName === "Total Airbnbs") {
     const bubbleLayer = initializeBubbleChartLayer(neighborhoods, listingsData);
@@ -383,8 +383,8 @@ function resetMapView(
   updateMultiListings(listingsData, "Washington, D.C.");
   allDCPlots(listingsData, priceAvailabilityData, defaultColors);
 
-  // toggle average price button
-  toggleButton("average-price-button", true);
+  // toggle median price button
+  toggleButton("median-price-button", true);
   toggleButton("total-airbnbs-button", true);
 }
 
@@ -396,12 +396,12 @@ function zoomIn(
   listingsData,
   priceAvailabilityData
 ) {
-  // toggle buttons and choropleth Average Price legend
+  // toggle buttons and choropleth Median Price legend
   toggleButton("total-airbnbs-button", false);
-  toggleButton("average-price-button", false);
+  toggleButton("median-price-button", false);
   if (
     activeLegend &&
-    activeLegend._container.innerHTML.includes("Average Price")
+    activeLegend._container.innerHTML.includes("Median Price")
   ) {
     activeLegend._container.style.display = "none";
   }

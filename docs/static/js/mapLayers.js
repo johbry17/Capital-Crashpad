@@ -35,10 +35,10 @@ function initializeNeighborhoodsLayer(
 
 // create choropleth layer for neighborhood boundaries
 function initializeChoroplethLayer(neighborhoods, listingsData) {
-  const averagePrices = calculateAveragePricePerNeighborhood(listingsData);
+  const medianPrices = calculateMedianPricePerNeighborhood(listingsData);
   const neighborhoodCounts = calculateAirbnbCountsPerNeighborhood(listingsData);
   const getColor = (price) =>
-    d3.scaleSequential(d3.interpolateViridis).domain([50, 300])(price);
+    d3.scaleSequential(d3.interpolateViridis).domain([50, 250])(price);
 
   // to hold the choropleth and text markers
   const layerGroup = L.layerGroup();
@@ -46,7 +46,7 @@ function initializeChoroplethLayer(neighborhoods, listingsData) {
   // layer for the choropleth polygons
   const choroplethLayer = L.geoJSON(neighborhoods, {
     style: (feature) => ({
-      fillColor: getColor(averagePrices[feature.properties.neighbourhood] || 0),
+      fillColor: getColor(medianPrices[feature.properties.neighbourhood] || 0),
       weight: 2,
       opacity: 1,
       color: "white",
@@ -54,7 +54,7 @@ function initializeChoroplethLayer(neighborhoods, listingsData) {
       fillOpacity: 1,
     }),
     onEachFeature: setChoroplethFeatures(
-      averagePrices,
+      medianPrices,
       neighborhoodCounts,
       layerGroup
     ),
@@ -67,13 +67,13 @@ function initializeChoroplethLayer(neighborhoods, listingsData) {
 }
 
 // create features for choropleth layer - popups, text markers
-function setChoroplethFeatures(averagePrices, neighborhoodCounts, layerGroup) {
+function setChoroplethFeatures(medianPrices, neighborhoodCounts, layerGroup) {
   return (feature, layer) => {
     const neighborhood = feature.properties.neighbourhood;
-    const avgPrice = averagePrices[neighborhood] || "No Data";
+    const avgPrice = medianPrices[neighborhood] || "No Data";
     const count = neighborhoodCounts[neighborhood] || 0;
     const popupContent = `${neighborhood}<br>
-    <span class="popup-text-right popup-text-right-larger"><b>Average Price: $${avgPrice
+    <span class="popup-text-right popup-text-right-larger"><b>Median Price: $${avgPrice
       .toFixed(2)
       .toLocaleString()}</b></span>
     <span class="popup-text-right">Airbnb Count: ${count.toLocaleString()}</span>`;
@@ -150,13 +150,13 @@ function initializeNeighborhoodOutlines(bubbleLayerGroup, neighborhoods) {
 // create bubbles, text markers, and popups for each neighborhood
 function addBubbles(bubbleLayerGroup, neighborhoods, listingsData) {
   // process data
-  const averagePrices = calculateAveragePricePerNeighborhood(listingsData);
+  const medianPrices = calculateMedianPricePerNeighborhood(listingsData);
   const neighborhoodData = calculateAirbnbCountsPerNeighborhood(listingsData);
 
   // loop through neighborhoods and create bubbles
   neighborhoods.features.forEach((feature) => {
     const neighborhood = feature.properties.neighbourhood;
-    const avgPrice = averagePrices[neighborhood] || 0;
+    const avgPrice = medianPrices[neighborhood] || 0;
     const count = neighborhoodData[neighborhood] || 0;
     const radius = Math.sqrt(count) * 2; // scale radius based on count
     const latlng = calculateCentroid(feature); // for placing markers
@@ -171,7 +171,7 @@ function addBubbles(bubbleLayerGroup, neighborhoods, listingsData) {
       fillOpacity: 0.8,
     }).bindPopup(
       `${neighborhood}<br>
-        <span class="popup-text-right">Average Price: $${avgPrice
+        <span class="popup-text-right">Median Price: $${avgPrice
           .toFixed(2)
           .toLocaleString()}</span>
         <span class="popup-text-right popup-text-right-larger"><b>Airbnb Count: ${count.toLocaleString()}</b></span>`,
@@ -228,8 +228,8 @@ function addLegend(type) {
         );
         div.innerHTML = '<div class="legend-title">Property Type</div>';
         break;
-      case "Average Price":
-        div.innerHTML = '<div class="legend-title">Average Price</div>';
+      case "Median Price":
+        div.innerHTML = '<div class="legend-title">Median Price</div>';
         const gradientBar = createGradientBar();
         div.appendChild(gradientBar);
         div.appendChild(createPriceLabels());
