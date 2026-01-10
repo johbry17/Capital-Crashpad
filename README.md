@@ -1,10 +1,10 @@
 # Capital CrashPad: Visualizing the Airbnb Market in Washington, DC
 
-![GitHub last commit](https://img.shields.io/github/last-commit/johbry17/DC-AirBnB-Data)
+![GitHub last commit](https://img.shields.io/github/last-commit/johbry17/Capital-Crashpad)
 
 *Explore, visualize, and understand DC’s Airbnb landscape—interactive dashboards and maps powered by open data and modern web tech.*
 
-🔗 [Live Website](https://johbry17.github.io/DC-AirBnB-Data/)  
+🔗 [Live Website](https://johbry17.github.io/Capital-Crashpad/)  
 🔗 [Tableau Dashboard](https://public.tableau.com/app/profile/bryan.johns6699/viz/DC-Airbnb/DCAirbnbMobile)  
 🔗 [Exploratory Data Analysis (EDA)](/exploratory_data_analysis/eda.ipynb)
 
@@ -55,7 +55,7 @@ The goal is to visualize the availability, pricing, and neighborhood distributio
 ## Usage
 
 ### Website
-- [Visit GitHub Pages version](https://johbry17.github.io/DC-AirBnB-Data/) 
+- [Visit GitHub Pages version](https://johbry17.github.io/Capital-Crashpad/) 
 - Explore listings, prices, and availability
 - Navigate through the embedded Tableau dashboard
 
