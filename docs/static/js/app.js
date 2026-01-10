@@ -63,6 +63,12 @@ Promise.all([
     el.textContent = `Scraped data as of ~${formattedDate}`;
   });
 
+  const modal = document.getElementById("welcome-modal");
+  modal.style.display = "flex"; // toggle modal display on / off
+  modal.addEventListener("click", () => {
+    modal.style.display = "none";
+  });
+
   createMap(neighborhoodData, data, priceAvailabilityData);
 });
 
