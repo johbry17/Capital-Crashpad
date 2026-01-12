@@ -62,8 +62,18 @@ CREATE TABLE reviews_summary (
     PRIMARY KEY (listing_id, quarter)
 );
 
+CREATE OR REPLACE VIEW listing_presence AS
+SELECT
+    listing_id,
+    MIN(quarter_index) AS first_seen_q,
+    MAX(quarter_index) AS last_seen_q,
+    COUNT(*) AS quarters_present,
+    (COUNT(*) >= 4) AS is_persistent
+FROM listings_long
+GROUP BY listing_id;
+
 CREATE INDEX idx_listings_quarter ON listings_long (quarter_index);
-CREATE INDEX idx_listings_neighborhood ON listings_long (neighbourhood);
+CREATE INDEX idx_listings_neighborhood ON listings_long (neighborhood);
 CREATE INDEX idx_listings_id ON listings_long (listing_id);
 CREATE INDEX idx_listings_host ON listings_long (host_id);
 CREATE INDEX idx_listings_commercial ON listings_long (likely_commercial);
