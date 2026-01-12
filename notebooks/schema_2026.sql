@@ -4,6 +4,11 @@ DROP INDEX IF EXISTS idx_listings_id;
 DROP INDEX IF EXISTS idx_listings_host;
 DROP INDEX IF EXISTS idx_listings_commercial;
 
+DROP VIEW IF EXISTS host_structure_trends;
+DROP VIEW IF EXISTS neighborhood_trends;
+DROP VIEW IF EXISTS quarterly_market_summary;
+DROP VIEW IF EXISTS listing_persistence;
+
 DROP TABLE IF EXISTS reviews_summary;
 DROP TABLE IF EXISTS calendar_summary;
 DROP TABLE IF EXISTS listings_long;
@@ -62,7 +67,7 @@ CREATE TABLE reviews_summary (
     PRIMARY KEY (listing_id, quarter)
 );
 
-CREATE OR REPLACE VIEW listing_presence AS
+CREATE VIEW listing_persistence AS
 SELECT
     listing_id,
     MIN(quarter_index) AS first_seen_q,
@@ -71,6 +76,45 @@ SELECT
     (COUNT(*) >= 4) AS is_persistent
 FROM listings_long
 GROUP BY listing_id;
+
+CREATE VIEW quarterly_market_summary AS
+SELECT
+    quarter,
+    quarter_index,
+    COUNT(*) AS listings_count,
+    PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY price) AS median_price,
+    AVG(price) AS mean_price,
+    AVG(CASE WHEN license = 'Licensed' THEN 1 ELSE 0 END) AS license_rate,
+    AVG(likely_commercial::int) AS commercial_share
+FROM listings_long
+GROUP BY quarter, quarter_index
+ORDER BY quarter_index;
+
+CREATE VIEW neighborhood_trends AS
+SELECT
+    neighborhood,
+    quarter,
+    quarter_index,
+    COUNT(*) AS listings_count,
+    PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY price) AS median_price,
+    AVG(likely_commercial::int) AS commercial_share,
+    AVG(CASE WHEN license = 'Licensed' THEN 1 ELSE 0 END) AS license_rate
+FROM listings_long
+GROUP BY neighborhood, quarter, quarter_index;
+
+CREATE VIEW host_structure_trends AS
+SELECT
+    quarter,
+    quarter_index,
+    CASE
+        WHEN is_multi_listing_host THEN 'Multi-listing'
+        ELSE 'Single-listing'
+    END AS host_type,
+    COUNT(*) AS listings_count,
+    AVG(price) AS avg_price,
+    AVG(availability_365) AS avg_availability
+FROM listings_long
+GROUP BY quarter, quarter_index, host_type;
 
 CREATE INDEX idx_listings_quarter ON listings_long (quarter_index);
 CREATE INDEX idx_listings_neighborhood ON listings_long (neighborhood);
