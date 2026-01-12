@@ -14,7 +14,7 @@ CREATE TABLE listings_long (
     quarter TEXT,
     quarter_index INT,
 
-    neighbourhood TEXT,
+    neighborhood TEXT,
     latitude FLOAT,
     longitude FLOAT,
 
@@ -55,6 +55,7 @@ CREATE TABLE reviews_summary (
     reviews_count_ltm INT,
     reviews_count_l30d INT,
     reviews_per_month NUMERIC,
+
     first_review DATE,
     last_review DATE,
 
