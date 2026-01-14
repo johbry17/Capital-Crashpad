@@ -39,31 +39,62 @@ function calculateMedian(data) {
     : sortedData[mid];
 }
 
-// calculate average price per neighborhood
-function calculateAveragePricePerNeighborhood(data) {
-  const neighborhoodPrices = {};
-
-  data.forEach((listing) => {
-    const neighborhood = listing.neighbourhood;
-    const price = parseFloat(listing.price);
-
-    if (!neighborhoodPrices[neighborhood]) {
-      neighborhoodPrices[neighborhood] = { total: 0, count: 0 };
-    }
-
-    neighborhoodPrices[neighborhood].total += price;
-    neighborhoodPrices[neighborhood].count += 1;
-  });
-
-  const averagePrices = {};
-  for (const neighborhood in neighborhoodPrices) {
-    averagePrices[neighborhood] =
-      neighborhoodPrices[neighborhood].total /
-      neighborhoodPrices[neighborhood].count;
-  }
-
-  return averagePrices;
+// type conversion
+function numericPrices(listings) {
+  return listings.map((d) => Number(d.price)).filter((v) => Number.isFinite(v));
 }
+
+function boxPlotStats(values) {
+  const v = values.slice().sort((a, b) => a - b);
+
+  const q = (p) => {
+    const i = (v.length - 1) * p;
+    const lo = Math.floor(i);
+    const hi = Math.ceil(i);
+    return lo === hi ? v[lo] : v[lo] + (v[hi] - v[lo]) * (i - lo);
+  };
+
+  const q1 = q(0.25);
+  const median = q(0.5);
+  const q3 = q(0.75);
+  const iqr = q3 - q1;
+
+  return {
+    min: v[0],
+    q1,
+    median,
+    q3,
+    max: v[v.length - 1],
+    lowerFence: Math.max(v[0], q1 - 1.5 * iqr),
+    upperFence: Math.min(v[v.length - 1], q3 + 1.5 * iqr),
+  };
+}
+
+// // calculate average price per neighborhood
+// function calculateAveragePricePerNeighborhood(data) {
+//   const neighborhoodPrices = {};
+
+//   data.forEach((listing) => {
+//     const neighborhood = listing.neighbourhood;
+//     const price = parseFloat(listing.price);
+
+//     if (!neighborhoodPrices[neighborhood]) {
+//       neighborhoodPrices[neighborhood] = { total: 0, count: 0 };
+//     }
+
+//     neighborhoodPrices[neighborhood].total += price;
+//     neighborhoodPrices[neighborhood].count += 1;
+//   });
+
+//   const averagePrices = {};
+//   for (const neighborhood in neighborhoodPrices) {
+//     averagePrices[neighborhood] =
+//       neighborhoodPrices[neighborhood].total /
+//       neighborhoodPrices[neighborhood].count;
+//   }
+
+//   return averagePrices;
+// }
 
 // calculate number of listings per neighborhood
 function calculateAirbnbCountsPerNeighborhood(data) {

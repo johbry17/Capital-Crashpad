@@ -261,95 +261,87 @@ function plotPriceAvailability(data, selectedNeighborhood) {
   Plotly.newPlot("price-availability-plot", [trace1, trace2], layout);
 }
 
+function boxPlotAnnotation(stats, label, xPos) {
+  return {
+    x: xPos,
+    y: 440,
+    xref: "x",
+    yref: "y",
+    align: "left",
+    showarrow: false,
+    bgcolor: "rgba(255,255,255,0.9)",
+    bordercolor: "#ccc",
+    borderwidth: 1,
+    borderradius: 4,
+    font: { size: 11 },
+    text: `
+      <b>${label}</b><br>
+      Max: $${stats.max.toFixed(0)}<br>
+      Whisker: $${stats.upperFence.toFixed(0)}<br>
+      Q3: $${stats.q3.toFixed(0)}<br>
+      Median: $${stats.median.toFixed(0)}<br>
+      Q1: $${stats.q1.toFixed(0)}<br>
+      Whisker: $${stats.lowerFence.toFixed(0)}<br>
+      Min: $${stats.min.toFixed(0)}
+    `,
+  };
+}
+
 // mean and median price comparison for DC and neighborhood
 function updatePricePlot(listingsData, selectedNeighborhood, colors) {
-  // calculate price stats for DC and neighborhood
-  const dcStats = calculateStats(listingsData);
   const isDC = selectedNeighborhood === "Washington, D.C.";
   const filteredListings = isDC
     ? listingsData
     : filterListingsByNeighborhood(listingsData, selectedNeighborhood);
-  const neighborhoodStats = calculateStats(filteredListings);
 
-  // get container
   let plotContainer = document.querySelector("#price-plot");
 
-  // format data and labels
-  let chosenData = isDC
-    ? [dcStats.meanPrice, dcStats.medianPrice]
-    : [
-        neighborhoodStats.meanPrice,
-        neighborhoodStats.medianPrice,
-        dcStats.meanPrice,
-        dcStats.medianPrice,
-      ];
-  let percentDifference = isDC
-    ? [0, 0]
-    : [
-        ((neighborhoodStats.meanPrice - dcStats.meanPrice) /
-          dcStats.meanPrice) *
-          100,
-        ((neighborhoodStats.medianPrice - dcStats.medianPrice) /
-          dcStats.medianPrice) *
-          100,
-      ];
+  // Prepare traces
+  let traces = [];
 
-  let hoverText = chosenData.map((value, index) => {
-    let text = value.toLocaleString("en-US", {
-      style: "currency",
-      currency: "USD",
-    });
-    if (!isDC && index < 2) {
-      let percentDiff = percentDifference[index].toFixed(1);
-      if (percentDifference[index] > 0) {
-        percentDiff = `+${percentDiff}`;
-      }
-      text += ` (${percentDiff}%)`;
-    }
-    return text;
-  });
-  let xLabels = isDC
-    ? ["Mean (<b>$</b>)", "Median (<b>$</b>)"]
-    : [
-        "Mean (<b>$</b>)<br>(Neighborhood)",
-        "Median (<b>$</b>)<br>(Neighborhood)",
-        "Mean (<b>$</b>)<br>(All of DC)",
-        "Median (<b>$</b>)<br>(All of DC)",
-      ];
-
-  // create trace
-  let trace = {
-    x: xLabels,
-    y: chosenData,
-    type: "bar",
-    hovertemplate: "%{text}<extra></extra>",
-    text: hoverText,
-    textposition: "auto",
-    marker: {
-      color:
-        selectedNeighborhood === "Washington, D.C."
-          ? [colors.cityColor, colors.cityColor]
-          : [
-              colors.neighborhoodColor,
-              colors.neighborhoodColor,
-              colors.cityColor,
-              colors.cityColor,
-            ],
-      line: { color: "black", width: 1 },
-    },
+  // DC box plot
+  traces.push({
+    y: listingsData.map((d) => d.price),
+    name: "All of DC",
+    type: "box",
+    marker: { color: colors.cityColor },
+    boxpoints: "outliers",
+    line: { color: colors.cityColor },
+    hovertemplate: "All of DC<br>Price: $%{y:.2f}<extra></extra>",
     showlegend: false,
-  };
+  });
 
-  // get legend traces
+  // Neighborhood box plot (if not DC)
+  if (!isDC) {
+    traces.unshift({
+      y: filteredListings.map((d) => d.price),
+      name: "Neighborhood",
+      type: "box",
+      marker: { color: colors.neighborhoodColor },
+      boxpoints: "outliers",
+      line: { color: colors.neighborhoodColor },
+      hovertemplate: "Neighborhood<br>Price: $%{y:.2f}<extra></extra>",
+      showlegend: false,
+    });
+  }
+
+  // get box plot stats for annotations
+  const dcStats = boxPlotStats(numericPrices(listingsData));
+  const annotations = [boxPlotAnnotation(dcStats, "All of DC", isDC ? 0.5 : 1)];
+  if (!isDC) {
+    const nbStats = boxPlotStats(numericPrices(filteredListings));
+    annotations.unshift(boxPlotAnnotation(nbStats, "Neighborhood", 0));
+  }
+
+  // Add legend traces for colored legend bars
   const legendTraces = getLegendTraces(colors, selectedNeighborhood);
 
-  // create layout
   let layout = {
-    yaxis: { title: "Price ($)" },
-    title:
-      selectedNeighborhood === "Washington, D.C."
-        ? `<b>Price</b> for Washington, D.C.<br><i style="font-size: .8em;">Mean and Median</i>`
-        : `Neighborhood <b>vs.</b> all of DC<br><b>Price</b> Comparison<br><i style="font-size: .8em;">Mean and Median</i>`,
+    yaxis: { title: "Price ($)", range: [0, 500] }, // y-axis stops at 500
+    title: isDC
+      ? `<b>Price Boxplot</b>: D.C. (<$500)`
+      : `Neighborhood <b>vs.</b> D.C.<br><b>Price Boxplot</b> (<$500)`,
+    boxmode: "group",
     legend: {
       orientation: "h",
       y: -0.3,
@@ -357,9 +349,10 @@ function updatePricePlot(listingsData, selectedNeighborhood, colors) {
       xanchor: "center",
       yanchor: "top",
     },
+    annotations: annotations, // box plots stats
   };
 
-  Plotly.newPlot(plotContainer, [trace, ...legendTraces], layout);
+  Plotly.newPlot(plotContainer, [...traces, ...legendTraces], layout);
 }
 
 // plot ratings for all of DC and a neighborhood
