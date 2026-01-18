@@ -9,6 +9,7 @@ DROP VIEW IF EXISTS neighborhood_trends;
 DROP VIEW IF EXISTS quarterly_market_summary;
 DROP VIEW IF EXISTS listing_persistence;
 
+DROP TABLE IF EXISTS neighborhood_population;
 DROP TABLE IF EXISTS reviews_summary;
 DROP TABLE IF EXISTS calendar_summary;
 DROP TABLE IF EXISTS listings_long;
@@ -65,6 +66,12 @@ CREATE TABLE reviews_summary (
     last_review DATE,
 
     PRIMARY KEY (listing_id, quarter)
+);
+
+CREATE TABLE neighborhood_population (
+    neighborhood TEXT PRIMARY KEY,
+    total_population INT,
+    total_housing_units INT
 );
 
 CREATE VIEW listing_persistence AS

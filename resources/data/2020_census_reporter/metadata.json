@@ -1,0 +1,12 @@
+{
+  "title": "Census Reporter 2020 Block Assignments for Washington, DC Neighborhood Clusters",
+  "columns": {
+    "geoid": "15-character unique block identifier",
+    "cr_geoid": "An arbitrary unique identifier for a specific geography (e.g. neighborhood) included in a user uploaded map",
+    "name": "A name for a specific geography included in a user uploaded map, if available",
+    "original_id": "A unique identifier for a specific geography included in a user uploaded map, from the original source, if available",
+    "pop100": "The total population for the given block (Decennial Census 2020)",
+    "hu100": "The total housing units (occupied or vacant) for the given block (Decennial Census 2020)",
+    "state_place_fips": "The combined State/Place FIPS code for the given block (Decennial Census 2020)"
+  }
+}
