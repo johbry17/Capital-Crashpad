@@ -325,11 +325,15 @@ function updatePricePlot(listingsData, selectedNeighborhood, colors) {
     });
   }
 
-  // get box plot stats for annotations
-  const dcStats = boxPlotStats(numericPrices(listingsData));
+  // get box plot stats for annotations, filter out null price values
+  const dcStats = boxPlotStats(
+    listingsData.map((d) => d.price).filter(Number.isFinite)
+  );
   const annotations = [boxPlotAnnotation(dcStats, "All of DC", isDC ? 0.5 : 1)];
   if (!isDC) {
-    const nbStats = boxPlotStats(numericPrices(filteredListings));
+    const nbStats = boxPlotStats(
+      filteredListings.map((d) => d.price).filter(Number.isFinite)
+    );
     annotations.unshift(boxPlotAnnotation(nbStats, "Neighborhood", 0));
   }
 

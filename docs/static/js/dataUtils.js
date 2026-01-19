@@ -39,10 +39,10 @@ function calculateMedian(data) {
     : sortedData[mid];
 }
 
-// type conversion
-function numericPrices(listings) {
-  return listings.map((d) => Number(d.price)).filter((v) => Number.isFinite(v));
-}
+// // type conversion
+// function numericPrices(listings) {
+//   return listings.map((d) => Number(d.price)).filter((v) => Number.isFinite(v));
+// }
 
 function boxPlotStats(values) {
   const v = values.slice().sort((a, b) => a - b);

@@ -54,6 +54,11 @@ Promise.all([
     }
   });
 
+  data.forEach((listing) => {
+    const n = Number(listing.price);
+    listing.price = Number.isFinite(n) ? n : null;
+  });
+
   // populate scrape date
   const scrapeDateRow = scrapeDate.find(
     (row) => row.key === "avg_calendar_last_scraped"
