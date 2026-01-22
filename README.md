@@ -133,6 +133,8 @@ Parts of this project served as capstones for two of HarvardX’s free online co
 
 Dataset provided by [Inside AirBnB](http://insideairbnb.com/about/).
 
+Neighborhood population and housing unit data from [Census Reporter](https://censusreporter.org/).
+
 ## License
 
 [Creative Commons Attribution 4.0 International License](http://creativecommons.org/licenses/by/4.0/)
