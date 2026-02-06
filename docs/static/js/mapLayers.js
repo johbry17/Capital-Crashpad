@@ -307,10 +307,10 @@ function createMarkers(data, colorScheme = null) {
 
     // marker design
     const markerOptions = {
-      radius: 3,
+      radius: 2,
       fillColor: markerColor,
       color: "black",
-      weight: 1,
+      weight: 0.5,
       fillOpacity: 1,
       interactive: true,
     };
