@@ -33,7 +33,7 @@ function resizePlots() {
 }
 
 // master function to call plots for all of DC
-function allDCPlots(listingsData, neighborhoodStats, colors) {
+function allDCPlots(listingsData, statsByNeighborhood, colors) {
   updatePricePlot(listingsData, "Washington, D.C.", colors);
   updateRatingsPlot(listingsData, "Washington, D.C.", colors);
   plotLicenseDonut(listingsData, "Washington, D.C.", colors);
@@ -50,7 +50,7 @@ function allDCPlots(listingsData, neighborhoodStats, colors) {
 function neighborhoodPlots(
   listingsData,
   selectedNeighborhood,
-  neighborhoodStats,
+  statsByNeighborhood,
   colors
 ) {
   updatePricePlot(listingsData, selectedNeighborhood, colors);

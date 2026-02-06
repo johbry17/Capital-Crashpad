@@ -24,16 +24,23 @@ Promise.all([
   });
 
   // convert price to number, set invalid prices to null (data cleaning)
-  data.forEach((listing) => {
-    const n = Number(listing.price);
+  // note the nifty concise unary plus operator to convert string to number
+    data.forEach((listing) => {
+    const n = +listing.price;
     listing.price = Number.isFinite(n) ? n : null;
+  });
+
+  // convert neighborhood stats to a JS object for easy lookup
+  const statsByNeighborhood = {};
+  neighborhoodStats.forEach((row) => {
+    statsByNeighborhood[row.neighborhood] = row;
   });
 
   // populate scrape date
   const scrapeDateRow = scrapeDate.find(
     (row) => row.key === "avg_calendar_last_scraped",
   );
-  const formattedDate = dayjs(scrapeDateRow.value).format("DD MMMM YYYY"); // Format as 13 March 2025
+  const formattedDate = dayjs(scrapeDateRow.value).format("DD MMMM YYYY"); // format as 13 March 2025
   document.querySelectorAll(".last-scraped").forEach((el) => {
     el.textContent = `Scraped data as of ~${formattedDate}`;
   });
@@ -44,7 +51,7 @@ Promise.all([
     modal.style.display = "none";
   });
 
-  createMap(neighborhoodGeojson, data, neighborhoodStats);
+  createMap(neighborhoodGeojson, data, statsByNeighborhood);
 });
 
 // main infoBox values

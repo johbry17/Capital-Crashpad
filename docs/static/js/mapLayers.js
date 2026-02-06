@@ -5,7 +5,7 @@ function initializeNeighborhoodsLayer(
   map,
   neighborhoods,
   listingsData,
-  neighborhoodStats
+  statsByNeighborhood,
 ) {
   const neighborhoodsLayer = L.geoJSON(neighborhoods, {
     style: {
@@ -23,7 +23,7 @@ function initializeNeighborhoodsLayer(
           neighborhoodsLayer,
           selectedNeighborhood,
           listingsData,
-          neighborhoodStats
+          statsByNeighborhood,
         );
       });
     },
@@ -34,9 +34,8 @@ function initializeNeighborhoodsLayer(
 }
 
 // create choropleth layer for neighborhood boundaries
-function initializeChoroplethLayer(neighborhoods, listingsData) {
-  const medianPrices = calculateMedianPricePerNeighborhood(listingsData);
-  const neighborhoodCounts = calculateAirbnbCountsPerNeighborhood(listingsData);
+function initializeChoroplethLayer(neighborhoods, statsByNeighborhood) {
+  // color scale function 
   const getColor = (price) =>
     d3.scaleSequential(d3.interpolateViridis).domain([50, 250])(price);
 
@@ -45,61 +44,53 @@ function initializeChoroplethLayer(neighborhoods, listingsData) {
 
   // layer for the choropleth polygons
   const choroplethLayer = L.geoJSON(neighborhoods, {
-    style: (feature) => ({
-      fillColor: getColor(medianPrices[feature.properties.neighbourhood] || 0),
-      weight: 2,
-      opacity: 1,
-      color: "white",
-      dashArray: "3",
-      fillOpacity: 1,
-    }),
-    onEachFeature: setChoroplethFeatures(
-      medianPrices,
-      neighborhoodCounts,
-      layerGroup
-    ),
+    style: (feature) => {
+      // lookup median price for neighborhood to determine fill color
+      const stats = statsByNeighborhood[feature.properties.neighbourhood];
+      const medianPrice = stats ? +stats.median_price : 0;
+      // return style options based on median price
+      return {
+        fillColor: getColor(medianPrice),
+        weight: 2,
+        opacity: 1,
+        color: "white",
+        dashArray: "3",
+        fillOpacity: .6,
+      };
+    },
+    onEachFeature: (feature, layer) => {
+      // lookup stats for neighborhood to populate popup
+      const stats = statsByNeighborhood[feature.properties.neighbourhood];
+      const medianPrice = stats ? +stats.median_price : 0;
+      const listingsCount = stats ? +stats.listings_count : 0;
+      // create popup content
+      const popupContent = `${feature.properties.neighbourhood}<br>
+        <span class="popup-text-right popup-text-right-larger"><b>Median Price: $${medianPrice.toLocaleString()}</b></span>
+        <span class="popup-text-right">Airbnb Count: ${listingsCount.toLocaleString()}</span>`;
+      // bind popup to layer
+      layer.bindPopup(popupContent, { className: "marker-popup" });
+      // open || close popup
+      popupMouseEvents(layer);
+      // calculate centroid for placing text markers
+      const latlng = calculateCentroid(feature);
+      // create text marker and add to layer
+      const textMarker = L.marker(latlng, {
+        icon: L.divIcon({
+          className: "choropleth-label",
+          html: `<div>$${Math.round(medianPrice).toLocaleString()}</div>`,
+          iconSize: [100, 50],
+          iconAnchor: [50, 25],
+        }),
+        interactive: false,
+      });
+      layerGroup.addLayer(textMarker);
+    },
   });
 
   // add choropleth to layer
   layerGroup.addLayer(choroplethLayer);
 
   return layerGroup;
-}
-
-// create features for choropleth layer - popups, text markers
-function setChoroplethFeatures(medianPrices, neighborhoodCounts, layerGroup) {
-  return (feature, layer) => {
-    const neighborhood = feature.properties.neighbourhood;
-    const avgPrice = medianPrices[neighborhood] || "No Data";
-    const count = neighborhoodCounts[neighborhood] || 0;
-    const popupContent = `${neighborhood}<br>
-    <span class="popup-text-right popup-text-right-larger"><b>Median Price: $${avgPrice
-      .toFixed(2)
-      .toLocaleString()}</b></span>
-    <span class="popup-text-right">Airbnb Count: ${count.toLocaleString()}</span>`;
-
-    // bind popup to layer
-    layer.bindPopup(popupContent, { className: "marker-popup" });
-
-    // open || close popup
-    popupMouseEvents(layer);
-
-    // calculate centroid for placing text markers
-    const latlng = calculateCentroid(feature);
-
-    // add create text marker and add to layer
-    const textMarker = L.marker(latlng, {
-      icon: L.divIcon({
-        className: "choropleth-label",
-        html: `<div>$${avgPrice.toFixed(0).toLocaleString()}</div>`,
-        iconSize: [100, 50],
-        iconAnchor: [50, 25], // anchor point of the text box
-      }),
-      interactive: false,
-    });
-
-    layerGroup.addLayer(textMarker);
-  };
 }
 
 // calculates centroid for choropleth and bubble chart layers
@@ -175,7 +166,7 @@ function addBubbles(bubbleLayerGroup, neighborhoods, listingsData) {
           .toFixed(2)
           .toLocaleString()}</span>
         <span class="popup-text-right popup-text-right-larger"><b>Airbnb Count: ${count.toLocaleString()}</b></span>`,
-      { className: "marker-popup" }
+      { className: "marker-popup" },
     );
 
     // create marker with text inside and add to layer
@@ -212,7 +203,7 @@ function addLegend(type) {
       case "License Status":
         labels = ["Licensed", "Exempt", "No License"];
         colors = labels.map(
-          (label) => licenseColors[label] || licenseColors.default
+          (label) => licenseColors[label] || licenseColors.default,
         );
         div.innerHTML = '<div class="legend-title">License Status</div>';
         break;
@@ -224,7 +215,7 @@ function addLegend(type) {
           "Hotel room",
         ];
         colors = labels.map(
-          (label) => propertyTypeColors[label] || propertyTypeColors.default
+          (label) => propertyTypeColors[label] || propertyTypeColors.default,
         );
         div.innerHTML = '<div class="legend-title">Property Type</div>';
         break;
@@ -255,7 +246,7 @@ function createGradientBar() {
   gradientBar.style.background = `linear-gradient(to right, ${Array.from(
     { length: 101 },
     (_, i) =>
-      d3.scaleSequential(d3.interpolateViridis).domain([50, 300])(50 + i * 2.5)
+      d3.scaleSequential(d3.interpolateViridis).domain([50, 300])(50 + i * 2.5),
   ).join(", ")})`;
   return gradientBar;
 }
@@ -394,10 +385,13 @@ function createMarkers(data, colorScheme = null) {
     const marker = L.circleMarker([latitude, longitude], markerOptions);
 
     // bind popup to marker
-    marker.bindPopup(createPopupContentForGroup(listingsAtLocation, markerColor), {
-      className: "marker-popup",
-      maxWidth: 400,
-    });
+    marker.bindPopup(
+      createPopupContentForGroup(listingsAtLocation, markerColor),
+      {
+        className: "marker-popup",
+        maxWidth: 400,
+      },
+    );
 
     // open || close popup, bring to front on hover
     popupMouseEvents(marker);
