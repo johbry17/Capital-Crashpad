@@ -4,6 +4,7 @@ DROP INDEX IF EXISTS idx_listings_id;
 DROP INDEX IF EXISTS idx_listings_host;
 DROP INDEX IF EXISTS idx_listings_commercial;
 
+DROP VIEW IF EXISTS neighborhood_map_stats;
 DROP VIEW IF EXISTS host_structure_trends;
 DROP VIEW IF EXISTS neighborhood_trends;
 DROP VIEW IF EXISTS quarterly_market_summary;
@@ -122,6 +123,28 @@ SELECT
     AVG(availability_365) AS avg_availability
 FROM listings_long
 GROUP BY quarter, quarter_index, host_type;
+
+CREATE VIEW neighborhood_map_stats AS
+SELECT
+    nl.neighborhood,
+    nl.quarter,
+    nl.quarter_index,
+    COUNT(*) AS listings_count,
+    PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY nl.price) AS median_price,
+    AVG(CASE WHEN nl.license = 'Licensed' THEN 1 ELSE 0 END) AS license_rate,
+    AVG(rs.reviews_count_ltm / 12.0) AS avg_reviews_per_month_recent,
+    AVG(nl.is_multi_listing_host::int) AS pct_multi_listing_hosts,
+    np.total_population,
+    CASE
+        WHEN np.total_population > 0 THEN COUNT(*)::float / np.total_population * 1000
+        ELSE NULL
+    END AS listings_per_1000
+FROM listings_long nl
+LEFT JOIN reviews_summary rs
+    ON nl.listing_id = rs.listing_id AND nl.quarter = rs.quarter
+LEFT JOIN neighborhood_population np
+    ON nl.neighborhood = np.neighborhood
+GROUP BY nl.neighborhood, nl.quarter, nl.quarter_index, np.total_population;
 
 CREATE INDEX idx_listings_quarter ON listings_long (quarter_index);
 CREATE INDEX idx_listings_neighborhood ON listings_long (neighborhood);
