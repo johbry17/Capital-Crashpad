@@ -35,7 +35,7 @@ function initializeNeighborhoodsLayer(
 
 // create choropleth layer for neighborhood boundaries
 function initializeChoroplethLayer(neighborhoods, statsByNeighborhood) {
-  // color scale function 
+  // color scale function
   const getColor = (price) =>
     d3.scaleSequential(d3.interpolateViridis).domain([50, 250])(price);
 
@@ -55,7 +55,7 @@ function initializeChoroplethLayer(neighborhoods, statsByNeighborhood) {
         opacity: 1,
         color: "white",
         dashArray: "3",
-        fillOpacity: .6,
+        fillOpacity: 0.6,
       };
     },
     onEachFeature: (feature, layer) => {
@@ -118,10 +118,10 @@ function popupMouseEvents(layer) {
 }
 
 // create bubble chart layer, - neighoborhood outlines and bubbles of count of airbnbs
-function initializeBubbleChartLayer(neighborhoods, listingsData) {
+function initializeBubbleChartLayer(neighborhoods, statsByNeighborhood) {
   const bubbleLayerGroup = L.layerGroup(); // create layer group for circle markers
   initializeNeighborhoodOutlines(bubbleLayerGroup, neighborhoods);
-  addBubbles(bubbleLayerGroup, neighborhoods, listingsData);
+  addBubbles(bubbleLayerGroup, neighborhoods, statsByNeighborhood);
   return bubbleLayerGroup;
 }
 
@@ -139,20 +139,17 @@ function initializeNeighborhoodOutlines(bubbleLayerGroup, neighborhoods) {
 }
 
 // create bubbles, text markers, and popups for each neighborhood
-function addBubbles(bubbleLayerGroup, neighborhoods, listingsData) {
-  // process data
-  const medianPrices = calculateMedianPricePerNeighborhood(listingsData);
-  const neighborhoodData = calculateAirbnbCountsPerNeighborhood(listingsData);
-
+function addBubbles(bubbleLayerGroup, neighborhoods, statsByNeighborhood) {
   // loop through neighborhoods and create bubbles
   neighborhoods.features.forEach((feature) => {
+    // get neighborhood stats for bubble size and popup content
     const neighborhood = feature.properties.neighbourhood;
-    const avgPrice = medianPrices[neighborhood] || 0;
-    const count = neighborhoodData[neighborhood] || 0;
+    const avgPrice = +statsByNeighborhood[neighborhood]?.median_price || 0;
+    const count = +statsByNeighborhood[neighborhood]?.listings_count || 0;
     const radius = Math.sqrt(count) * 2; // scale radius based on count
     const latlng = calculateCentroid(feature); // for placing markers
 
-    // create circle marker at centroid
+    // create circle marker at centroid, bind popup
     const circleMarker = L.circleMarker(latlng, {
       radius: radius,
       fillColor: defaultColors.neighborhoodColor,

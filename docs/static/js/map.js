@@ -101,7 +101,7 @@ function initializeOverlays(markerGroups, neighborhoods, listingsData, statsByNe
     "License Status": markerGroups.license,
     "Property Type": markerGroups.propertyType,
     "Median Price": initializeChoroplethLayer(neighborhoods, statsByNeighborhood),
-    "Total Airbnbs": initializeBubbleChartLayer(neighborhoods, listingsData),
+    "Total Airbnbs": initializeBubbleChartLayer(neighborhoods, statsByNeighborhood),
   };
 }
 
@@ -140,7 +140,7 @@ function syncDropdownAndOverlay(
     activeLegend = addLegend("Median Price").addTo(map);
     // bubble chart layer
   } else if (selectedOverlayName === "Total Airbnbs") {
-    const bubbleLayer = initializeBubbleChartLayer(neighborhoods, listingsData);
+    const bubbleLayer = initializeBubbleChartLayer(neighborhoods, statsByNeighborhood);
     activateOverlay(map, bubbleLayer);
     activeLegend = null;
     // marker overlays
