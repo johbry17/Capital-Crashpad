@@ -3,8 +3,8 @@
 // set data source
 const geojson = "./static/resources/neighbourhoods_cleaned.geojson";
 const getData = d3.csv("./static/resources/airbnb_data.csv");
-const getPriceAvailabilityData = d3.csv(
-  "./static/resources/price_availability_data.csv",
+const getNeighborhoodStats = d3.csv(
+  "./static/resources/neighborhood_map_stats.csv",
 );
 const getScrapeDate = d3.csv("./static/resources/scraped.csv");
 
@@ -12,9 +12,9 @@ const getScrapeDate = d3.csv("./static/resources/scraped.csv");
 Promise.all([
   getData,
   fetch(geojson).then((response) => response.json()),
-  getPriceAvailabilityData,
+  getNeighborhoodStats,
   getScrapeDate,
-]).then(([data, neighborhoodData, priceAvailabilityData, scrapeDate]) => {
+]).then(([data, neighborhoodGeojson, neighborhoodStats, scrapeDate]) => {
   // 2025 September data - fix specific price anomalies
   data.forEach((listing) => {
     const p = parseFloat(listing.price);
@@ -44,7 +44,7 @@ Promise.all([
     modal.style.display = "none";
   });
 
-  createMap(neighborhoodData, data, priceAvailabilityData);
+  createMap(neighborhoodGeojson, data, neighborhoodStats);
 });
 
 // main infoBox values

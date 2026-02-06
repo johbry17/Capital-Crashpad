@@ -6,7 +6,7 @@ let activeLegend = null;
 let baseLayer = null;
 
 // map creation
-function createMap(neighborhoods, listingsData, priceAvailabilityData) {
+function createMap(neighborhoods, listingsData, neighborhoodStats) {
   const map = initializeMap();
   const markerGroups = initializeMarkerGroups(listingsData);
   const overlays = initializeOverlays(
@@ -18,7 +18,7 @@ function createMap(neighborhoods, listingsData, priceAvailabilityData) {
   addBaseLayerControl(map);
 
   // initialize dropdown, neighborhood and choropleth layers
-  neighborhoodsControl(map, neighborhoods, listingsData, priceAvailabilityData); // includes neighborhood layer
+  neighborhoodsControl(map, neighborhoods, listingsData, neighborhoodStats); // includes neighborhood layer
   const choroplethLayer = initializeChoroplethLayer(
     neighborhoods,
     listingsData
@@ -40,7 +40,7 @@ function createMap(neighborhoods, listingsData, priceAvailabilityData) {
     "Airbnb's",
     overlays,
     listingsData,
-    priceAvailabilityData,
+    neighborhoodStats,
     neighborhoods,
     choroplethLayer
   );
@@ -60,7 +60,7 @@ function createMap(neighborhoods, listingsData, priceAvailabilityData) {
         selectedOverlay,
         overlays,
         listingsData,
-        priceAvailabilityData,
+        neighborhoodStats,
         neighborhoods,
         choroplethLayer
       );
@@ -125,7 +125,7 @@ function syncDropdownAndOverlay(
   selectedOverlayName,
   overlays,
   listingsData,
-  priceAvailabilityData,
+  neighborhoodStats,
   neighborhoods,
   choroplethLayer
 ) {
@@ -150,7 +150,7 @@ function syncDropdownAndOverlay(
       overlays,
       listingsData,
       selectedNeighborhood,
-      priceAvailabilityData
+      neighborhoodStats
     );
   }
 }
@@ -185,7 +185,7 @@ function activateMarkerOverlay(
   overlays,
   listingsData,
   selectedNeighborhood,
-  priceAvailabilityData
+  neighborhoodStats
 ) {
   const overlayState = updateOverlay(
     map,
@@ -198,14 +198,14 @@ function activateMarkerOverlay(
   activeLegend = overlayState.activeLegend;
   // update plots and reset map view
   if (selectedNeighborhood === "top") {
-    resetMapView(map, activeOverlay, listingsData, priceAvailabilityData);
+    resetMapView(map, activeOverlay, listingsData, neighborhoodStats);
   } else {
     zoomIn(
       map,
       activeOverlay,
       selectedNeighborhood,
       listingsData,
-      priceAvailabilityData
+      neighborhoodStats
     );
   }
 }
@@ -254,7 +254,7 @@ function neighborhoodsControl(
   map,
   neighborhoodsInfo,
   listingsData,
-  priceAvailabilityData
+  neighborhoodStats
 ) {
   const controlDiv = document.getElementById("neighborhoods-control");
   const dropdown = createNeighborhoodDropdown(neighborhoodsInfo);
@@ -265,7 +265,7 @@ function neighborhoodsControl(
     map,
     neighborhoodsInfo,
     listingsData,
-    priceAvailabilityData
+    neighborhoodStats
   );
 
   // add event listener for dropdown changes
@@ -274,7 +274,7 @@ function neighborhoodsControl(
     map,
     neighborhoodsLayer,
     listingsData,
-    priceAvailabilityData
+    neighborhoodStats
   );
 }
 
@@ -312,7 +312,7 @@ function addDropdownChangeListener(
   map,
   neighborhoodsLayer,
   listingsData,
-  priceAvailabilityData
+  neighborhoodStats
 ) {
   dropdown.addEventListener("change", function () {
     const selectedNeighborhood = this.value;
@@ -321,7 +321,7 @@ function addDropdownChangeListener(
         map,
         neighborhoodsLayer,
         listingsData,
-        priceAvailabilityData
+        neighborhoodStats
       );
     } else {
       zoomIn(
@@ -329,7 +329,7 @@ function addDropdownChangeListener(
         neighborhoodsLayer,
         selectedNeighborhood,
         listingsData,
-        priceAvailabilityData
+        neighborhoodStats
       );
     }
   });
@@ -370,7 +370,7 @@ function resetMapView(
   map,
   neighborhoodsLayer,
   listingsData,
-  priceAvailabilityData
+  neighborhoodStats
 ) {
   map.setView([38.89511, -77.03637], 12);
   map.removeLayer(neighborhoodsLayer); // remove neighborhood boundaries from zoomIn()
@@ -381,7 +381,7 @@ function resetMapView(
   updateInfoBox(listingsData, "Washington, D.C.");
   update31DaysInfoBox(listingsData, "Washington, D.C.");
   updateMultiListings(listingsData, "Washington, D.C.");
-  allDCPlots(listingsData, priceAvailabilityData, defaultColors);
+  allDCPlots(listingsData, neighborhoodStats, defaultColors);
 
   // toggle median price button
   toggleButton("median-price-button", true);
@@ -394,7 +394,7 @@ function zoomIn(
   neighborhoodsLayer,
   selectedNeighborhood,
   listingsData,
-  priceAvailabilityData
+  neighborhoodStats
 ) {
   // toggle buttons and choropleth Median Price legend
   toggleButton("total-airbnbs-button", false);
@@ -448,7 +448,7 @@ function zoomIn(
     neighborhoodPlots(
       listingsData,
       selectedNeighborhood,
-      priceAvailabilityData,
+      neighborhoodStats,
       defaultColors
     );
   }

@@ -5,7 +5,7 @@ function initializeNeighborhoodsLayer(
   map,
   neighborhoods,
   listingsData,
-  priceAvailabilityData
+  neighborhoodStats
 ) {
   const neighborhoodsLayer = L.geoJSON(neighborhoods, {
     style: {
@@ -23,7 +23,7 @@ function initializeNeighborhoodsLayer(
           neighborhoodsLayer,
           selectedNeighborhood,
           listingsData,
-          priceAvailabilityData
+          neighborhoodStats
         );
       });
     },

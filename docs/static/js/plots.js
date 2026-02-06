@@ -3,7 +3,6 @@
 //resizePlots();
 function resizePlots() {
   const plotIds = [
-    "price-availability-plot",
     "price-plot",
     "ratings-plot",
     "license-plot",
@@ -34,8 +33,7 @@ function resizePlots() {
 }
 
 // master function to call plots for all of DC
-function allDCPlots(listingsData, priceAvailabilityData, colors) {
-  plotPriceAvailability(priceAvailabilityData, "Washington, D.C.");
+function allDCPlots(listingsData, neighborhoodStats, colors) {
   updatePricePlot(listingsData, "Washington, D.C.", colors);
   updateRatingsPlot(listingsData, "Washington, D.C.", colors);
   plotLicenseDonut(listingsData, "Washington, D.C.", colors);
@@ -52,10 +50,9 @@ function allDCPlots(listingsData, priceAvailabilityData, colors) {
 function neighborhoodPlots(
   listingsData,
   selectedNeighborhood,
-  priceAvailabilityData,
+  neighborhoodStats,
   colors
 ) {
-  plotPriceAvailability(priceAvailabilityData, selectedNeighborhood);
   updatePricePlot(listingsData, selectedNeighborhood, colors);
   updateRatingsPlot(listingsData, selectedNeighborhood, colors);
   plotLicenseDonut(listingsData, selectedNeighborhood, colors);
@@ -92,173 +89,6 @@ function getLegendTraces(colors, selectedNeighborhood) {
       showlegend: showLegend,
     },
   ];
-}
-
-// !!!!!toggle between GitHub Pages and Flask data filter!!!!
-// plot price and availability for all of DC or a neighborhood
-function plotPriceAvailability(data, selectedNeighborhood) {
-  // data for all of DC
-  // !!!!!toggle between GitHub Pages and Flask data filter!!!!
-  const allDCData = data.filter((d) => d.neighbourhood === ""); // filter for GitHub Pages
-  // const allDCData = data.filter((d) => d.neighbourhood === null); // filter for Flask
-  const allDates = allDCData.map((d) => d.date);
-  const allAvgPrices = allDCData.map((d) => +d.avg_price);
-  const allAvailableListings = allDCData.map((d) => +d.available_listings);
-
-  // data for neighborhood
-  const neighborhoodData = data.filter(
-    (d) => d.neighbourhood === selectedNeighborhood
-  );
-  const neighborhoodDates = neighborhoodData.map((d) => d.date);
-  const neighborhoodAvgPrices = neighborhoodData.map((d) => +d.avg_price);
-  const neighborhoodAvailableListings = neighborhoodData.map(
-    (d) => +d.available_listings
-  );
-
-  // select data based on selectedNeighborhood
-  const dates =
-    selectedNeighborhood === "Washington, D.C." ? allDates : neighborhoodDates;
-  const avgPrices =
-    selectedNeighborhood === "Washington, D.C."
-      ? allAvgPrices
-      : neighborhoodAvgPrices;
-  const availableListings =
-    selectedNeighborhood === "Washington, D.C."
-      ? allAvailableListings
-      : neighborhoodAvailableListings;
-
-  // create traces (one line for each metric)
-  const trace1 = {
-    x: dates,
-    y: avgPrices,
-    mode: "lines",
-    name: "Average Price",
-    line: { color: "orange" },
-    hovertemplate: "<b>Price:</b> %{text}<extra></extra>",
-    text: avgPrices.map(
-      (price) =>
-        `$${price.toLocaleString(undefined, {
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2,
-        })}`
-    ),
-  };
-  const trace2 = {
-    x: dates,
-    y: availableListings,
-    mode: "lines",
-    name: "Availability",
-    line: { color: "blue" },
-    yaxis: "y2",
-    hovertemplate: "<b>Availability:</b> %{text}<extra></extra>",
-    text: availableListings.map((listing) => `${listing.toLocaleString()}`),
-  };
-
-  // March 2025!! annotations and dashed lines at 6/08, 09/09, and 12/08
-  const annotations = [
-    {
-      x: "2025-06-08",
-      y: Math.max(...avgPrices),
-      xref: "x",
-      yref: "y",
-      text: " ",
-      showarrow: true,
-      arrowhead: 7,
-      ax: 0,
-      ay: -40,
-    },
-    {
-      x: "2025-09-09",
-      y: Math.max(...avgPrices),
-      xref: "x",
-      yref: "y",
-      text: "Quarterly host reset phases",
-      showarrow: true,
-      arrowhead: 7,
-      ax: 0,
-      ay: -40,
-    },
-    {
-      x: "2025-12-08",
-      y: Math.max(...avgPrices),
-      xref: "x",
-      yref: "y",
-      text: " ",
-      showarrow: true,
-      arrowhead: 7,
-      ax: 0,
-      ay: -40,
-    },
-  ];
-
-  const shapes = [
-    {
-      type: "line",
-      x0: "2025-06-08",
-      y0: 0,
-      x1: "2025-06-08",
-      y1: Math.max(...avgPrices),
-      line: {
-        color: "grey",
-        width: 2,
-        dash: "dashdot",
-      },
-    },
-    {
-      type: "line",
-      x0: "2025-09-09",
-      y0: 0,
-      x1: "2025-09-09",
-      y1: Math.max(...avgPrices),
-      line: {
-        color: "grey",
-        width: 2,
-        dash: "dashdot",
-      },
-    },
-    {
-      type: "line",
-      x0: "2025-12-08",
-      y0: 0,
-      x1: "2025-12-08",
-      y1: Math.max(...avgPrices),
-      line: {
-        color: "grey",
-        width: 2,
-        dash: "dashdot",
-      },
-    },
-  ];
-
-  const layout = {
-    title: `<b style="color: orange;">Price</b> and <b style="color: blue;">Availability</b> Over Year<br>(${selectedNeighborhood})<br><i style='font-size: .8em;'>Hover for details, most recent data not available</i>`,
-    xaxis: { title: "Date" },
-    yaxis: {
-      title: "Average Price ($)",
-      titlefont: { color: "orange" },
-      tickfont: { color: "orange" },
-    },
-    yaxis2: {
-      title: "Availability",
-      titlefont: { color: "blue" },
-      tickfont: { color: "blue" },
-      overlaying: "y",
-      side: "right",
-    },
-    hovermode: "x unified",
-    legend: {
-      orientation: "h",
-      y: -0.3,
-      x: 0.5,
-      xanchor: "center",
-      yanchor: "top",
-    },
-    annotations: annotations, // add annotations
-    shapes: shapes, // add dashed lines
-  };
-
-  // plot single neighborhood or DC-wide traces
-  Plotly.newPlot("price-availability-plot", [trace1, trace2], layout);
 }
 
 function boxPlotAnnotation(stats, label, xPos) {
