@@ -4,26 +4,28 @@
 let activeOverlay = null;
 let activeLegend = null;
 let baseLayer = null;
+// let activeNeighborhoodBoundary = null; // for choropleth neighborhood boundary
+let choroplethLayerGlobal = null; // to reset choropleth layer style when resetting map view
 
 // map creation
 function createMap(neighborhoods, listingsData, statsByNeighborhood) {
   const map = initializeMap();
   const markerGroups = initializeMarkerGroups(listingsData);
   const overlays = initializeOverlays(
+    map,
     markerGroups,
     neighborhoods,
     listingsData,
-    statsByNeighborhood
+    statsByNeighborhood,
   );
 
   addBaseLayerControl(map);
 
   // initialize dropdown, neighborhood and choropleth layers
   neighborhoodsControl(map, neighborhoods, listingsData, statsByNeighborhood); // includes neighborhood layer
-  const choroplethLayer = initializeChoroplethLayer(
-    neighborhoods,
-    statsByNeighborhood
-  );
+  const choroplethLayer = overlays["Median Price"];
+  // make choroplethLayer globally accessible
+  choroplethLayerGlobal = choroplethLayer;
 
   // event listeners for resizing
   window.addEventListener("resize", () => {
@@ -43,7 +45,7 @@ function createMap(neighborhoods, listingsData, statsByNeighborhood) {
     listingsData,
     statsByNeighborhood,
     neighborhoods,
-    choroplethLayer
+    choroplethLayer,
   );
 
   // event listener for overlay changes
@@ -63,7 +65,7 @@ function createMap(neighborhoods, listingsData, statsByNeighborhood) {
         listingsData,
         statsByNeighborhood,
         neighborhoods,
-        choroplethLayer
+        choroplethLayer,
       );
     }
   }
@@ -76,7 +78,7 @@ function initializeMap() {
     {
       attribution:
         '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-    }
+    },
   );
   return L.map("map-id", {
     center: [38.89511, -77.03637],
@@ -95,13 +97,27 @@ function initializeMarkerGroups(listingsData) {
 }
 
 // initialize overlays
-function initializeOverlays(markerGroups, neighborhoods, listingsData, statsByNeighborhood) {
+function initializeOverlays(
+  map,
+  markerGroups,
+  neighborhoods,
+  listingsData,
+  statsByNeighborhood,
+) {
   return {
     "Airbnb's": markerGroups.default,
     "License Status": markerGroups.license,
     "Property Type": markerGroups.propertyType,
-    "Median Price": initializeChoroplethLayer(neighborhoods, statsByNeighborhood),
-    "Total Airbnbs": initializeBubbleChartLayer(neighborhoods, statsByNeighborhood),
+    "Median Price": initializeChoroplethLayer(
+      map,
+      neighborhoods,
+      listingsData,
+      statsByNeighborhood,
+    ),
+    "Total Airbnbs": initializeBubbleChartLayer(
+      neighborhoods,
+      statsByNeighborhood,
+    ),
   };
 }
 
@@ -109,7 +125,7 @@ function initializeOverlays(markerGroups, neighborhoods, listingsData, statsByNe
 function addBaseLayerControl(map) {
   let baseMap = {
     "Street Map": L.tileLayer(
-      "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+      "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
     ),
     Satellite: L.esri.basemapLayer("Imagery"),
     "National Geographic": L.esri.basemapLayer("NationalGeographic"),
@@ -128,7 +144,7 @@ function syncDropdownAndOverlay(
   listingsData,
   statsByNeighborhood,
   neighborhoods,
-  choroplethLayer
+  choroplethLayer,
 ) {
   // remove all existing markers
   removeOverlays(map);
@@ -136,11 +152,18 @@ function syncDropdownAndOverlay(
   // update overlays
   // choropleth layer
   if (selectedOverlayName === "Median Price") {
+    if (choroplethLayer && choroplethLayer._choropleth) {
+      choroplethLayer._choropleth.resetStyle();
+      // activeNeighborhoodBoundary = null;
+    }
     activateOverlay(map, choroplethLayer);
     activeLegend = addLegend("Median Price").addTo(map);
     // bubble chart layer
   } else if (selectedOverlayName === "Total Airbnbs") {
-    const bubbleLayer = initializeBubbleChartLayer(neighborhoods, statsByNeighborhood);
+    const bubbleLayer = initializeBubbleChartLayer(
+      neighborhoods,
+      statsByNeighborhood,
+    );
     activateOverlay(map, bubbleLayer);
     activeLegend = null;
     // marker overlays
@@ -151,7 +174,7 @@ function syncDropdownAndOverlay(
       overlays,
       listingsData,
       selectedNeighborhood,
-      statsByNeighborhood
+      statsByNeighborhood,
     );
   }
 }
@@ -186,14 +209,14 @@ function activateMarkerOverlay(
   overlays,
   listingsData,
   selectedNeighborhood,
-  statsByNeighborhood
+  statsByNeighborhood,
 ) {
   const overlayState = updateOverlay(
     map,
     overlays[selectedOverlayName],
     selectedOverlayName,
     listingsData,
-    selectedNeighborhood
+    selectedNeighborhood,
   );
   activeOverlay = overlayState.activeOverlay;
   activeLegend = overlayState.activeLegend;
@@ -206,7 +229,7 @@ function activateMarkerOverlay(
       activeOverlay,
       selectedNeighborhood,
       listingsData,
-      statsByNeighborhood
+      statsByNeighborhood,
     );
   }
 }
@@ -217,7 +240,7 @@ function updateOverlay(
   newOverlay,
   overlayName,
   listingsData,
-  selectedNeighborhood
+  selectedNeighborhood,
 ) {
   // remove previous overlay
   if (activeOverlay !== newOverlay) {
@@ -226,7 +249,7 @@ function updateOverlay(
     // filter listings by neighborhood
     const filteredListings = filterListingsByNeighborhood(
       listingsData,
-      selectedNeighborhood
+      selectedNeighborhood,
     );
 
     // set active overlay and legend
@@ -255,7 +278,7 @@ function neighborhoodsControl(
   map,
   neighborhoodsInfo,
   listingsData,
-  statsByNeighborhood
+  statsByNeighborhood,
 ) {
   const controlDiv = document.getElementById("neighborhoods-control");
   const dropdown = createNeighborhoodDropdown(neighborhoodsInfo);
@@ -266,7 +289,7 @@ function neighborhoodsControl(
     map,
     neighborhoodsInfo,
     listingsData,
-    statsByNeighborhood
+    statsByNeighborhood,
   );
 
   // add event listener for dropdown changes
@@ -275,7 +298,7 @@ function neighborhoodsControl(
     map,
     neighborhoodsLayer,
     listingsData,
-    statsByNeighborhood
+    statsByNeighborhood,
   );
 }
 
@@ -286,7 +309,7 @@ function createNeighborhoodDropdown(neighborhoodsInfo) {
 
   // sort neighborhoods alphabetically
   neighborhoodsInfo.features.sort((a, b) =>
-    a.properties.neighbourhood.localeCompare(b.properties.neighbourhood)
+    a.properties.neighbourhood.localeCompare(b.properties.neighbourhood),
   );
 
   // populate dropdown menu, DC first, then sorted neighborhoods
@@ -295,11 +318,11 @@ function createNeighborhoodDropdown(neighborhoodsInfo) {
   neighborhoodsInfo.features.forEach((feature) => {
     const option = createOption(
       feature.properties.neighbourhood,
-      feature.properties.neighbourhood
+      feature.properties.neighbourhood,
     );
     option.setAttribute(
       "aria-label",
-      `Neighborhood: ${feature.properties.neighbourhood}`
+      `Neighborhood: ${feature.properties.neighbourhood}`,
     );
     dropdown.appendChild(option);
   });
@@ -313,24 +336,19 @@ function addDropdownChangeListener(
   map,
   neighborhoodsLayer,
   listingsData,
-  statsByNeighborhood
+  statsByNeighborhood,
 ) {
   dropdown.addEventListener("change", function () {
     const selectedNeighborhood = this.value;
     if (selectedNeighborhood === "top") {
-      resetMapView(
-        map,
-        neighborhoodsLayer,
-        listingsData,
-        statsByNeighborhood
-      );
+      resetMapView(map, neighborhoodsLayer, listingsData, statsByNeighborhood);
     } else {
       zoomIn(
         map,
         neighborhoodsLayer,
         selectedNeighborhood,
         listingsData,
-        statsByNeighborhood
+        statsByNeighborhood,
       );
     }
   });
@@ -371,9 +389,13 @@ function resetMapView(
   map,
   neighborhoodsLayer,
   listingsData,
-  statsByNeighborhood
+  statsByNeighborhood,
 ) {
   map.setView([38.89511, -77.03637], 12);
+  if (choroplethLayerGlobal && choroplethLayerGlobal._choropleth) {
+    choroplethLayerGlobal._choropleth.resetStyle();
+    // activeNeighborhoodBoundary = null;
+  }
   map.removeLayer(neighborhoodsLayer); // remove neighborhood boundaries from zoomIn()
 
   // update markers with appropriate color scheme, infoBox, and plots
@@ -385,7 +407,7 @@ function resetMapView(
   allDCPlots(listingsData, statsByNeighborhood, defaultColors);
 
   // toggle median price button
-  toggleButton("median-price-button", true);
+  // toggleButton("median-price-button", true);
   toggleButton("total-airbnbs-button", true);
 }
 
@@ -395,17 +417,17 @@ function zoomIn(
   neighborhoodsLayer,
   selectedNeighborhood,
   listingsData,
-  statsByNeighborhood
+  statsByNeighborhood,
 ) {
   // toggle buttons and choropleth Median Price legend
   toggleButton("total-airbnbs-button", false);
-  toggleButton("median-price-button", false);
-  if (
-    activeLegend &&
-    activeLegend._container.innerHTML.includes("Median Price")
-  ) {
-    activeLegend._container.style.display = "none";
-  }
+  // toggleButton("median-price-button", false);
+  // if (
+  //   activeLegend &&
+  //   activeLegend._container.innerHTML.includes("Median Price")
+  // ) {
+  //   activeLegend._container.style.display = "none";
+  // }
 
   // remove previous neighborhood boundaries (or they will remain uncovered)
   neighborhoodsLayer.resetStyle();
@@ -414,18 +436,29 @@ function zoomIn(
   const boundaries = neighborhoodsLayer
     .getLayers()
     .find(
-      (layer) => layer.feature.properties.neighbourhood === selectedNeighborhood
+      (layer) =>
+        layer.feature.properties.neighbourhood === selectedNeighborhood,
     );
 
   // update map view
   if (boundaries) {
+    // reset choropleth layer style if active to remove previous neighborhood boundary highlight
+    if (neighborhoodsLayer && neighborhoodsLayer._choropleth) {
+      neighborhoodsLayer._choropleth.resetStyle();
+      // activeNeighborhoodBoundary = null;
+    }
+    // set style for selected neighborhood
     boundaries.setStyle({ weight: 3, color: "transparent" });
+    boundaries.setStyle({ fillOpacity: 0, opacity: 0 });
+    // activeNeighborhoodBoundary = boundaries;
+
+    // zoom to neighborhood boundaries
     map.fitBounds(boundaries.getBounds());
 
     // filter listings by neighbourhood
     const filteredListings = filterListingsByNeighborhood(
       listingsData,
-      selectedNeighborhood
+      selectedNeighborhood,
     );
 
     // clear markers
@@ -450,7 +483,7 @@ function zoomIn(
       listingsData,
       selectedNeighborhood,
       statsByNeighborhood,
-      defaultColors
+      defaultColors,
     );
   }
 }
