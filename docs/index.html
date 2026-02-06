@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -23,44 +23,21 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
     />
-    <!-- conditional for CSS and favicon -->
-    <script>
-      // check environment host
-      const isGitHubPages = window.location.hostname.includes("github.io");
-      const isLocalhost =
-        window.location.hostname.includes("127.0.0.1") ||
-        window.location.hostname.includes("localhost");
-
-      const favicon = document.createElement("link");
-      favicon.rel = "icon";
-      favicon.type = "image/x-icon";
-
-      const cssLink = document.createElement("link");
-      cssLink.rel = "stylesheet";
-
-      if (
-        isGitHubPages ||
-        (isLocalhost && !window.location.hostname.includes(":5000"))
-      ) {
-        // GitHub Pages or localhost, for GitHub Pages
-        favicon.href = "./static/images/favicon.ico";
-        cssLink.href = "./static/css/styles.css";
-      } else {
-        // Flask or localhost, for Flask
-        favicon.href = "/static/images/favicon.ico";
-        cssLink.href = "/static/css/style.css";
-      }
-
-      document.head.appendChild(favicon);
-      document.head.appendChild(cssLink);
-    </script>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="./static/css/styles.css" />
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="./static/images/favicon.ico" />
   </head>
   <body>
     <div id="welcome-modal" class="modal">
       <div class="modal-content">
-        <h3><b>Revisions Underway</b></h3><br>February 2026<br>
-        <p>This project is currently being redesigned with a new dashboard
-                and revised analysis.</p><br><br>
+        <h3><b>Revisions Underway</b></h3>
+        <br />February 2026<br />
+        <p>
+          This project is currently being redesigned with a new dashboard and
+          revised analysis.
+        </p>
+        <br /><br />
         <p class="modal-text">Tap / click anywhere to continue</p>
       </div>
     </div>
@@ -498,37 +475,13 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Turf.js/6.5.0/turf.min.js"></script>
     <!-- DayJS for formatting calendar scrape date -->
     <script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
-    <!-- Conditional JS Loading -->
-    <script>
-      // const isGitHubPages = window.location.hostname.includes('github.io');
-      // const isLocalhost = window.location.hostname.includes('127.0.0.1') || window.location.hostname.includes('localhost');
-      function loadScript(src) {
-        const script = document.createElement("script");
-        script.src = src;
-        document.body.appendChild(script);
-      }
-
-      if (
-        isGitHubPages ||
-        (isLocalhost && !window.location.hostname.includes(":5000"))
-      ) {
-        // GitHub Pages or localhost for GitHub Pages
-        loadScript("./static/js/colors.js");
-        loadScript("./static/js/mapLayers.js");
-        loadScript("./static/js/map.js");
-        loadScript("./static/js/plots.js");
-        loadScript("./static/js/dataUtils.js");
-        loadScript("./static/js/app.js");
-      } else {
-        // Flask or localhost for Flask
-        loadScript("/static/js/colors.js");
-        loadScript("/static/js/mapLayers.js");
-        loadScript("/static/js/map.js");
-        loadScript("/static/js/plots.js");
-        loadScript("/static/js/dataUtils.js");
-        loadScript("/static/js/app.js");
-      }
-    </script>
+    <!-- Custom JS files -->
+    <script src="./static/js/colors.js"></script>
+    <script src="./static/js/mapLayers.js"></script>
+    <script src="./static/js/map.js"></script>
+    <script src="./static/js/plots.js"></script>
+    <script src="./static/js/dataUtils.js"></script>
+    <script src="./static/js/app.js"></script>
   </body>
 </html>
 

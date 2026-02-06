@@ -1,29 +1,12 @@
 // Description: Main JavaScript file for the DC Airbnb Data Analysis project
 
-// variables to check if running on GitHub Pages or Flask app
-const isGitPages = window.location.hostname.includes("github.io"); // for GitHub Pages
-const isHostedLocally =
-  window.location.hostname === "127.0.0.1" ||
-  window.location.hostname === "localhost"; // for testing locally
-const isFlaskApp = isHostedLocally && window.location.port === "5000"; // assuming Flask runs on port 5000
-
-// set data source based on environment
-const geojson =
-  isGitPages || (isHostedLocally && !isFlaskApp)
-    ? "./static/resources/neighbourhoods_cleaned.geojson"
-    : "/static/resources/neighbourhoods_cleaned.geojson";
-const getData =
-  isGitPages || (isHostedLocally && !isFlaskApp)
-    ? d3.csv("./static/resources/airbnb_data.csv")
-    : fetch("/api/listings").then((response) => response.json());
-const getPriceAvailabilityData =
-  isGitPages || (isHostedLocally && !isFlaskApp)
-    ? d3.csv("./static/resources/price_availability_data.csv")
-    : fetch("/api/price_availability").then((response) => response.json());
-const getScrapeDate =
-  isGitPages || (isHostedLocally && !isFlaskApp)
-    ? d3.csv("./static/resources/scraped.csv")
-    : fetch("/api/scrape_date").then((response) => response.json());
+// set data source
+const geojson = "./static/resources/neighbourhoods_cleaned.geojson";
+const getData = d3.csv("./static/resources/airbnb_data.csv");
+const getPriceAvailabilityData = d3.csv(
+  "./static/resources/price_availability_data.csv",
+);
+const getScrapeDate = d3.csv("./static/resources/scraped.csv");
 
 // fetch data and geojson, then create map
 Promise.all([
@@ -32,20 +15,6 @@ Promise.all([
   getPriceAvailabilityData,
   getScrapeDate,
 ]).then(([data, neighborhoodData, priceAvailabilityData, scrapeDate]) => {
-  // filter out listings with price > 3000
-  // a few listings have prices above this, errors in data entry
-  // like, a $7,000/night dorm room, which should be $70/night
-
-  // options: filter them out:
-  // data = data.filter((listing) => parseFloat(listing.price) <= 3000);
-
-  // or, divide them by 100 to fix the price
-  // data.forEach((listing) => {
-  //   if (parseFloat(listing.price) > 3000) {
-  //     listing.price = (parseFloat(listing.price) / 100).toString();
-  //   }
-  // });
-
   // 2025 September data - fix specific price anomalies
   data.forEach((listing) => {
     const p = parseFloat(listing.price);
@@ -54,6 +23,7 @@ Promise.all([
     }
   });
 
+  // convert price to number, set invalid prices to null (data cleaning)
   data.forEach((listing) => {
     const n = Number(listing.price);
     listing.price = Number.isFinite(n) ? n : null;
@@ -61,7 +31,7 @@ Promise.all([
 
   // populate scrape date
   const scrapeDateRow = scrapeDate.find(
-    (row) => row.key === "avg_calendar_last_scraped"
+    (row) => row.key === "avg_calendar_last_scraped",
   );
   const formattedDate = dayjs(scrapeDateRow.value).format("DD MMMM YYYY"); // Format as 13 March 2025
   document.querySelectorAll(".last-scraped").forEach((el) => {
@@ -99,7 +69,7 @@ function updateInfoBox(listingsData, selectedNeighborhood) {
     dcMedianPrice: document.querySelectorAll(".dc-median-price"),
     neighborhoodMeanPrice: document.getElementById("neighborhood-mean-price"),
     neighborhoodMedianPrice: document.querySelectorAll(
-      ".neighborhood-median-price"
+      ".neighborhood-median-price",
     ),
     neighborhoodPriceDiff: document.getElementById("mean-price-diff"),
     neighborhoodMedianDiff: document.getElementById("median-price-diff"),
@@ -111,23 +81,23 @@ function updateInfoBox(listingsData, selectedNeighborhood) {
   elements.neighborhoodName.textContent = selectedNeighborhood;
   elements.neighborhoodName.setAttribute(
     "aria-label",
-    `Neighborhood: ${selectedNeighborhood}`
+    `Neighborhood: ${selectedNeighborhood}`,
   );
   elements.neighborhoodCount.textContent =
     filteredListings.length.toLocaleString();
   elements.neighborhoodCount.setAttribute(
     "aria-label",
-    `Number of Airbnbs in neighborhood: ${filteredListings.length.toLocaleString()}`
+    `Number of Airbnbs in neighborhood: ${filteredListings.length.toLocaleString()}`,
   );
   elements.totalCount.textContent = allListingsCount.toLocaleString();
   elements.totalCount.setAttribute(
     "aria-label",
-    `Total number of Airbnbs in Washington, D.C.: ${allListingsCount.toLocaleString()}`
+    `Total number of Airbnbs in Washington, D.C.: ${allListingsCount.toLocaleString()}`,
   );
   elements.totalCountAllDc.textContent = allListingsCount.toLocaleString();
   elements.totalCountAllDc.setAttribute(
     "aria-label",
-    `Total number of Airbnbs in Washington, D.C.: ${allListingsCount.toLocaleString()}`
+    `Total number of Airbnbs in Washington, D.C.: ${allListingsCount.toLocaleString()}`,
   );
   elements.dcMeanPrice.textContent = `$${dcStats.meanPrice
     .toFixed(2)
@@ -136,7 +106,7 @@ function updateInfoBox(listingsData, selectedNeighborhood) {
     "aria-label",
     `Mean price of Airbnbs in Washington, D.C.: $${dcStats.meanPrice
       .toFixed(2)
-      .toLocaleString()}`
+      .toLocaleString()}`,
   );
   elements.dcMedianPrice.forEach((element) => {
     element.textContent = `$${dcStats.medianPrice.toFixed(2).toLocaleString()}`;
@@ -144,7 +114,7 @@ function updateInfoBox(listingsData, selectedNeighborhood) {
       "aria-label",
       `Median price of Airbnbs in Washington, D.C.: $${dcStats.medianPrice
         .toFixed(2)
-        .toLocaleString()}`
+        .toLocaleString()}`,
     );
   });
 
@@ -156,7 +126,7 @@ function updateInfoBox(listingsData, selectedNeighborhood) {
       "aria-label",
       `Mean price of Airbnbs in ${selectedNeighborhood}: $${neighborhoodStats.meanPrice
         .toFixed(2)
-        .toLocaleString()}`
+        .toLocaleString()}`,
     );
     elements.neighborhoodMedianPrice.forEach((element) => {
       element.textContent = `$${neighborhoodStats.medianPrice
@@ -166,7 +136,7 @@ function updateInfoBox(listingsData, selectedNeighborhood) {
         "aria-label",
         `Median price of Airbnbs in ${selectedNeighborhood}: $${neighborhoodStats.medianPrice
           .toFixed(2)
-          .toLocaleString()}`
+          .toLocaleString()}`,
       );
     });
     const meanDiff =
@@ -183,7 +153,7 @@ function updateInfoBox(listingsData, selectedNeighborhood) {
       "aria-label",
       `Mean price difference: ${meanDiff >= 0 ? "+" : ""}${meanDiff
         .toFixed(0)
-        .toLocaleString()}%`
+        .toLocaleString()}%`,
     );
     elements.neighborhoodMedianDiff.textContent = `${
       medianDiff >= 0 ? "+" : ""
@@ -192,7 +162,7 @@ function updateInfoBox(listingsData, selectedNeighborhood) {
       "aria-label",
       `Median price difference: ${medianDiff >= 0 ? "+" : ""}${medianDiff
         .toFixed(0)
-        .toLocaleString()}%`
+        .toLocaleString()}%`,
     );
   }
 
@@ -200,12 +170,12 @@ function updateInfoBox(listingsData, selectedNeighborhood) {
   const displayStyle =
     selectedNeighborhood === "Washington, D.C." ? "none" : "block";
   elements.neighborhoodToggles.forEach(
-    (toggle) => (toggle.style.display = displayStyle)
+    (toggle) => (toggle.style.display = displayStyle),
   );
   elements.allDcComparison.forEach(
     (comparison) =>
       (comparison.style.display =
-        selectedNeighborhood === "Washington, D.C." ? "block" : "none")
+        selectedNeighborhood === "Washington, D.C." ? "block" : "none"),
   );
 }
 
@@ -218,7 +188,7 @@ function update31DaysInfoBox(listingsData, selectedNeighborhood) {
   } else {
     filteredListings = filterListingsByNeighborhood(
       listingsData,
-      selectedNeighborhood
+      selectedNeighborhood,
     );
   }
 
@@ -231,21 +201,21 @@ function update31DaysInfoBox(listingsData, selectedNeighborhood) {
   count31NightsElement.textContent = countAt31Days.toLocaleString();
   count31NightsElement.setAttribute(
     "aria-label",
-    `Number of listings with 31-day minimum stay: ${countAt31Days.toLocaleString()}`
+    `Number of listings with 31-day minimum stay: ${countAt31Days.toLocaleString()}`,
   );
 
   const total31NightsElement = document.getElementById("total-31-nights");
   total31NightsElement.textContent = filteredListings.length.toLocaleString();
   total31NightsElement.setAttribute(
     "aria-label",
-    `Total number of listings: ${filteredListings.length.toLocaleString()}`
+    `Total number of listings: ${filteredListings.length.toLocaleString()}`,
   );
 
   const percent31NightsElement = document.getElementById("percent-31-nights");
   percent31NightsElement.textContent = `${percentAt31Days}%`;
   percent31NightsElement.setAttribute(
     "aria-label",
-    `Percentage of listings with 31-day minimum stay: ${percentAt31Days}%`
+    `Percentage of listings with 31-day minimum stay: ${percentAt31Days}%`,
   );
 }
 
@@ -258,7 +228,7 @@ function updateMultiListings(listingsData, selectedNeighborhood) {
   } else {
     filteredListings = filterListingsByNeighborhood(
       listingsData,
-      selectedNeighborhood
+      selectedNeighborhood,
     );
   }
 
@@ -268,30 +238,30 @@ function updateMultiListings(listingsData, selectedNeighborhood) {
 
   // populate the HTML and add aria-labels
   const countMultiPropertiesElement = document.getElementById(
-    "count-multi-properties"
+    "count-multi-properties",
   );
   countMultiPropertiesElement.textContent =
     multiPropertyListings.toLocaleString();
   countMultiPropertiesElement.setAttribute(
     "aria-label",
-    `Number of multi-property listings: ${multiPropertyListings.toLocaleString()}`
+    `Number of multi-property listings: ${multiPropertyListings.toLocaleString()}`,
   );
 
   const totalMultiPropertiesElement = document.getElementById(
-    "total-multi-properties"
+    "total-multi-properties",
   );
   totalMultiPropertiesElement.textContent = totalListings.toLocaleString();
   totalMultiPropertiesElement.setAttribute(
     "aria-label",
-    `Total number of listings: ${totalListings.toLocaleString()}`
+    `Total number of listings: ${totalListings.toLocaleString()}`,
   );
 
   const percentMultiPropertiesElement = document.getElementById(
-    "percent-multi-properties"
+    "percent-multi-properties",
   );
   percentMultiPropertiesElement.textContent = `${percentMultiProperties}%`;
   percentMultiPropertiesElement.setAttribute(
     "aria-label",
-    `Percentage of multi-property listings: ${percentMultiProperties}%`
+    `Percentage of multi-property listings: ${percentMultiProperties}%`,
   );
 }
