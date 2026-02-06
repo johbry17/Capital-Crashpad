@@ -80,11 +80,34 @@ function initializeMap() {
         '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
     },
   );
-  return L.map("map-id", {
+  const map = L.map("map-id", {
     center: [38.89511, -77.03637],
     zoom: 12,
     layers: [baseLayer],
   });
+  addResetButton(map, L.latLngBounds([38.80, -77.12], [38.98, -76.90]));
+  return map;
+}
+
+// add reset button to map
+function addResetButton(map, initialBounds) {
+  const resetControl = L.control({ position: "topleft" });
+
+  resetControl.onAdd = () => {
+    const button = L.DomUtil.create("button", "reset-map-button");
+    button.innerHTML = '<i class="fas fa-sync"></i>'; // refresh icon
+    button.title = "Return map to global view"; // tooltip text
+
+    L.DomEvent.disableClickPropagation(button);
+
+    button.addEventListener("click", () => {
+      map.fitBounds(initialBounds); // reset to initial bounds
+    });
+
+    return button;
+  };
+
+  resetControl.addTo(map);
 }
 
 // initialize marker groups
