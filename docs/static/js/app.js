@@ -1,58 +1,56 @@
 // Description: Main JavaScript file for the DC Airbnb Data Analysis project
 
-// set data source
-const geojson = "./static/resources/neighbourhoods_cleaned.geojson";
-const getData = d3.csv("./static/resources/airbnb_data.csv");
-const getNeighborhoodStats = d3.csv(
-  "./static/resources/neighborhood_map_stats.csv",
-);
-const getScrapeDate = d3.csv("./static/resources/scraped.csv");
-
-// fetch data and geojson, then create map
+// fetch data and geojson, clean data, populate scrape date, create map
 Promise.all([
-  getData,
-  fetch(geojson).then((response) => response.json()),
-  getNeighborhoodStats,
-  getScrapeDate,
-]).then(([data, neighborhoodGeojson, neighborhoodStats, scrapeDate]) => {
-  // 2025 September data - fix specific price anomalies
-  data.forEach((listing) => {
-    const p = parseFloat(listing.price);
-    if (!Number.isNaN(p) && new Set([7000, 40000, 50000]).has(p)) {
-      listing.price = (p / 100).toString();
-    }
-  });
+  d3.csv("./static/resources/airbnb_data.csv"),
+  fetch("./static/resources/neighbourhoods_cleaned.geojson").then((response) =>
+    response.json(),
+  ),
+  d3.csv("./static/resources/neighborhood_map_stats.csv"),
+  d3.csv("./static/resources/scraped.csv"),
+]).then(
+  ([listingsData, neighborhoodGeojson, neighborhoodStats, scrapeDate]) => {
+    // 2025 September data - fix specific price anomalies
+    listingsData.forEach((listing) => {
+      const p = parseFloat(listing.price);
+      if (!Number.isNaN(p) && new Set([7000, 40000, 50000]).has(p)) {
+        listing.price = (p / 100).toString();
+      }
+    });
 
-  // convert price to number, set invalid prices to null (data cleaning)
-  // note the nifty concise unary plus operator to convert string to number
-    data.forEach((listing) => {
-    const n = +listing.price;
-    listing.price = Number.isFinite(n) ? n : null;
-  });
+    // convert price to number, set invalid prices to null (data cleaning)
+    // note the nifty concise unary plus operator to convert string to number
+    listingsData.forEach((listing) => {
+      const n = +listing.price;
+      listing.price = Number.isFinite(n) ? n : null;
+    });
 
-  // convert neighborhood stats to a JS object for easy lookup
-  const statsByNeighborhood = {};
-  neighborhoodStats.forEach((row) => {
-    statsByNeighborhood[row.neighborhood] = row;
-  });
+    // convert neighborhood stats to a javascript object for easy lookup
+    const statsByNeighborhood = {};
+    neighborhoodStats.forEach((row) => {
+      statsByNeighborhood[row.neighborhood] = row;
+    });
 
-  // populate scrape date
-  const scrapeDateRow = scrapeDate.find(
-    (row) => row.key === "avg_calendar_last_scraped",
-  );
-  const formattedDate = dayjs(scrapeDateRow.value).format("DD MMMM YYYY"); // format as 13 March 2025
-  document.querySelectorAll(".last-scraped").forEach((el) => {
-    el.textContent = `Scraped data as of ~${formattedDate}`;
-  });
+    // populate scrape date
+    const scrapeDateRow = scrapeDate.find(
+      (row) => row.key === "avg_calendar_last_scraped",
+    );
+    const formattedDate = dayjs(scrapeDateRow.value).format("DD MMMM YYYY"); // format as 13 March 2025
+    document.querySelectorAll(".last-scraped").forEach((el) => {
+      el.textContent = `Scraped data as of ~${formattedDate}`;
+    });
 
-  const modal = document.getElementById("welcome-modal");
-  modal.style.display = "flex"; // toggle modal display on / off
-  modal.addEventListener("click", () => {
-    modal.style.display = "none";
-  });
+    // show welcome modal on page load
+    const modal = document.getElementById("welcome-modal");
+    modal.style.display = "flex"; // toggle modal display on / off
+    modal.addEventListener("click", () => {
+      modal.style.display = "none";
+    });
 
-  createMap(neighborhoodGeojson, data, statsByNeighborhood);
-});
+    // create the map
+    createMap(neighborhoodGeojson, listingsData, statsByNeighborhood);
+  },
+);
 
 // main infoBox values
 function updateInfoBox(listingsData, selectedNeighborhood) {
