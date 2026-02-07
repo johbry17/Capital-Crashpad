@@ -1,11 +1,12 @@
 // Description: This file contains the functions to create the map and controls, and to handle user interactions
 
-// global variables
-let activeOverlay = null;
+// global variables for tracking map state
 let activeLegend = null;
 let baseLayer = null;
-// let activeNeighborhoodBoundary = null; // for choropleth neighborhood boundary
-let choroplethLayerGlobal = null; // to reset choropleth layer style when resetting map view
+let neighborhoodsLayer = null;
+let activeMarkerLayer = null;
+let currentMarkerScheme = "default";
+let activeChoropleth = null;
 
 // map creation
 function createMap(neighborhoods, listingsData, statsByNeighborhood) {
@@ -24,8 +25,7 @@ function createMap(neighborhoods, listingsData, statsByNeighborhood) {
   // initialize dropdown, neighborhood and choropleth layers
   neighborhoodsControl(map, neighborhoods, listingsData, statsByNeighborhood); // includes neighborhood layer
   const choroplethLayer = overlays["Median Price"];
-  // make choroplethLayer globally accessible
-  choroplethLayerGlobal = choroplethLayer;
+  activeMarkerLayer = markerGroups.default; // set initial marker layer
 
   // event listeners for resizing
   window.addEventListener("resize", () => {
@@ -169,7 +169,7 @@ function syncDropdownAndOverlay(
   neighborhoods,
   choroplethLayer,
 ) {
-  // remove all existing markers
+  // remove all existing overlays
   removeOverlays(map);
 
   // update overlays
@@ -177,9 +177,12 @@ function syncDropdownAndOverlay(
   if (selectedOverlayName === "Median Price") {
     if (choroplethLayer && choroplethLayer._choropleth) {
       choroplethLayer._choropleth.resetStyle();
-      // activeNeighborhoodBoundary = null;
     }
-    activateOverlay(map, choroplethLayer);
+    if (activeChoropleth) {
+      map.removeLayer(activeChoropleth);
+    }
+    map.addLayer(choroplethLayer);
+    activeChoropleth = choroplethLayer;
     activeLegend = addLegend("Median Price").addTo(map);
     // bubble chart layer
   } else if (selectedOverlayName === "Total Airbnbs") {
@@ -187,7 +190,11 @@ function syncDropdownAndOverlay(
       neighborhoods,
       statsByNeighborhood,
     );
-    activateOverlay(map, bubbleLayer);
+    if (map._activeBubbleLayer) {
+      map.removeLayer(map._activeBubbleLayer);
+    }
+    map.addLayer(bubbleLayer);
+    map._activeBubbleLayer = bubbleLayer;
     activeLegend = null;
     // marker overlays
   } else {
@@ -204,25 +211,23 @@ function syncDropdownAndOverlay(
 
 // remove overlay from map
 function removeOverlays(map) {
-  if (activeOverlay) {
-    map.removeLayer(activeOverlay);
+  // remove choropleth
+  if (activeChoropleth && map.hasLayer(activeChoropleth)) {
+    map.removeLayer(activeChoropleth);
+    activeChoropleth = null;
   }
+
+  // remove bubble layer
+  if (map._activeBubbleLayer && map.hasLayer(map._activeBubbleLayer)) {
+    map.removeLayer(map._activeBubbleLayer);
+    map._activeBubbleLayer = null;
+  }
+
+  // remove legend
   if (activeLegend) {
     map.removeControl(activeLegend);
+    activeLegend = null;
   }
-}
-
-// add overlay to map
-function activateOverlay(map, overlay) {
-  // remove all layers except base layer
-  map.eachLayer((layer) => {
-    if (layer !== baseLayer) {
-      map.removeLayer(layer);
-    }
-  });
-  // add overlay, toggle activeOverlay
-  map.addLayer(overlay);
-  activeOverlay = overlay;
 }
 
 // add marker overlay to map
@@ -234,66 +239,66 @@ function activateMarkerOverlay(
   selectedNeighborhood,
   statsByNeighborhood,
 ) {
-  const overlayState = updateOverlay(
+  updateMarkerOverlay(
     map,
     overlays[selectedOverlayName],
     selectedOverlayName,
     listingsData,
     selectedNeighborhood,
   );
-  activeOverlay = overlayState.activeOverlay;
-  activeLegend = overlayState.activeLegend;
   // update plots and reset map view
   if (selectedNeighborhood === "top") {
-    resetMapView(map, activeOverlay, listingsData, statsByNeighborhood);
+    resetMapView(map, listingsData, statsByNeighborhood);
   } else {
-    zoomIn(
-      map,
-      activeOverlay,
-      selectedNeighborhood,
-      listingsData,
-      statsByNeighborhood,
-    );
+    zoomIn(map, selectedNeighborhood, listingsData, statsByNeighborhood);
   }
 }
 
 // update the overlay
-function updateOverlay(
+function updateMarkerOverlay(
   map,
   newOverlay,
   overlayName,
   listingsData,
   selectedNeighborhood,
 ) {
-  // remove previous overlay
-  if (activeOverlay !== newOverlay) {
-    removeOverlays(map);
+  // filter listings by neighborhood
+  const filteredListings = filterListingsByNeighborhood(
+    listingsData,
+    selectedNeighborhood,
+  );
 
-    // filter listings by neighborhood
-    const filteredListings = filterListingsByNeighborhood(
-      listingsData,
-      selectedNeighborhood,
-    );
-
-    // set active overlay and legend
-    let updatedMarkers;
-    if (overlayName === "License Status") {
-      updatedMarkers = createMarkers(filteredListings, "license");
-      activeLegend = addLegend("License Status").addTo(map);
-    } else if (overlayName === "Property Type") {
-      updatedMarkers = createMarkers(filteredListings, "propertyType");
-      activeLegend = addLegend("Property Type").addTo(map);
-    } else {
-      updatedMarkers = createMarkers(filteredListings);
-      activeLegend = null;
+  // set active overlay and legend based on overlay name
+  if (overlayName === "License Status") {
+    if (activeMarkerLayer) {
+      map.removeLayer(activeMarkerLayer);
     }
 
-    // add new overlay
-    map.addLayer(updatedMarkers);
-    activeOverlay = updatedMarkers;
+    activeMarkerLayer = createMarkers(filteredListings, "license");
+    currentMarkerScheme = "license";
+    activeLegend = addLegend("License Status").addTo(map);
+  } else if (overlayName === "Property Type") {
+    if (activeMarkerLayer) {
+      map.removeLayer(activeMarkerLayer);
+    }
+
+    activeMarkerLayer = createMarkers(filteredListings, "propertyType");
+    currentMarkerScheme = "propertyType";
+    activeLegend = addLegend("Property Type").addTo(map);
+  } else {
+    if (activeMarkerLayer) {
+      map.removeLayer(activeMarkerLayer);
+    }
+
+    activeMarkerLayer = createMarkers(filteredListings);
+    currentMarkerScheme = "default";
+    activeLegend = null;
   }
 
-  return { activeOverlay, activeLegend };
+  // add new overlay
+  map.addLayer(activeMarkerLayer);
+
+  return activeMarkerLayer;
 }
 
 // create dropdown for neighborhood interaction
@@ -308,7 +313,7 @@ function neighborhoodsControl(
   controlDiv.appendChild(dropdown);
 
   // create neighborhoods layer but don't add it to the map yet
-  const neighborhoodsLayer = initializeNeighborhoodsLayer(
+  neighborhoodsLayer = initializeNeighborhoodsLayer(
     map,
     neighborhoodsInfo,
     listingsData,
@@ -364,15 +369,9 @@ function addDropdownChangeListener(
   dropdown.addEventListener("change", function () {
     const selectedNeighborhood = this.value;
     if (selectedNeighborhood === "top") {
-      resetMapView(map, neighborhoodsLayer, listingsData, statsByNeighborhood);
+      resetMapView(map, listingsData, statsByNeighborhood);
     } else {
-      zoomIn(
-        map,
-        neighborhoodsLayer,
-        selectedNeighborhood,
-        listingsData,
-        statsByNeighborhood,
-      );
+      zoomIn(map, selectedNeighborhood, listingsData, statsByNeighborhood);
     }
   });
 }
@@ -385,19 +384,6 @@ function createOption(text, value) {
   return option;
 }
 
-// get color scheme for markers when changing map view / zoom level
-function getColorScheme() {
-  if (activeLegend) {
-    if (activeLegend._container.innerHTML.includes("License Status")) {
-      return "license";
-    } else if (activeLegend._container.innerHTML.includes("Property Type")) {
-      return "propertyType";
-    }
-    // }
-  }
-  return null;
-}
-
 // enable || disable buttons
 function toggleButton(buttonId, enable = true) {
   const button = document.getElementById(buttonId);
@@ -408,22 +394,25 @@ function toggleButton(buttonId, enable = true) {
 }
 
 // resets map view to all of D.C., updates infoBox and plots
-function resetMapView(
-  map,
-  neighborhoodsLayer,
-  listingsData,
-  statsByNeighborhood,
-) {
+function resetMapView(map, listingsData, statsByNeighborhood) {
+  // center map on D.C. and reset zoom
   map.setView([38.89511, -77.03637], 12);
-  if (choroplethLayerGlobal && choroplethLayerGlobal._choropleth) {
-    choroplethLayerGlobal._choropleth.resetStyle();
-    // activeNeighborhoodBoundary = null;
+  // reset choropleth layer style if active to remove neighborhood boundary highlight
+  if (activeChoropleth && activeChoropleth._choropleth) {
+    activeChoropleth._choropleth.resetStyle();
   }
-  map.removeLayer(neighborhoodsLayer); // remove neighborhood boundaries from zoomIn()
+  // remove neighborhood boundaries from zoomIn()
+  if (neighborhoodsLayer && map.hasLayer(neighborhoodsLayer)) {
+    map.removeLayer(neighborhoodsLayer);
+  }
 
   // update markers with appropriate color scheme, infoBox, and plots
-  const colorScheme = getColorScheme();
-  createMarkers(listingsData, colorScheme).addTo(map);
+  if (activeMarkerLayer) {
+    map.removeLayer(activeMarkerLayer);
+  }
+
+  activeMarkerLayer = createMarkers(listingsData, currentMarkerScheme);
+  map.addLayer(activeMarkerLayer);
   updateInfoBox(listingsData, "Washington, D.C.");
   update31DaysInfoBox(listingsData, "Washington, D.C.");
   updateMultiListings(listingsData, "Washington, D.C.");
@@ -435,13 +424,7 @@ function resetMapView(
 }
 
 // zooms map for neighborhood view, updates infoBox and plots
-function zoomIn(
-  map,
-  neighborhoodsLayer,
-  selectedNeighborhood,
-  listingsData,
-  statsByNeighborhood,
-) {
+function zoomIn(map, selectedNeighborhood, listingsData, statsByNeighborhood) {
   // toggle buttons and choropleth Median Price legend
   toggleButton("total-airbnbs-button", false);
   // toggleButton("median-price-button", false);
@@ -451,6 +434,12 @@ function zoomIn(
   // ) {
   //   activeLegend._container.style.display = "none";
   // }
+  
+  // remove existing choropleth layer
+  if (activeChoropleth && map.hasLayer(activeChoropleth)) {
+    map.removeLayer(activeChoropleth);
+    activeChoropleth = null;
+  }
 
   // remove previous neighborhood boundaries (or they will remain uncovered)
   neighborhoodsLayer.resetStyle();
@@ -468,12 +457,10 @@ function zoomIn(
     // reset choropleth layer style if active to remove previous neighborhood boundary highlight
     if (neighborhoodsLayer && neighborhoodsLayer._choropleth) {
       neighborhoodsLayer._choropleth.resetStyle();
-      // activeNeighborhoodBoundary = null;
     }
     // set style for selected neighborhood
     boundaries.setStyle({ weight: 3, color: "transparent" });
     boundaries.setStyle({ fillOpacity: 0, opacity: 0 });
-    // activeNeighborhoodBoundary = boundaries;
 
     // zoom to neighborhood boundaries
     map.fitBounds(boundaries.getBounds());
@@ -484,19 +471,15 @@ function zoomIn(
       selectedNeighborhood,
     );
 
-    // clear markers
-    map.eachLayer((layer) => {
-      if (layer instanceof L.LayerGroup) {
-        map.removeLayer(layer);
-      }
-    });
-
     // add layers
     neighborhoodsLayer.addTo(map);
 
-    // add new markers
-    const colorScheme = getColorScheme();
-    createMarkers(filteredListings, colorScheme).addTo(map);
+    // remove previous markers and add new ones with appropriate color scheme
+    if (activeMarkerLayer) {
+      map.removeLayer(activeMarkerLayer);
+    }
+    activeMarkerLayer = createMarkers(filteredListings, currentMarkerScheme);
+    map.addLayer(activeMarkerLayer);
 
     // update infoBox, and plots
     updateInfoBox(listingsData, selectedNeighborhood);

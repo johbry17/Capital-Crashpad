@@ -20,7 +20,6 @@ function initializeNeighborhoodsLayer(
           selectedNeighborhood;
         zoomIn(
           map,
-          neighborhoodsLayer,
           selectedNeighborhood,
           listingsData,
           statsByNeighborhood,
@@ -83,7 +82,6 @@ function initializeChoroplethLayer(
           selectedNeighborhood;
         zoomIn(
           map,
-          choroplethLayer,
           selectedNeighborhood,
           listingsData,
           statsByNeighborhood,
