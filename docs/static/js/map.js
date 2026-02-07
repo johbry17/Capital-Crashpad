@@ -85,12 +85,12 @@ function initializeMap() {
     zoom: 12,
     layers: [baseLayer],
   });
-  addResetButton(map, L.latLngBounds([38.80, -77.12], [38.98, -76.90]));
+  addResetButton(map);
   return map;
 }
 
 // add reset button to map
-function addResetButton(map, initialBounds) {
+function addResetButton(map) {
   const resetControl = L.control({ position: "topleft" });
 
   resetControl.onAdd = () => {
@@ -101,7 +101,7 @@ function addResetButton(map, initialBounds) {
     L.DomEvent.disableClickPropagation(button);
 
     button.addEventListener("click", () => {
-      map.fitBounds(initialBounds); // reset to initial bounds
+      map.setView([38.89511, -77.03637], 12); // reset to initial view
     });
 
     return button;
