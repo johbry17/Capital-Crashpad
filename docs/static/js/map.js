@@ -95,9 +95,12 @@ function addResetButton(map) {
 
   resetControl.onAdd = () => {
     const button = L.DomUtil.create("button", "reset-map-button");
+    button.type = "button"; // prevent weird form submission behavior (default is "submit")
     button.innerHTML = '<i class="fas fa-sync"></i>'; // refresh icon
-    button.title = "Return map to global view"; // tooltip text
+    button.title = "Return map to Washington, D.C. view"; // tooltip text
+    button.setAttribute("aria-label", "Reset map to Washington, D.C. view"); // accessibility label
 
+    // prevent map interactions when clicking the button
     L.DomEvent.disableClickPropagation(button);
 
     button.addEventListener("click", () => {
@@ -434,7 +437,7 @@ function zoomIn(map, selectedNeighborhood, listingsData, statsByNeighborhood) {
   // ) {
   //   activeLegend._container.style.display = "none";
   // }
-  
+
   // remove existing choropleth layer
   if (activeChoropleth && map.hasLayer(activeChoropleth)) {
     map.removeLayer(activeChoropleth);
