@@ -8,9 +8,26 @@ let activeMarkerLayer = null;
 let currentMarkerScheme = "default";
 let activeChoropleth = null;
 
+const mapState = {
+  map: null,
+  baseLayer: null,
+
+  markerScheme: "default",
+  markerLayer: null,
+
+  choroplethLayer: null,
+  bubbleLayer: null,
+  neighborhoodsLayer: null,
+
+  legend: null,
+  activeOverlay: "Airbnb's",
+  selectedNeighborhood: "top",
+};
+
 // map creation
 function createMap(neighborhoods, listingsData, statsByNeighborhood) {
   const map = initializeMap();
+  mapState.map = map;
   const markerGroups = initializeMarkerGroups(listingsData);
   const overlays = initializeOverlays(
     map,
@@ -90,7 +107,7 @@ function initializeMap() {
 }
 
 // add reset button to map
-function addResetButton(map) {
+function addResetButton(map = mapState.map) {
   const resetControl = L.control({ position: "topleft" });
 
   resetControl.onAdd = () => {
@@ -124,7 +141,7 @@ function initializeMarkerGroups(listingsData) {
 
 // initialize overlays
 function initializeOverlays(
-  map,
+  map = mapState.map,
   markerGroups,
   neighborhoods,
   listingsData,
@@ -148,7 +165,7 @@ function initializeOverlays(
 }
 
 // add the base layers and control
-function addBaseLayerControl(map) {
+function addBaseLayerControl(map = mapState.map) {
   let baseMap = {
     "Street Map": L.tileLayer(
       "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
@@ -163,7 +180,7 @@ function addBaseLayerControl(map) {
 
 // sync dropdown and overlays
 function syncDropdownAndOverlay(
-  map,
+  map = mapState.map,
   selectedNeighborhood,
   selectedOverlayName,
   overlays,
@@ -204,7 +221,6 @@ function syncDropdownAndOverlay(
     activateMarkerOverlay(
       map,
       selectedOverlayName,
-      overlays,
       listingsData,
       selectedNeighborhood,
       statsByNeighborhood,
@@ -213,7 +229,7 @@ function syncDropdownAndOverlay(
 }
 
 // remove overlay from map
-function removeOverlays(map) {
+function removeOverlays(map = mapState.map) {
   // remove choropleth
   if (activeChoropleth && map.hasLayer(activeChoropleth)) {
     map.removeLayer(activeChoropleth);
@@ -235,16 +251,14 @@ function removeOverlays(map) {
 
 // add marker overlay to map
 function activateMarkerOverlay(
-  map,
+  map = mapState.map,
   selectedOverlayName,
-  overlays,
   listingsData,
   selectedNeighborhood,
   statsByNeighborhood,
 ) {
   updateMarkerOverlay(
     map,
-    overlays[selectedOverlayName],
     selectedOverlayName,
     listingsData,
     selectedNeighborhood,
@@ -259,8 +273,7 @@ function activateMarkerOverlay(
 
 // update the overlay
 function updateMarkerOverlay(
-  map,
-  newOverlay,
+  map = mapState.map,
   overlayName,
   listingsData,
   selectedNeighborhood,
@@ -306,7 +319,7 @@ function updateMarkerOverlay(
 
 // create dropdown for neighborhood interaction
 function neighborhoodsControl(
-  map,
+  map = mapState.map,
   neighborhoodsInfo,
   listingsData,
   statsByNeighborhood,
@@ -364,7 +377,7 @@ function createNeighborhoodDropdown(neighborhoodsInfo) {
 // event listener for dropdown changes
 function addDropdownChangeListener(
   dropdown,
-  map,
+  map = mapState.map,
   neighborhoodsLayer,
   listingsData,
   statsByNeighborhood,
@@ -397,7 +410,7 @@ function toggleButton(buttonId, enable = true) {
 }
 
 // resets map view to all of D.C., updates infoBox and plots
-function resetMapView(map, listingsData, statsByNeighborhood) {
+function resetMapView(map = mapState.map, listingsData, statsByNeighborhood) {
   // center map on D.C. and reset zoom
   map.setView([38.89511, -77.03637], 12);
   // reset choropleth layer style if active to remove neighborhood boundary highlight
@@ -427,7 +440,7 @@ function resetMapView(map, listingsData, statsByNeighborhood) {
 }
 
 // zooms map for neighborhood view, updates infoBox and plots
-function zoomIn(map, selectedNeighborhood, listingsData, statsByNeighborhood) {
+function zoomIn(map = mapState.map, selectedNeighborhood, listingsData, statsByNeighborhood) {
   // toggle buttons and choropleth Median Price legend
   toggleButton("total-airbnbs-button", false);
   // toggleButton("median-price-button", false);
