@@ -73,10 +73,13 @@ function createMap(neighborhoods, listingsData, statsByNeighborhood) {
   // change overlay based on click
   function handleOverlayClick(e) {
     const selectedOverlay = e.target.getAttribute("data-overlay");
+    mapState.selectedNeighborhood =
+      document.getElementById("neighborhoods-dropdown").value || "top";
+    setActiveOverlay(selectedOverlay);
     if (selectedOverlay && overlays[selectedOverlay]) {
       syncDropdownAndOverlay(
-        map,
-        document.getElementById("neighborhoods-dropdown").value,
+        mapState.map,
+        mapState.selectedNeighborhood,
         selectedOverlay,
         overlays,
         listingsData,
@@ -176,6 +179,33 @@ function addBaseLayerControl(map = mapState.map) {
     Grayscale: L.esri.basemapLayer("Gray"),
   };
   L.control.layers(baseMap, null).addTo(map);
+}
+
+function setActiveOverlay(name) {
+  const { map } = mapState;
+
+  // Remove existing overlay layers
+  if (mapState.markerLayer) {
+    map.removeLayer(mapState.markerLayer);
+    mapState.markerLayer = null;
+  }
+
+  if (mapState.choroplethLayer) {
+    map.removeLayer(mapState.choroplethLayer);
+    mapState.choroplethLayer = null;
+  }
+
+  if (mapState.bubbleLayer) {
+    map.removeLayer(mapState.bubbleLayer);
+    mapState.bubbleLayer = null;
+  }
+
+  if (mapState.legend) {
+    map.removeControl(mapState.legend);
+    mapState.legend = null;
+  }
+
+  mapState.activeOverlay = name;
 }
 
 // sync dropdown and overlays
@@ -384,10 +414,16 @@ function addDropdownChangeListener(
 ) {
   dropdown.addEventListener("change", function () {
     const selectedNeighborhood = this.value;
+    mapState.selectedNeighborhood = selectedNeighborhood;
     if (selectedNeighborhood === "top") {
-      resetMapView(map, listingsData, statsByNeighborhood);
+      resetMapView(mapState.map, listingsData, statsByNeighborhood);
     } else {
-      zoomIn(map, selectedNeighborhood, listingsData, statsByNeighborhood);
+      zoomIn(
+        mapState.map,
+        selectedNeighborhood,
+        listingsData,
+        statsByNeighborhood,
+      );
     }
   });
 }
@@ -440,7 +476,12 @@ function resetMapView(map = mapState.map, listingsData, statsByNeighborhood) {
 }
 
 // zooms map for neighborhood view, updates infoBox and plots
-function zoomIn(map = mapState.map, selectedNeighborhood, listingsData, statsByNeighborhood) {
+function zoomIn(
+  map = mapState.map,
+  selectedNeighborhood,
+  listingsData,
+  statsByNeighborhood,
+) {
   // toggle buttons and choropleth Median Price legend
   toggleButton("total-airbnbs-button", false);
   // toggleButton("median-price-button", false);
