@@ -34,8 +34,8 @@ function createMap(neighborhoods, listingsData, statsByNeighborhood) {
 
   // initialize dropdown, neighborhood and choropleth layers
   neighborhoodsControl(map, neighborhoods, listingsData, statsByNeighborhood); // includes neighborhood layer
-  mapState.choroplethLayer = overlays["Median Price"];
-  mapState.markerLayer = markerGroups.default; // set initial marker layer
+  // mapState.choroplethLayer = overlays["Median Price"];
+  // mapState.markerLayer = markerGroups.default; // set initial marker layer
 
   // event listeners for resizing
   window.addEventListener("resize", () => {
@@ -54,7 +54,6 @@ function createMap(neighborhoods, listingsData, statsByNeighborhood) {
     listingsData,
     statsByNeighborhood,
     neighborhoods,
-    mapState.choroplethLayer,
   );
 
   // event listener for overlay changes
@@ -75,7 +74,6 @@ function createMap(neighborhoods, listingsData, statsByNeighborhood) {
         listingsData,
         statsByNeighborhood,
         neighborhoods,
-        mapState.choroplethLayer,
       );
     }
   }
@@ -179,7 +177,6 @@ function syncDropdownAndOverlay(
   listingsData,
   statsByNeighborhood,
   neighborhoods,
-  choroplethLayer,
 ) {
   // remove all existing overlays
   setActiveOverlay(selectedOverlayName);
@@ -187,6 +184,13 @@ function syncDropdownAndOverlay(
   // update overlays
   // choropleth layer
   if (selectedOverlayName === "Median Price") {
+    const choroplethLayer = initializeChoroplethLayer(
+      map,
+      neighborhoods,
+      listingsData,
+      statsByNeighborhood,
+    );
+    // reset style if re-adding existing layer
     if (choroplethLayer && choroplethLayer._choropleth) {
       choroplethLayer._choropleth.resetStyle();
     }
