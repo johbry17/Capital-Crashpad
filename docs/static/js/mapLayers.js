@@ -16,14 +16,12 @@ function initializeNeighborhoodsLayer(
     onEachFeature: (feature, layer) => {
       layer.on("click", function () {
         const selectedNeighborhood = feature.properties.neighbourhood;
+        // const dropdown = document.getElementById("neighborhoods-dropdown");
+        // dropdown.value = selectedNeighborhood;
+        // dropdown.dispatchEvent(new Event("change"));
         document.getElementById("neighborhoods-dropdown").value =
           selectedNeighborhood;
-        zoomIn(
-          map,
-          selectedNeighborhood,
-          listingsData,
-          statsByNeighborhood,
-        );
+        zoomIn(map, selectedNeighborhood, listingsData, statsByNeighborhood);
       });
     },
   });
@@ -31,6 +29,34 @@ function initializeNeighborhoodsLayer(
   // return the layer without adding it to the map
   return neighborhoodsLayer;
 }
+
+//////////////////////////////////////////////////////////
+
+// calculates centroid for choropleth and bubble chart layers
+function calculateCentroid(feature) {
+  const centroid = turf.centroid(feature);
+  return [centroid.geometry.coordinates[1], centroid.geometry.coordinates[0]];
+}
+
+// handle popup events
+function popupMouseEvents(layer) {
+  let popupOpen = false; // tracks popup state
+
+  layer.on({
+    mouseover() {
+      if (!popupOpen) this.openPopup();
+    },
+    mouseout() {
+      if (!popupOpen) this.closePopup();
+    },
+    click() {
+      popupOpen ? this.closePopup() : this.openPopup();
+      popupOpen = !popupOpen;
+    },
+  });
+}
+
+//////////////////////////////////////////////////////////
 
 // create choropleth layer for neighborhood boundaries
 function initializeChoroplethLayer(
@@ -80,12 +106,7 @@ function initializeChoroplethLayer(
         const selectedNeighborhood = feature.properties.neighbourhood;
         document.getElementById("neighborhoods-dropdown").value =
           selectedNeighborhood;
-        zoomIn(
-          map,
-          selectedNeighborhood,
-          listingsData,
-          statsByNeighborhood,
-        );
+        zoomIn(map, selectedNeighborhood, listingsData, statsByNeighborhood);
       });
       // calculate centroid for placing text markers
       const latlng = calculateCentroid(feature);
@@ -112,29 +133,7 @@ function initializeChoroplethLayer(
   return layerGroup;
 }
 
-// calculates centroid for choropleth and bubble chart layers
-function calculateCentroid(feature) {
-  const centroid = turf.centroid(feature);
-  return [centroid.geometry.coordinates[1], centroid.geometry.coordinates[0]];
-}
-
-// handle popup events
-function popupMouseEvents(layer) {
-  let popupOpen = false; // tracks popup state
-
-  layer.on({
-    mouseover() {
-      if (!popupOpen) this.openPopup();
-    },
-    mouseout() {
-      if (!popupOpen) this.closePopup();
-    },
-    click() {
-      popupOpen ? this.closePopup() : this.openPopup();
-      popupOpen = !popupOpen;
-    },
-  });
-}
+//////////////////////////////////////////////////////////
 
 // create bubble chart layer, - neighoborhood outlines and bubbles of count of airbnbs
 function initializeBubbleChartLayer(neighborhoods, statsByNeighborhood) {
@@ -203,6 +202,8 @@ function addBubbles(bubbleLayerGroup, neighborhoods, statsByNeighborhood) {
     bubbleLayerGroup.addLayer(circleMarker).addLayer(textMarker);
   });
 }
+
+//////////////////////////////////////////////////////////
 
 // create legend
 function addLegend(type) {
@@ -275,6 +276,8 @@ function createPriceLabels() {
   labelContainer.innerHTML = `<div>$50</div><div>$300</div>`;
   return labelContainer;
 }
+
+//////////////////////////////////////////////////////////
 
 // create markers grouped by lat/long, optional color by license status or property type
 function createMarkers(data, colorScheme = null) {
@@ -386,88 +389,3 @@ function createPopupContentForGroup(listings, markerColor = "#333") {
   // wrap in scrollable container
   return `<div style="max-height:300px;overflow-y:auto; border: 4px solid ${markerColor}; border-radius: 10px; padding: 16px;">${content}</div>`;
 }
-
-
-// // initialize markers with custom color options based on a property
-// function createMarkers(data, colorScheme = null) {
-//   // process data for license status
-//   data = setLicenseStatus(data);
-
-//   // empty marker layer
-//   const markers = L.layerGroup();
-
-//   // loop to populate markers
-//   data.forEach((listing) => {
-//     let markerColor = defaultColors.airbnbs; // default color
-
-//     // determine marker color based on colorScheme parameter
-//     if (colorScheme === "license") {
-//       markerColor =
-//         licenseColors[listing.licenseCategory] || licenseColors.default;
-//     } else if (colorScheme === "propertyType") {
-//       markerColor =
-//         propertyTypeColors[listing.room_type] || propertyTypeColors.default;
-//     }
-
-//     // marker design
-//     const markerOptions = {
-//       radius: 3,
-//       fillColor: markerColor,
-//       color: "black",
-//       weight: 1,
-//       fillOpacity: 1,
-//       interactive: true,
-//     };
-
-//     const marker = L.circleMarker(
-//       [listing.latitude, listing.longitude],
-//       markerOptions
-//     );
-//     marker.bindPopup(createPopupContent(listing), {
-//       className: "marker-popup",
-//     });
-
-//     // open || close popup
-//     popupMouseEvents(marker);
-
-//     // bring marker to front on hover
-//     marker.bringToFront();
-
-//     markers.addLayer(marker);
-//   });
-
-//   return markers;
-// }
-
-// // populate popups
-// function createPopupContent(listing) {
-//   const price = parseFloat(listing.price).toLocaleString("en-US", {
-//     style: "currency",
-//     currency: "USD",
-//   });
-//   const hostVerified =
-//     listing.host_identity_verified === "True" ? "Verified" : "Unverified";
-//   const hoverDescription = listing.hover_description
-//     ? `<h4><b>${listing.hover_description}</b></h4>`
-//     : "<h4><b>Description not available</b></h4>";
-//   const rating = listing.review_scores_rating
-//     ? `${listing.review_scores_rating} \u2605`
-//     : "No rating yet";
-//   const license = listing.license
-//     ? listing.license.split(":")[0].trim()
-//     : "No License";
-
-//   return `
-//       ${hoverDescription}
-//       <a href="${listing.listing_url}" target="_blank">Link to listing</a><br>
-//       <b>Price:</b> ${price}<br>
-//       <b>Property Type:</b> ${listing.room_type}<br>
-//       <b>Property Subtype:</b> ${listing.property_type}<br>
-//       <b>Accommodates:</b> ${listing.accommodates}<br>
-//       <b>Rating:</b> ${rating}<br>
-//       <b>Host:</b> ${listing.host_name}<br>
-//       <b>Host Verified:</b> ${hostVerified}<br>
-//       <b>Host Total Airbnbs:</b> ${listing.host_listings_count}<br>
-//       <b>License:</b> ${license}<br>
-//     `;
-// }

@@ -18,6 +18,8 @@ const mapState = {
   selectedNeighborhood: "top",
 };
 
+//////////////////////////////////////////////////////////
+
 // map creation
 function createMap(neighborhoods, listingsData, statsByNeighborhood) {
   const map = initializeMap();
@@ -79,6 +81,8 @@ function createMap(neighborhoods, listingsData, statsByNeighborhood) {
     }
   }
 }
+
+//////////////////////////////////////////////////////////
 
 // initialize the map
 function initializeMap() {
@@ -169,6 +173,89 @@ function addBaseLayerControl(map) {
   };
   L.control.layers(baseMap, null).addTo(map);
 }
+
+//////////////////////////////////////////////////////////
+
+// create dropdown for neighborhood interaction
+function neighborhoodsControl(
+  map,
+  neighborhoodsInfo,
+  listingsData,
+  statsByNeighborhood,
+) {
+  const controlDiv = document.getElementById("neighborhoods-control");
+  const dropdown = createNeighborhoodDropdown(neighborhoodsInfo);
+  controlDiv.appendChild(dropdown);
+
+  // create neighborhoods layer but don't add it to the map yet
+  mapState.neighborhoodsLayer = initializeNeighborhoodsLayer(
+    map,
+    neighborhoodsInfo,
+    listingsData,
+    statsByNeighborhood,
+  );
+
+  // add event listener for dropdown changes
+  addDropdownChangeListener(dropdown, map, listingsData, statsByNeighborhood);
+}
+
+// create neighborhood dropdown elements
+function createNeighborhoodDropdown(neighborhoodsInfo) {
+  const dropdown = document.createElement("select");
+  dropdown.id = "neighborhoods-dropdown";
+
+  // sort neighborhoods alphabetically
+  neighborhoodsInfo.features.sort((a, b) =>
+    a.properties.neighbourhood.localeCompare(b.properties.neighbourhood),
+  );
+
+  // populate dropdown menu, DC first, then sorted neighborhoods
+  const allDC = createOption("Washington, D.C.", "top");
+  dropdown.appendChild(allDC);
+  neighborhoodsInfo.features.forEach((feature) => {
+    const option = createOption(
+      feature.properties.neighbourhood,
+      feature.properties.neighbourhood,
+    );
+    option.setAttribute(
+      "aria-label",
+      `Neighborhood: ${feature.properties.neighbourhood}`,
+    );
+    dropdown.appendChild(option);
+  });
+
+  return dropdown;
+}
+
+// event listener for dropdown changes
+function addDropdownChangeListener(
+  dropdown,
+  map,
+  listingsData,
+  statsByNeighborhood,
+) {
+  dropdown.addEventListener("change", function () {
+    const selectedNeighborhood = this.value;
+    mapState.selectedNeighborhood = selectedNeighborhood;
+    syncDropdownAndOverlay(
+      map,
+      selectedNeighborhood,
+      mapState.currentOverlay || "Airbnb's",
+      listingsData,
+      statsByNeighborhood,
+    );
+  });
+}
+
+// create dropdown options
+function createOption(text, value) {
+  const option = document.createElement("option");
+  option.text = text;
+  option.value = value;
+  return option;
+}
+
+//////////////////////////////////////////////////////////
 
 // sync dropdown and overlays
 function syncDropdownAndOverlay(
@@ -276,84 +363,7 @@ function renderMarkerOverlay(
   map.addLayer(mapState.markerLayer);
 }
 
-// create dropdown for neighborhood interaction
-function neighborhoodsControl(
-  map,
-  neighborhoodsInfo,
-  listingsData,
-  statsByNeighborhood,
-) {
-  const controlDiv = document.getElementById("neighborhoods-control");
-  const dropdown = createNeighborhoodDropdown(neighborhoodsInfo);
-  controlDiv.appendChild(dropdown);
-
-  // create neighborhoods layer but don't add it to the map yet
-  mapState.neighborhoodsLayer = initializeNeighborhoodsLayer(
-    map,
-    neighborhoodsInfo,
-    listingsData,
-    statsByNeighborhood,
-  );
-
-  // add event listener for dropdown changes
-  addDropdownChangeListener(dropdown, map, listingsData, statsByNeighborhood);
-}
-
-// create neighborhood dropdown elements
-function createNeighborhoodDropdown(neighborhoodsInfo) {
-  const dropdown = document.createElement("select");
-  dropdown.id = "neighborhoods-dropdown";
-
-  // sort neighborhoods alphabetically
-  neighborhoodsInfo.features.sort((a, b) =>
-    a.properties.neighbourhood.localeCompare(b.properties.neighbourhood),
-  );
-
-  // populate dropdown menu, DC first, then sorted neighborhoods
-  const allDC = createOption("Washington, D.C.", "top");
-  dropdown.appendChild(allDC);
-  neighborhoodsInfo.features.forEach((feature) => {
-    const option = createOption(
-      feature.properties.neighbourhood,
-      feature.properties.neighbourhood,
-    );
-    option.setAttribute(
-      "aria-label",
-      `Neighborhood: ${feature.properties.neighbourhood}`,
-    );
-    dropdown.appendChild(option);
-  });
-
-  return dropdown;
-}
-
-// event listener for dropdown changes
-function addDropdownChangeListener(
-  dropdown,
-  map,
-  listingsData,
-  statsByNeighborhood,
-) {
-  dropdown.addEventListener("change", function () {
-    const selectedNeighborhood = this.value;
-    mapState.selectedNeighborhood = selectedNeighborhood;
-    syncDropdownAndOverlay(
-      map,
-      selectedNeighborhood,
-      mapState.currentOverlay || "Airbnb's",
-      listingsData,
-      statsByNeighborhood,
-    );
-  });
-}
-
-// create dropdown options
-function createOption(text, value) {
-  const option = document.createElement("option");
-  option.text = text;
-  option.value = value;
-  return option;
-}
+//////////////////////////////////////////////////////////
 
 // enable || disable buttons
 function toggleButton(buttonId, enable = true) {
