@@ -53,7 +53,6 @@ function createMap(neighborhoods, listingsData, statsByNeighborhood) {
     "Airbnb's",
     listingsData,
     statsByNeighborhood,
-    neighborhoods,
   );
 
   // event listener for overlay changes
@@ -73,7 +72,6 @@ function createMap(neighborhoods, listingsData, statsByNeighborhood) {
         selectedOverlay,
         listingsData,
         statsByNeighborhood,
-        neighborhoods,
       );
     }
   }
@@ -176,7 +174,6 @@ function syncDropdownAndOverlay(
   selectedOverlayName,
   listingsData,
   statsByNeighborhood,
-  neighborhoods,
 ) {
   // remove all existing overlays
   clearOverlays();
