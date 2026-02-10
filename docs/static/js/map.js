@@ -1,13 +1,6 @@
 // Description: This file contains the functions to create the map and controls, and to handle user interactions
 
-// global variables for tracking map state
-let activeLegend = null;
-let baseLayer = null;
-let neighborhoodsLayer = null;
-let activeMarkerLayer = null;
-let currentMarkerScheme = "default";
-let activeChoropleth = null;
-
+// global for tracking map state and active layers
 const mapState = {
   map: null,
   baseLayer: null,
@@ -41,8 +34,8 @@ function createMap(neighborhoods, listingsData, statsByNeighborhood) {
 
   // initialize dropdown, neighborhood and choropleth layers
   neighborhoodsControl(map, neighborhoods, listingsData, statsByNeighborhood); // includes neighborhood layer
-  const choroplethLayer = overlays["Median Price"];
-  activeMarkerLayer = markerGroups.default; // set initial marker layer
+  mapState.choroplethLayer = overlays["Median Price"];
+  mapState.markerLayer = markerGroups.default; // set initial marker layer
 
   // event listeners for resizing
   window.addEventListener("resize", () => {
@@ -58,11 +51,10 @@ function createMap(neighborhoods, listingsData, statsByNeighborhood) {
     map,
     "top",
     "Airbnb's",
-    overlays,
     listingsData,
     statsByNeighborhood,
     neighborhoods,
-    choroplethLayer,
+    mapState.choroplethLayer,
   );
 
   // event listener for overlay changes
@@ -75,17 +67,15 @@ function createMap(neighborhoods, listingsData, statsByNeighborhood) {
     const selectedOverlay = e.target.getAttribute("data-overlay");
     mapState.selectedNeighborhood =
       document.getElementById("neighborhoods-dropdown").value || "top";
-    setActiveOverlay(selectedOverlay);
     if (selectedOverlay && overlays[selectedOverlay]) {
       syncDropdownAndOverlay(
         mapState.map,
         mapState.selectedNeighborhood,
         selectedOverlay,
-        overlays,
         listingsData,
         statsByNeighborhood,
         neighborhoods,
-        choroplethLayer,
+        mapState.choroplethLayer,
       );
     }
   }
@@ -93,7 +83,7 @@ function createMap(neighborhoods, listingsData, statsByNeighborhood) {
 
 // initialize the map
 function initializeMap() {
-  baseLayer = L.tileLayer(
+  mapState.baseLayer = L.tileLayer(
     "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
     {
       attribution:
@@ -103,7 +93,7 @@ function initializeMap() {
   const map = L.map("map-id", {
     center: [38.89511, -77.03637],
     zoom: 12,
-    layers: [baseLayer],
+    layers: [mapState.baseLayer],
   });
   addResetButton(map);
   return map;
@@ -181,6 +171,49 @@ function addBaseLayerControl(map = mapState.map) {
   L.control.layers(baseMap, null).addTo(map);
 }
 
+// sync dropdown and overlays
+function syncDropdownAndOverlay(
+  map = mapState.map,
+  selectedNeighborhood,
+  selectedOverlayName,
+  listingsData,
+  statsByNeighborhood,
+  neighborhoods,
+  choroplethLayer,
+) {
+  // remove all existing overlays
+  setActiveOverlay(selectedOverlayName);
+
+  // update overlays
+  // choropleth layer
+  if (selectedOverlayName === "Median Price") {
+    if (choroplethLayer && choroplethLayer._choropleth) {
+      choroplethLayer._choropleth.resetStyle();
+    }
+    map.addLayer(choroplethLayer);
+    mapState.choroplethLayer = choroplethLayer;
+    mapState.legend = addLegend("Median Price").addTo(map);
+    // bubble chart layer
+  } else if (selectedOverlayName === "Total Airbnbs") {
+    const bubbleLayer = initializeBubbleChartLayer(
+      neighborhoods,
+      statsByNeighborhood,
+    );
+    map.addLayer(bubbleLayer);
+    mapState.bubbleLayer = bubbleLayer;
+    mapState.legend = null;
+    // marker overlays
+  } else {
+    activateMarkerOverlay(
+      map,
+      selectedOverlayName,
+      listingsData,
+      selectedNeighborhood,
+      statsByNeighborhood,
+    );
+  }
+}
+
 function setActiveOverlay(name) {
   const { map } = mapState;
 
@@ -206,77 +239,6 @@ function setActiveOverlay(name) {
   }
 
   mapState.activeOverlay = name;
-}
-
-// sync dropdown and overlays
-function syncDropdownAndOverlay(
-  map = mapState.map,
-  selectedNeighborhood,
-  selectedOverlayName,
-  overlays,
-  listingsData,
-  statsByNeighborhood,
-  neighborhoods,
-  choroplethLayer,
-) {
-  // remove all existing overlays
-  removeOverlays(map);
-
-  // update overlays
-  // choropleth layer
-  if (selectedOverlayName === "Median Price") {
-    if (choroplethLayer && choroplethLayer._choropleth) {
-      choroplethLayer._choropleth.resetStyle();
-    }
-    if (activeChoropleth) {
-      map.removeLayer(activeChoropleth);
-    }
-    map.addLayer(choroplethLayer);
-    activeChoropleth = choroplethLayer;
-    activeLegend = addLegend("Median Price").addTo(map);
-    // bubble chart layer
-  } else if (selectedOverlayName === "Total Airbnbs") {
-    const bubbleLayer = initializeBubbleChartLayer(
-      neighborhoods,
-      statsByNeighborhood,
-    );
-    if (map._activeBubbleLayer) {
-      map.removeLayer(map._activeBubbleLayer);
-    }
-    map.addLayer(bubbleLayer);
-    map._activeBubbleLayer = bubbleLayer;
-    activeLegend = null;
-    // marker overlays
-  } else {
-    activateMarkerOverlay(
-      map,
-      selectedOverlayName,
-      listingsData,
-      selectedNeighborhood,
-      statsByNeighborhood,
-    );
-  }
-}
-
-// remove overlay from map
-function removeOverlays(map = mapState.map) {
-  // remove choropleth
-  if (activeChoropleth && map.hasLayer(activeChoropleth)) {
-    map.removeLayer(activeChoropleth);
-    activeChoropleth = null;
-  }
-
-  // remove bubble layer
-  if (map._activeBubbleLayer && map.hasLayer(map._activeBubbleLayer)) {
-    map.removeLayer(map._activeBubbleLayer);
-    map._activeBubbleLayer = null;
-  }
-
-  // remove legend
-  if (activeLegend) {
-    map.removeControl(activeLegend);
-    activeLegend = null;
-  }
 }
 
 // add marker overlay to map
@@ -316,35 +278,35 @@ function updateMarkerOverlay(
 
   // set active overlay and legend based on overlay name
   if (overlayName === "License Status") {
-    if (activeMarkerLayer) {
-      map.removeLayer(activeMarkerLayer);
+    if (mapState.markerLayer) {
+      map.removeLayer(mapState.markerLayer);
     }
 
-    activeMarkerLayer = createMarkers(filteredListings, "license");
-    currentMarkerScheme = "license";
-    activeLegend = addLegend("License Status").addTo(map);
+    mapState.markerLayer = createMarkers(filteredListings, "license");
+    mapState.markerScheme = "license";
+    mapState.legend = addLegend("License Status").addTo(map);
   } else if (overlayName === "Property Type") {
-    if (activeMarkerLayer) {
-      map.removeLayer(activeMarkerLayer);
+    if (mapState.markerLayer) {
+      map.removeLayer(mapState.markerLayer);
     }
 
-    activeMarkerLayer = createMarkers(filteredListings, "propertyType");
-    currentMarkerScheme = "propertyType";
-    activeLegend = addLegend("Property Type").addTo(map);
+    mapState.markerLayer = createMarkers(filteredListings, "propertyType");
+    mapState.markerScheme = "propertyType";
+    mapState.legend = addLegend("Property Type").addTo(map);
   } else {
-    if (activeMarkerLayer) {
-      map.removeLayer(activeMarkerLayer);
+    if (mapState.markerLayer) {
+      map.removeLayer(mapState.markerLayer);
     }
 
-    activeMarkerLayer = createMarkers(filteredListings);
-    currentMarkerScheme = "default";
-    activeLegend = null;
+    mapState.markerLayer = createMarkers(filteredListings);
+    mapState.markerScheme = "default";
+    mapState.legend = null;
   }
 
   // add new overlay
-  map.addLayer(activeMarkerLayer);
+  map.addLayer(mapState.markerLayer);
 
-  return activeMarkerLayer;
+  return mapState.markerLayer;
 }
 
 // create dropdown for neighborhood interaction
@@ -359,7 +321,7 @@ function neighborhoodsControl(
   controlDiv.appendChild(dropdown);
 
   // create neighborhoods layer but don't add it to the map yet
-  neighborhoodsLayer = initializeNeighborhoodsLayer(
+  mapState.neighborhoodsLayer = initializeNeighborhoodsLayer(
     map,
     neighborhoodsInfo,
     listingsData,
@@ -367,13 +329,7 @@ function neighborhoodsControl(
   );
 
   // add event listener for dropdown changes
-  addDropdownChangeListener(
-    dropdown,
-    map,
-    neighborhoodsLayer,
-    listingsData,
-    statsByNeighborhood,
-  );
+  addDropdownChangeListener(dropdown, map, listingsData, statsByNeighborhood);
 }
 
 // create neighborhood dropdown elements
@@ -408,7 +364,6 @@ function createNeighborhoodDropdown(neighborhoodsInfo) {
 function addDropdownChangeListener(
   dropdown,
   map = mapState.map,
-  neighborhoodsLayer,
   listingsData,
   statsByNeighborhood,
 ) {
@@ -450,28 +405,30 @@ function resetMapView(map = mapState.map, listingsData, statsByNeighborhood) {
   // center map on D.C. and reset zoom
   map.setView([38.89511, -77.03637], 12);
   // reset choropleth layer style if active to remove neighborhood boundary highlight
-  if (activeChoropleth && activeChoropleth._choropleth) {
-    activeChoropleth._choropleth.resetStyle();
+  if (mapState.choroplethLayer && mapState.choroplethLayer._choropleth) {
+    mapState.choroplethLayer._choropleth.resetStyle();
   }
   // remove neighborhood boundaries from zoomIn()
-  if (neighborhoodsLayer && map.hasLayer(neighborhoodsLayer)) {
-    map.removeLayer(neighborhoodsLayer);
+  if (
+    mapState.neighborhoodsLayer &&
+    map.hasLayer(mapState.neighborhoodsLayer)
+  ) {
+    map.removeLayer(mapState.neighborhoodsLayer);
   }
 
   // update markers with appropriate color scheme, infoBox, and plots
-  if (activeMarkerLayer) {
-    map.removeLayer(activeMarkerLayer);
+  if (mapState.markerLayer) {
+    map.removeLayer(mapState.markerLayer);
   }
 
-  activeMarkerLayer = createMarkers(listingsData, currentMarkerScheme);
-  map.addLayer(activeMarkerLayer);
+  mapState.markerLayer = createMarkers(listingsData, mapState.markerScheme);
+  map.addLayer(mapState.markerLayer);
   updateInfoBox(listingsData, "Washington, D.C.");
   update31DaysInfoBox(listingsData, "Washington, D.C.");
   updateMultiListings(listingsData, "Washington, D.C.");
   allDCPlots(listingsData, statsByNeighborhood, defaultColors);
 
-  // toggle median price button
-  // toggleButton("median-price-button", true);
+  // toggle button
   toggleButton("total-airbnbs-button", true);
 }
 
@@ -484,25 +441,18 @@ function zoomIn(
 ) {
   // toggle buttons and choropleth Median Price legend
   toggleButton("total-airbnbs-button", false);
-  // toggleButton("median-price-button", false);
-  // if (
-  //   activeLegend &&
-  //   activeLegend._container.innerHTML.includes("Median Price")
-  // ) {
-  //   activeLegend._container.style.display = "none";
-  // }
 
   // remove existing choropleth layer
-  if (activeChoropleth && map.hasLayer(activeChoropleth)) {
-    map.removeLayer(activeChoropleth);
-    activeChoropleth = null;
+  if (mapState.choroplethLayer && map.hasLayer(mapState.choroplethLayer)) {
+    map.removeLayer(mapState.choroplethLayer);
+    mapState.choroplethLayer = null;
   }
 
   // remove previous neighborhood boundaries (or they will remain uncovered)
-  neighborhoodsLayer.resetStyle();
+  mapState.neighborhoodsLayer.resetStyle();
 
   // get neighborhood boundaries
-  const boundaries = neighborhoodsLayer
+  const boundaries = mapState.neighborhoodsLayer
     .getLayers()
     .find(
       (layer) =>
@@ -512,8 +462,11 @@ function zoomIn(
   // update map view
   if (boundaries) {
     // reset choropleth layer style if active to remove previous neighborhood boundary highlight
-    if (neighborhoodsLayer && neighborhoodsLayer._choropleth) {
-      neighborhoodsLayer._choropleth.resetStyle();
+    if (
+      mapState.neighborhoodsLayer &&
+      mapState.neighborhoodsLayer._choropleth
+    ) {
+      mapState.neighborhoodsLayer._choropleth.resetStyle();
     }
     // set style for selected neighborhood
     boundaries.setStyle({ weight: 3, color: "transparent" });
@@ -529,14 +482,17 @@ function zoomIn(
     );
 
     // add layers
-    neighborhoodsLayer.addTo(map);
+    mapState.neighborhoodsLayer.addTo(map);
 
     // remove previous markers and add new ones with appropriate color scheme
-    if (activeMarkerLayer) {
-      map.removeLayer(activeMarkerLayer);
+    if (mapState.markerLayer) {
+      map.removeLayer(mapState.markerLayer);
     }
-    activeMarkerLayer = createMarkers(filteredListings, currentMarkerScheme);
-    map.addLayer(activeMarkerLayer);
+    mapState.markerLayer = createMarkers(
+      filteredListings,
+      mapState.markerScheme,
+    );
+    map.addLayer(mapState.markerLayer);
 
     // update infoBox, and plots
     updateInfoBox(listingsData, selectedNeighborhood);
