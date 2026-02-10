@@ -2,8 +2,11 @@
 
 // filter listings by neighborhood
 function filterListingsByNeighborhood(listingsData, selectedNeighborhood) {
+  if (selectedNeighborhood === "top") {
+    return listingsData;
+  }
   return listingsData.filter(
-    (listing) => listing.neighbourhood === selectedNeighborhood
+    (listing) => listing.neighbourhood === selectedNeighborhood,
   );
 }
 
@@ -336,7 +339,7 @@ function getTopHosts(data) {
 
   // sort the hosts by number of listings
   const sortedHosts = Object.entries(hostCounts).sort(
-    (a, b) => b[1].count - a[1].count
+    (a, b) => b[1].count - a[1].count,
   );
 
   // get the top 20 hosts

@@ -13,6 +13,7 @@ const mapState = {
   bubbleLayer: null,
   neighborhoodsLayer: null,
 
+  currentOverlay: null,
   legend: null,
   selectedNeighborhood: "top",
 };
@@ -66,6 +67,8 @@ function createMap(neighborhoods, listingsData, statsByNeighborhood) {
     mapState.selectedNeighborhood =
       document.getElementById("neighborhoods-dropdown").value || "top";
     if (selectedOverlay && mapState.overlays[selectedOverlay]) {
+      // track current overlay in mapState for use in neighborhood dropdown changes
+      mapState.currentOverlay = selectedOverlay;
       syncDropdownAndOverlay(
         mapState.map,
         mapState.selectedNeighborhood,
@@ -189,6 +192,10 @@ function syncDropdownAndOverlay(
     map.addLayer(choroplethLayer);
     mapState.choroplethLayer = choroplethLayer;
     mapState.legend = addLegend("Median Price").addTo(map);
+    // if necessary, update plots and reset map view
+    if (selectedNeighborhood === "top") {
+      resetMapView(map, listingsData, statsByNeighborhood);
+    }
     // bubble chart layer
   } else if (selectedOverlayName === "Total Airbnbs") {
     const bubbleLayer = mapState.overlays["Total Airbnbs"];
@@ -202,12 +209,17 @@ function syncDropdownAndOverlay(
       selectedOverlayName,
       listingsData,
       selectedNeighborhood,
-      statsByNeighborhood,
     );
+    // update plots and reset map view
+    if (selectedNeighborhood === "top") {
+      resetMapView(map, listingsData, statsByNeighborhood);
+    } else {
+      zoomIn(map, selectedNeighborhood, listingsData, statsByNeighborhood);
+    }
   }
 }
 
-function clearOverlays(){
+function clearOverlays() {
   const { map } = mapState;
 
   // Remove existing overlay layers
@@ -238,7 +250,6 @@ function renderMarkerOverlay(
   overlayName,
   listingsData,
   selectedNeighborhood,
-  statsByNeighborhood,
 ) {
   // filter listings by neighborhood
   const filteredListings = filterListingsByNeighborhood(
@@ -263,13 +274,6 @@ function renderMarkerOverlay(
 
   // add new overlay
   map.addLayer(mapState.markerLayer);
-
-  // update plots and reset map view
-  if (selectedNeighborhood === "top") {
-    resetMapView(map, listingsData, statsByNeighborhood);
-  } else {
-    zoomIn(map, selectedNeighborhood, listingsData, statsByNeighborhood);
-  }
 }
 
 // create dropdown for neighborhood interaction
@@ -333,16 +337,13 @@ function addDropdownChangeListener(
   dropdown.addEventListener("change", function () {
     const selectedNeighborhood = this.value;
     mapState.selectedNeighborhood = selectedNeighborhood;
-    if (selectedNeighborhood === "top") {
-      resetMapView(mapState.map, listingsData, statsByNeighborhood);
-    } else {
-      zoomIn(
-        mapState.map,
-        selectedNeighborhood,
-        listingsData,
-        statsByNeighborhood,
-      );
-    }
+    syncDropdownAndOverlay(
+      map,
+      selectedNeighborhood,
+      mapState.currentOverlay || "Airbnb's",
+      listingsData,
+      statsByNeighborhood,
+    );
   });
 }
 
@@ -379,13 +380,7 @@ function resetMapView(map, listingsData, statsByNeighborhood) {
     map.removeLayer(mapState.neighborhoodsLayer);
   }
 
-  // update markers with appropriate color scheme, infoBox, and plots
-  if (mapState.markerLayer) {
-    map.removeLayer(mapState.markerLayer);
-  }
-
-  mapState.markerLayer = createMarkers(listingsData, mapState.markerScheme);
-  map.addLayer(mapState.markerLayer);
+  // update infoBox and plots
   updateInfoBox(listingsData, "Washington, D.C.");
   update31DaysInfoBox(listingsData, "Washington, D.C.");
   updateMultiListings(listingsData, "Washington, D.C.");
@@ -396,12 +391,7 @@ function resetMapView(map, listingsData, statsByNeighborhood) {
 }
 
 // zooms map for neighborhood view, updates infoBox and plots
-function zoomIn(
-  map,
-  selectedNeighborhood,
-  listingsData,
-  statsByNeighborhood,
-) {
+function zoomIn(map, selectedNeighborhood, listingsData, statsByNeighborhood) {
   // toggle buttons and choropleth Median Price legend
   toggleButton("total-airbnbs-button", false);
 
