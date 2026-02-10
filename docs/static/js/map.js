@@ -208,7 +208,7 @@ function syncDropdownAndOverlay(
     mapState.legend = null;
     // marker overlays
   } else {
-    activateMarkerOverlay(
+    renderMarkerOverlay(
       map,
       selectedOverlayName,
       listingsData,
@@ -245,34 +245,13 @@ function setActiveOverlay(name) {
   mapState.activeOverlay = name;
 }
 
-// add marker overlay to map
-function activateMarkerOverlay(
-  map = mapState.map,
-  selectedOverlayName,
-  listingsData,
-  selectedNeighborhood,
-  statsByNeighborhood,
-) {
-  updateMarkerOverlay(
-    map,
-    selectedOverlayName,
-    listingsData,
-    selectedNeighborhood,
-  );
-  // update plots and reset map view
-  if (selectedNeighborhood === "top") {
-    resetMapView(map, listingsData, statsByNeighborhood);
-  } else {
-    zoomIn(map, selectedNeighborhood, listingsData, statsByNeighborhood);
-  }
-}
-
 // update the overlay
-function updateMarkerOverlay(
+function renderMarkerOverlay(
   map = mapState.map,
   overlayName,
   listingsData,
   selectedNeighborhood,
+  statsByNeighborhood,
 ) {
   // filter listings by neighborhood
   const filteredListings = filterListingsByNeighborhood(
@@ -282,26 +261,14 @@ function updateMarkerOverlay(
 
   // set active overlay and legend based on overlay name
   if (overlayName === "License Status") {
-    if (mapState.markerLayer) {
-      map.removeLayer(mapState.markerLayer);
-    }
-
     mapState.markerLayer = createMarkers(filteredListings, "license");
     mapState.markerScheme = "license";
     mapState.legend = addLegend("License Status").addTo(map);
   } else if (overlayName === "Property Type") {
-    if (mapState.markerLayer) {
-      map.removeLayer(mapState.markerLayer);
-    }
-
     mapState.markerLayer = createMarkers(filteredListings, "propertyType");
     mapState.markerScheme = "propertyType";
     mapState.legend = addLegend("Property Type").addTo(map);
   } else {
-    if (mapState.markerLayer) {
-      map.removeLayer(mapState.markerLayer);
-    }
-
     mapState.markerLayer = createMarkers(filteredListings);
     mapState.markerScheme = "default";
     mapState.legend = null;
@@ -309,6 +276,13 @@ function updateMarkerOverlay(
 
   // add new overlay
   map.addLayer(mapState.markerLayer);
+
+  // update plots and reset map view
+  if (selectedNeighborhood === "top") {
+    resetMapView(map, listingsData, statsByNeighborhood);
+  } else {
+    zoomIn(map, selectedNeighborhood, listingsData, statsByNeighborhood);
+  }
 
   return mapState.markerLayer;
 }
