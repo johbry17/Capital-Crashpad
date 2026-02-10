@@ -96,7 +96,7 @@ function initializeMap() {
 }
 
 // add reset button to map
-function addResetButton(map = mapState.map) {
+function addResetButton(map) {
   const resetControl = L.control({ position: "topleft" });
 
   resetControl.onAdd = () => {
@@ -130,7 +130,7 @@ function initializeMarkerGroups(listingsData) {
 
 // initialize overlays
 function initializeOverlays(
-  map = mapState.map,
+  map,
   markerGroups,
   neighborhoods,
   listingsData,
@@ -154,7 +154,7 @@ function initializeOverlays(
 }
 
 // add the base layers and control
-function addBaseLayerControl(map = mapState.map) {
+function addBaseLayerControl(map) {
   let baseMap = {
     "Street Map": L.tileLayer(
       "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
@@ -169,7 +169,7 @@ function addBaseLayerControl(map = mapState.map) {
 
 // sync dropdown and overlays
 function syncDropdownAndOverlay(
-  map = mapState.map,
+  map,
   selectedNeighborhood,
   selectedOverlayName,
   listingsData,
@@ -234,7 +234,7 @@ function clearOverlays(){
 
 // update the overlay
 function renderMarkerOverlay(
-  map = mapState.map,
+  map,
   overlayName,
   listingsData,
   selectedNeighborhood,
@@ -274,7 +274,7 @@ function renderMarkerOverlay(
 
 // create dropdown for neighborhood interaction
 function neighborhoodsControl(
-  map = mapState.map,
+  map,
   neighborhoodsInfo,
   listingsData,
   statsByNeighborhood,
@@ -326,7 +326,7 @@ function createNeighborhoodDropdown(neighborhoodsInfo) {
 // event listener for dropdown changes
 function addDropdownChangeListener(
   dropdown,
-  map = mapState.map,
+  map,
   listingsData,
   statsByNeighborhood,
 ) {
@@ -364,7 +364,7 @@ function toggleButton(buttonId, enable = true) {
 }
 
 // resets map view to all of D.C., updates infoBox and plots
-function resetMapView(map = mapState.map, listingsData, statsByNeighborhood) {
+function resetMapView(map, listingsData, statsByNeighborhood) {
   // center map on D.C. and reset zoom
   map.setView([38.89511, -77.03637], 12);
   // reset choropleth layer style if active to remove neighborhood boundary highlight
@@ -397,7 +397,7 @@ function resetMapView(map = mapState.map, listingsData, statsByNeighborhood) {
 
 // zooms map for neighborhood view, updates infoBox and plots
 function zoomIn(
-  map = mapState.map,
+  map,
   selectedNeighborhood,
   listingsData,
   statsByNeighborhood,

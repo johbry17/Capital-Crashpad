@@ -2,7 +2,7 @@
 
 // initialize neighborhoods layer and zoomIn function to neighborhoods
 function initializeNeighborhoodsLayer(
-  map = mapState.map,
+  map,
   neighborhoods,
   listingsData,
   statsByNeighborhood,
@@ -34,7 +34,7 @@ function initializeNeighborhoodsLayer(
 
 // create choropleth layer for neighborhood boundaries
 function initializeChoroplethLayer(
-  map = mapState.map,
+  map,
   neighborhoods,
   listingsData,
   statsByNeighborhood,
