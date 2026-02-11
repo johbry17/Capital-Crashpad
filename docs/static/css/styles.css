@@ -201,7 +201,7 @@ h2 i {
   background-color: #f9f9f9;
 }
 
-#overlay-control {
+#choropleth-control {
   position: absolute;
   bottom: 10px;
   left: 50%;
@@ -211,7 +211,7 @@ h2 i {
   gap: 10px;
   z-index: 1000;
 }
-#overlay-control button {
+#choropleth-control button {
   background-color: #0085a1;
   color: white;
   border: none;
@@ -220,12 +220,62 @@ h2 i {
   cursor: pointer;
   transition: background-color 0.3s;
 }
-#overlay-control button:hover {
+#choropleth-control button:hover {
   background-color: #00a8cc;
 }
-#overlay-control button:disabled {
+#choropleth-control button:disabled {
   background-color: #6c757d;
   cursor: not-allowed;
+}
+
+#marker-overlay-group {
+  display: flex;
+  border-radius: 5px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  margin: 1.5em auto 0 auto;
+  position: relative;
+  justify-content: center;
+  gap: 0;
+  width: fit-content;
+}
+#marker-overlay-group label {
+  margin: 0;
+  padding: 0;
+}
+#marker-overlay-group label input[type=radio] {
+  display: none;
+}
+#marker-overlay-group label button, #marker-overlay-group label.btn {
+  background-color: #0085a1;
+  color: white;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  padding: 8px 18px;
+  font-size: 1em;
+  outline: none;
+}
+#marker-overlay-group label button:hover, #marker-overlay-group label button:focus, #marker-overlay-group label.btn:hover, #marker-overlay-group label.btn:focus {
+  background-color: #00a8cc;
+}
+#marker-overlay-group label.active,
+#marker-overlay-group label input[type=radio]:checked + button, input[type=radio]:checked + #marker-overlay-group label.btn {
+  background-color: #00a8cc;
+  color: white;
+  z-index: 2;
+}
+#marker-overlay-group label:first-child button,
+#marker-overlay-group label:first-child.btn {
+  border-top-left-radius: 5px;
+  border-bottom-left-radius: 5px;
+}
+#marker-overlay-group label:last-child button,
+#marker-overlay-group label:last-child.btn {
+  border-top-right-radius: 5px;
+  border-bottom-right-radius: 5px;
 }
 
 #tableau-viz {

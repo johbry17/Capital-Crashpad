@@ -101,22 +101,7 @@
             aria-label="Map of Washington, D.C. with Airbnb locations."
           ></div>
           <!-- Radio Buttons -->
-          <div id="overlay-control" aria-label="Toggle different data layers">
-            <button data-overlay="Airbnb's" aria-label="Show Airbnb's">
-              Airbnb's
-            </button>
-            <button
-              data-overlay="License Status"
-              aria-label="Show License Status"
-            >
-              License Status
-            </button>
-            <button
-              data-overlay="Property Type"
-              aria-label="Show Property Type"
-            >
-              Property Type
-            </button>
+          <div id="choropleth-control" aria-label="Toggle different data layers">
             <button
               id="median-price-button"
               data-overlay="Median Price"
@@ -133,6 +118,57 @@
             </button>
           </div>
         </div>
+      </div>
+      <!-- Segmented Marker Overlay Button Group -->
+      <div
+        class="btn-group btn-group-toggle"
+        id="marker-overlay-group"
+        data-toggle="buttons"
+        role="group"
+        aria-label="Toggle marker overlays"
+        style="margin-top: 1em"
+      >
+        <label class="btn btn-primary active" aria-pressed="true">
+          <input
+            type="radio"
+            name="marker-overlay"
+            id="marker-none"
+            autocomplete="off"
+            data-overlay="None"
+            checked
+          />
+          None
+        </label>
+        <label class="btn btn-primary" aria-pressed="false">
+          <input
+            type="radio"
+            name="marker-overlay"
+            id="marker-default"
+            autocomplete="off"
+            data-overlay="Airbnb's"
+          />
+          Airbnb's
+        </label>
+        <label class="btn btn-primary" aria-pressed="false">
+          <input
+            type="radio"
+            name="marker-overlay"
+            id="marker-license"
+            autocomplete="off"
+            data-overlay="License Status"
+          />
+          License Status
+        </label>
+        <label class="btn btn-primary" aria-pressed="false">
+          <input
+            type="radio"
+            name="marker-overlay"
+            id="marker-property"
+            autocomplete="off"
+            data-overlay="Property Type"
+          />
+          Property Type
+        </label>
       </div>
     </div>
     <!-- Info Box -->

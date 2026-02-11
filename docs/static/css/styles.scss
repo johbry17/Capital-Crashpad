@@ -247,8 +247,8 @@ h2 i {
   }
 }
 
-// overlay control (radio buttons)
-#overlay-control {
+// choropleth control (radio buttons)
+#choropleth-control {
   position: absolute;
   bottom: 10px;
   left: 50%;
@@ -275,6 +275,69 @@ h2 i {
       background-color: $disabled-color;
       cursor: not-allowed;
     }
+  }
+}
+
+// marker overlay segmented control
+#marker-overlay-group {
+  display: flex;
+  border-radius: 5px;
+  overflow: hidden;
+  box-shadow: $box-shadow;
+  margin: 1.5em auto 0 auto;
+  position: relative;
+  justify-content: center;
+  // z-index: 1000;
+  gap: 0; // no gap for segmented look
+  width: fit-content;
+
+  label {
+    margin: 0;
+    padding: 0;
+
+    input[type="radio"] {
+      display: none;
+    }
+
+    button,
+    &.btn {
+      background-color: $primary-color;
+      color: white;
+      border: none;
+      border-radius: 0;
+      box-shadow: none;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      padding: 8px 18px;
+      font-size: 1em;
+      outline: none;
+
+      &:hover,
+      &:focus {
+        background-color: $hover-color;
+      }
+    }
+
+    // active/checked state
+    &.active,
+    input[type="radio"]:checked + button,
+    input[type="radio"]:checked + &.btn {
+      background-color: $hover-color;
+      color: white;
+      z-index: 2;
+    }
+  }
+
+  // first and last for rounded corners
+  label:first-child button,
+  label:first-child.btn {
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+  }
+  label:last-child button,
+  label:last-child.btn {
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
   }
 }
 

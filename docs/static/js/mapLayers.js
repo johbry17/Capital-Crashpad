@@ -1,33 +1,51 @@
 // Description: Functions to create and initialize map layers - neighborhoods, choropleth, bubble chart, and markers
 
-// initialize neighborhoods layer and zoomIn function to neighborhoods
-function initializeNeighborhoodsLayer(
+// get color for choropleth based on metric and value
+function getColorForMetric(metric, value) {
+  return choroplethConfig[metric].scale(value);
+}
+
+// initialize choropleth layer and zoomIn function to neighborhoods
+function initializeChoroplethLayer(
   map,
   neighborhoods,
   listingsData,
   statsByNeighborhood,
 ) {
-  const neighborhoodsLayer = L.geoJSON(neighborhoods, {
-    style: {
-      color: defaultColors.neighborhoodLayer,
-      weight: 3,
+  const choroplethLayer = L.geoJSON(neighborhoods, {
+    style: (feature) => {
+      if (!mapState.choroplethMetric) {
+        return {
+          color: defaultColors.defaultGray,
+          weight: 2,
+          fillOpacity: 0,
+        };
+      }
+
+      const metric = mapState.choroplethMetric;
+      const value =
+        statsByNeighborhood[feature.properties.neighbourhood]?.[metric] || 0;
+
+      return {
+        fillColor: getColorForMetric(metric, value),
+        weight: 2,
+        color: "white",
+        fillOpacity: 0.6,
+      };
     },
     // update dropdown and zoom in on neighborhood
     onEachFeature: (feature, layer) => {
       layer.on("click", function () {
         const selectedNeighborhood = feature.properties.neighbourhood;
-        // const dropdown = document.getElementById("neighborhoods-dropdown");
-        // dropdown.value = selectedNeighborhood;
-        // dropdown.dispatchEvent(new Event("change"));
-        document.getElementById("neighborhoods-dropdown").value =
-          selectedNeighborhood;
-        zoomIn(map, selectedNeighborhood, listingsData, statsByNeighborhood);
+        const dropdown = document.getElementById("neighborhoods-dropdown");
+        dropdown.value = selectedNeighborhood;
+        dropdown.dispatchEvent(new Event("change"));
       });
     },
   });
 
   // return the layer without adding it to the map
-  return neighborhoodsLayer;
+  return choroplethLayer;
 }
 
 //////////////////////////////////////////////////////////
@@ -58,80 +76,80 @@ function popupMouseEvents(layer) {
 
 //////////////////////////////////////////////////////////
 
-// create choropleth layer for neighborhood boundaries
-function initializeChoroplethLayer(
-  map,
-  neighborhoods,
-  listingsData,
-  statsByNeighborhood,
-) {
-  // color scale function
-  const getColor = (price) =>
-    d3.scaleSequential(d3.interpolateViridis).domain([50, 250])(price);
+// // create choropleth layer for neighborhood boundaries
+// function initializeChoroplethLayer(
+//   map,
+//   neighborhoods,
+//   listingsData,
+//   statsByNeighborhood,
+// ) {
+//   // color scale function
+//   const getColor = (price) =>
+//     d3.scaleSequential(d3.interpolateViridis).domain([50, 250])(price);
 
-  // to hold the choropleth and text markers
-  const layerGroup = L.layerGroup();
+//   // to hold the choropleth and text markers
+//   const layerGroup = L.layerGroup();
 
-  // layer for the choropleth polygons
-  const choroplethLayer = L.geoJSON(neighborhoods, {
-    style: (feature) => {
-      // lookup median price for neighborhood to determine fill color
-      const stats = statsByNeighborhood[feature.properties.neighbourhood];
-      const medianPrice = stats ? +stats.median_price : 0;
-      // return style options based on median price
-      return {
-        fillColor: getColor(medianPrice),
-        weight: 2,
-        opacity: 1,
-        color: "white",
-        dashArray: "3",
-        fillOpacity: 0.6,
-      };
-    },
-    onEachFeature: (feature, layer) => {
-      // // lookup stats for neighborhood to populate popup
-      const stats = statsByNeighborhood[feature.properties.neighbourhood];
-      const medianPrice = stats ? +stats.median_price : 0;
-      // const listingsCount = stats ? +stats.listings_count : 0;
-      // // create popup content
-      // const popupContent = `${feature.properties.neighbourhood}<br>
-      //   <span class="popup-text-right popup-text-right-larger"><b>Median Price: $${medianPrice.toLocaleString()}</b></span>
-      //   <span class="popup-text-right">Airbnb Count: ${listingsCount.toLocaleString()}</span>`;
-      // // bind popup to layer
-      // layer.bindPopup(popupContent, { className: "marker-popup" });
-      // // open || close popup
-      // popupMouseEvents(layer);
-      // zoom on click
-      layer.on("click", function () {
-        const selectedNeighborhood = feature.properties.neighbourhood;
-        document.getElementById("neighborhoods-dropdown").value =
-          selectedNeighborhood;
-        zoomIn(map, selectedNeighborhood, listingsData, statsByNeighborhood);
-      });
-      // calculate centroid for placing text markers
-      const latlng = calculateCentroid(feature);
-      // create text marker and add to layer
-      const textMarker = L.marker(latlng, {
-        icon: L.divIcon({
-          className: "choropleth-label",
-          html: `<div>$${Math.round(medianPrice).toLocaleString()}</div>`,
-          iconSize: [100, 50],
-          iconAnchor: [50, 25],
-        }),
-        interactive: false,
-      });
-      layerGroup.addLayer(textMarker);
-    },
-  });
+//   // layer for the choropleth polygons
+//   const choroplethLayer = L.geoJSON(neighborhoods, {
+//     style: (feature) => {
+//       // lookup median price for neighborhood to determine fill color
+//       const stats = statsByNeighborhood[feature.properties.neighbourhood];
+//       const medianPrice = stats ? +stats.median_price : 0;
+//       // return style options based on median price
+//       return {
+//         fillColor: getColor(medianPrice),
+//         weight: 2,
+//         opacity: 1,
+//         color: "white",
+//         dashArray: "3",
+//         fillOpacity: 0.6,
+//       };
+//     },
+//     onEachFeature: (feature, layer) => {
+//       // // lookup stats for neighborhood to populate popup
+//       const stats = statsByNeighborhood[feature.properties.neighbourhood];
+//       const medianPrice = stats ? +stats.median_price : 0;
+//       // const listingsCount = stats ? +stats.listings_count : 0;
+//       // // create popup content
+//       // const popupContent = `${feature.properties.neighbourhood}<br>
+//       //   <span class="popup-text-right popup-text-right-larger"><b>Median Price: $${medianPrice.toLocaleString()}</b></span>
+//       //   <span class="popup-text-right">Airbnb Count: ${listingsCount.toLocaleString()}</span>`;
+//       // // bind popup to layer
+//       // layer.bindPopup(popupContent, { className: "marker-popup" });
+//       // // open || close popup
+//       // popupMouseEvents(layer);
+//       // zoom on click
+//       layer.on("click", function () {
+//         const selectedNeighborhood = feature.properties.neighbourhood;
+//         document.getElementById("neighborhoods-dropdown").value =
+//           selectedNeighborhood;
+//         zoomIn(map, selectedNeighborhood, listingsData, statsByNeighborhood);
+//       });
+//       // calculate centroid for placing text markers
+//       const latlng = calculateCentroid(feature);
+//       // create text marker and add to layer
+//       const textMarker = L.marker(latlng, {
+//         icon: L.divIcon({
+//           className: "choropleth-label",
+//           html: `<div>$${Math.round(medianPrice).toLocaleString()}</div>`,
+//           iconSize: [100, 50],
+//           iconAnchor: [50, 25],
+//         }),
+//         interactive: false,
+//       });
+//       layerGroup.addLayer(textMarker);
+//     },
+//   });
 
-  // mark as a choropleth group so callers can reset styles when needed
-  layerGroup._choropleth = choroplethLayer;
+//   // mark as a choropleth group so callers can reset styles when needed
+//   layerGroup._choropleth = choroplethLayer;
 
-  // add choropleth to layer
-  layerGroup.addLayer(choroplethLayer);
+//   // add choropleth to layer
+//   layerGroup.addLayer(choroplethLayer);
 
-  return layerGroup;
-}
+//   return layerGroup;
+// }
 
 //////////////////////////////////////////////////////////
 
@@ -145,7 +163,7 @@ function initializeBubbleChartLayer(neighborhoods, statsByNeighborhood) {
 
 // create neighborhood outlines layer
 function initializeNeighborhoodOutlines(bubbleLayerGroup, neighborhoods) {
-  const neighborhoodsLayer = L.geoJSON(neighborhoods, {
+  const neighborhoodsOutlineLayer = L.geoJSON(neighborhoods, {
     style: {
       color: defaultColors.defaultGray,
       weight: 2,
@@ -153,7 +171,7 @@ function initializeNeighborhoodOutlines(bubbleLayerGroup, neighborhoods) {
       fillOpacity: 0, // no fill, just outlines
     },
   });
-  bubbleLayerGroup.addLayer(neighborhoodsLayer);
+  bubbleLayerGroup.addLayer(neighborhoodsOutlineLayer);
 }
 
 // create bubbles, text markers, and popups for each neighborhood

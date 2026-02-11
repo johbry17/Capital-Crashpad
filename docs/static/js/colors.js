@@ -25,3 +25,27 @@ const propertyTypeColors = {
   "Hotel room": "red",
   default: "gray",
 };
+
+// choropleth colors
+const choroplethConfig = {
+  median_price: {
+    scale: d3.scaleSequential(d3.interpolateViridis).domain([50, 300]),
+    label: "Median Price"
+  },
+  // reviews_per_month: {
+  //   scale: d3.scaleSequential(d3.interpolatePlasma).domain([0, 10]),
+  //   label: "Reviews per Month"
+  // },
+  // total_listings: {
+  //   scale: d3.scaleSequential(d3.interpolateBlues).domain([0, 500]),
+  //   label: "Total Listings"
+  // },
+  // multi_listing_pct: {
+  //   scale: d3.scaleSequential(d3.interpolateOranges).domain([0, 1]),
+  //   label: "% Multi-Listing Hosts"
+  // },
+  // listings_per_1000: {
+  //   scale: d3.scaleSequential(d3.interpolateReds).domain([0, 20]),
+  //   label: "Listings per 1,000"
+  // }
+};
