@@ -109,8 +109,8 @@ function formatMetric(metric, value) {
     case "multi_listing_pct":
       return `${Math.round(value * 100)}%`;
 
-    // case "listings_per_1000":
-    //   return value.toFixed(1);
+    case "listings_per_1000":
+      return Number(value).toFixed(1);
 
     default:
       return value;

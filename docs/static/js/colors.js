@@ -44,8 +44,8 @@ const choroplethConfig = {
     scale: d3.scaleSequential(d3.interpolateOranges).domain([0, 1]),
     label: "% Multi-Listing Hosts"
   },
-  // listings_per_1000: {
-  //   scale: d3.scaleSequential(d3.interpolateReds).domain([0, 20]),
-  //   label: "Listings per 1,000"
-  // }
+  listings_per_1000: {
+    scale: d3.scaleSequential(d3.interpolateReds).domain([0, 25]),
+    label: "Listings per 1,000 Residents"
+  }
 };
