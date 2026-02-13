@@ -173,7 +173,7 @@ function addBubbles(bubbleLayerGroup, neighborhoods, statsByNeighborhood) {
     // get neighborhood stats for bubble size and popup content
     const neighborhood = feature.properties.neighbourhood;
     const avgPrice = +statsByNeighborhood[neighborhood]?.median_price || 0;
-    const count = +statsByNeighborhood[neighborhood]?.listings_count || 0;
+    const count = +statsByNeighborhood[neighborhood]?.total_listings || 0;
     const radius = Math.sqrt(count) * 2; // scale radius based on count
     const latlng = calculateCentroid(feature); // for placing markers
 
