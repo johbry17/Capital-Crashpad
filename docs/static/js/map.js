@@ -49,9 +49,8 @@ function createMap(neighborhoods, listingsData, statsByNeighborhood) {
   mapState.markerScheme = "none";
 
   // set initial choropleth metric and add layer to map
-  setChoroplethMetric("median_price", neighborhoods, statsByNeighborhood);
+  setChoroplethMetric("license_compliance", neighborhoods, statsByNeighborhood);
   mapState.choroplethLayer.addTo(map);
-  updateChoroplethLabels(neighborhoods, statsByNeighborhood);
 
   // event listener for overlay and marker scheme changes
   setupOverlayListeners(neighborhoods, listingsData, statsByNeighborhood);
