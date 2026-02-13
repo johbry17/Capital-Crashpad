@@ -9,6 +9,7 @@ const mapState = {
 
   bubbleLayer: null,
   choroplethLayer: null,
+  choroplethLabels: null,
   choroplethMetric: null,
 
   choroplethLegend: null,
@@ -48,8 +49,9 @@ function createMap(neighborhoods, listingsData, statsByNeighborhood) {
   mapState.markerScheme = "none";
 
   // set initial choropleth metric and add layer to map
-  setChoroplethMetric("median_price");
+  setChoroplethMetric("median_price", neighborhoods, statsByNeighborhood);
   mapState.choroplethLayer.addTo(map);
+  updateChoroplethLabels(neighborhoods, statsByNeighborhood);
 
   // event listener for overlay and marker scheme changes
   setupOverlayListeners(neighborhoods, listingsData, statsByNeighborhood);
@@ -242,23 +244,20 @@ function setupOverlayListeners(
       return;
     }
 
-    // set choropleth metric
-    if (selectedOverlay === "Median Price") {
-      setChoroplethMetric("median_price");
-      return;
-    }
-    // const metricMap = {
-    //   "License Compliance": "license_compliance",
-    //   "Median Price": "median_price",
-    //   "Reviews per Month": "reviews_per_month",
-    //   "% Multi-Listing Hosts": "multi_listing_pct",
-    //   "Listings per 1,000": "listings_per_1000",
-    // };
+    // map overlay names to metric keys for easier handling
+    const metricMap = {
+      "License Compliance": "license_compliance",
+      "Median Price": "median_price",
+      // "Reviews per Month": "reviews_per_month",
+      // "% Multi-Listing Hosts": "multi_listing_pct",
+      // "Listings per 1,000": "listings_per_1000",
+    };
 
-    // const metric = metricMap[selectedOverlay];
-    // if (metric) {
-    //   setChoroplethMetric(metric);
-    // }
+    // set choropleth metric based on selected overlay and update layer style and legend
+    const metric = metricMap[selectedOverlay];
+    if (metric) {
+      setChoroplethMetric(metric, neighborhoods, statsByNeighborhood);
+    }
   }
 
   // handle marker scheme changes
@@ -283,9 +282,10 @@ function setupOverlayListeners(
 }
 
 // set choropleth metric and update layer style and legend
-function setChoroplethMetric(metric) {
+function setChoroplethMetric(metric, neighborhoods, statsByNeighborhood) {
   mapState.choroplethMetric = metric;
   mapState.choroplethLayer.setStyle(mapState.choroplethLayer.options.style);
+  updateChoroplethLabels(neighborhoods, statsByNeighborhood);
   updateChoroplethLegend();
 }
 
@@ -302,7 +302,7 @@ function updateChoroplethLegend() {
 
   // get config for current metric and add new legend
   const config = choroplethConfig[mapState.choroplethMetric];
-  mapState.choroplethLegend = addLegend(config.label).addTo(mapState.map);
+  mapState.choroplethLegend = addLegend("choropleth").addTo(mapState.map);
 }
 
 // toggle bubble layer on/off
@@ -342,7 +342,7 @@ function toggleBubbleLayer(neighborhoods, statsByNeighborhood) {
   mapState.markerScheme = "none";
 
   // set choropleth to null (default borders, no fill) and update legend
-  setChoroplethMetric(null);
+  setChoroplethMetric(null, neighborhoods, statsByNeighborhood);
   updateChoroplethLegend();
 }
 

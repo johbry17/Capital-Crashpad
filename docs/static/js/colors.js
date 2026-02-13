@@ -28,10 +28,10 @@ const propertyTypeColors = {
 
 // choropleth colors
 const choroplethConfig = {
-  // license_compliance: {
-  //   scale: d3.scaleSequential(d3.interpolateBlues).domain([0, 1]),
-  //   label: "License Compliance"
-  // },
+  license_compliance: {
+    scale: d3.scaleSequential(d3.interpolateBlues).domain([0, 1]),
+    label: "License Compliance"
+  },
   median_price: {
     scale: d3.scaleSequential(d3.interpolateViridis).domain([50, 300]),
     label: "Median Price"

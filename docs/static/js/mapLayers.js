@@ -45,6 +45,78 @@ function initializeChoroplethLayer(neighborhoods, statsByNeighborhood) {
   return choroplethLayer;
 }
 
+// create choropleth labels layer with metric values for each neighborhood
+function updateChoroplethLabels(neighborhoods, statsByNeighborhood) {
+  const map = mapState.map;
+  const metric = mapState.choroplethMetric;
+
+  // remove old layer if it exists
+  if (mapState.choroplethLabels) {
+    map.removeLayer(mapState.choroplethLabels);
+  }
+
+  // create new label layer
+  const labelGroup = L.layerGroup();
+
+  // loop through neighborhoods to create labels
+  neighborhoods.features.forEach((feature) => {
+    // get neighborhood name and centroid for label placement
+    const neighborhood = feature.properties.neighbourhood;
+    const latlng = calculateCentroid(feature);
+
+    let labelHTML = "";
+
+    // if a metric is selected, get the value for this neighborhood and format it for the label
+    if (metric) {
+      const value = statsByNeighborhood[neighborhood]?.[metric];
+      const formatted = formatMetric(metric, value);
+      labelHTML = `<div>${formatted}</div>`;
+    }
+
+    // create marker with label HTML and add to label layer group
+    const label = L.marker(latlng, {
+      icon: L.divIcon({
+        className: "choropleth-label",
+        html: labelHTML,
+        iconSize: [100, 24],
+        iconAnchor: [50, 12],
+      }),
+      interactive: false,
+    });
+
+    labelGroup.addLayer(label);
+  });
+
+  // add label layer to map and save reference in mapState for future updates
+  mapState.choroplethLabels = labelGroup;
+  map.addLayer(labelGroup);
+}
+
+// helper function to format metric values for labels
+function formatMetric(metric, value) {
+  if (!metric || value == null || isNaN(value)) return "";
+
+  switch (metric) {
+    case "license_compliance":
+      return `${Math.round(value * 100)}%`;
+
+    case "median_price":
+      return `$${Math.round(value)}`;
+
+    // case "reviews_per_month":
+    //   return value.toFixed(1);
+
+    // case "multi_listing_pct":
+    //   return `${Math.round(value * 100)}%`;
+
+    // case "listings_per_1000":
+    //   return value.toFixed(1);
+
+    default:
+      return value;
+  }
+}
+
 //////////////////////////////////////////////////////////
 
 // calculates centroid for choropleth and bubble chart layers
@@ -70,83 +142,6 @@ function popupMouseEvents(layer) {
     },
   });
 }
-
-//////////////////////////////////////////////////////////
-
-// // create choropleth layer for neighborhood boundaries
-// function initializeChoroplethLayer(
-//   map,
-//   neighborhoods,
-//   listingsData,
-//   statsByNeighborhood,
-// ) {
-//   // color scale function
-//   const getColor = (price) =>
-//     d3.scaleSequential(d3.interpolateViridis).domain([50, 250])(price);
-
-//   // to hold the choropleth and text markers
-//   const layerGroup = L.layerGroup();
-
-//   // layer for the choropleth polygons
-//   const choroplethLayer = L.geoJSON(neighborhoods, {
-//     style: (feature) => {
-//       // lookup median price for neighborhood to determine fill color
-//       const stats = statsByNeighborhood[feature.properties.neighbourhood];
-//       const medianPrice = stats ? +stats.median_price : 0;
-//       // return style options based on median price
-//       return {
-//         fillColor: getColor(medianPrice),
-//         weight: 2,
-//         opacity: 1,
-//         color: "white",
-//         dashArray: "3",
-//         fillOpacity: 0.6,
-//       };
-//     },
-//     onEachFeature: (feature, layer) => {
-//       // // lookup stats for neighborhood to populate popup
-//       const stats = statsByNeighborhood[feature.properties.neighbourhood];
-//       const medianPrice = stats ? +stats.median_price : 0;
-//       // const listingsCount = stats ? +stats.listings_count : 0;
-//       // // create popup content
-//       // const popupContent = `${feature.properties.neighbourhood}<br>
-//       //   <span class="popup-text-right popup-text-right-larger"><b>Median Price: $${medianPrice.toLocaleString()}</b></span>
-//       //   <span class="popup-text-right">Airbnb Count: ${listingsCount.toLocaleString()}</span>`;
-//       // // bind popup to layer
-//       // layer.bindPopup(popupContent, { className: "marker-popup" });
-//       // // open || close popup
-//       // popupMouseEvents(layer);
-//       // zoom on click
-//       layer.on("click", function () {
-//         const selectedNeighborhood = feature.properties.neighbourhood;
-//         document.getElementById("neighborhoods-dropdown").value =
-//           selectedNeighborhood;
-//         zoomIn(map, selectedNeighborhood, listingsData, statsByNeighborhood);
-//       });
-//       // calculate centroid for placing text markers
-//       const latlng = calculateCentroid(feature);
-//       // create text marker and add to layer
-//       const textMarker = L.marker(latlng, {
-//         icon: L.divIcon({
-//           className: "choropleth-label",
-//           html: `<div>$${Math.round(medianPrice).toLocaleString()}</div>`,
-//           iconSize: [100, 50],
-//           iconAnchor: [50, 25],
-//         }),
-//         interactive: false,
-//       });
-//       layerGroup.addLayer(textMarker);
-//     },
-//   });
-
-//   // mark as a choropleth group so callers can reset styles when needed
-//   layerGroup._choropleth = choroplethLayer;
-
-//   // add choropleth to layer
-//   layerGroup.addLayer(choroplethLayer);
-
-//   return layerGroup;
-// }
 
 //////////////////////////////////////////////////////////
 
@@ -226,7 +221,34 @@ function addLegend(type) {
     let div = L.DomUtil.create("div", "custom-legend");
     div.style.zIndex = "1000"; // ensure legend is on top
 
-    // set labels and colors based on type
+    // choropleth legend -- create gradient bar and labels based on selected metric
+    if (type === "choropleth") {
+      const metric = mapState.choroplethMetric;
+
+      // if no metric selected, return empty legend
+      if (!metric || !choroplethConfig[metric]) {
+        div.innerHTML = "";
+        return div;
+      }
+
+      // get config for selected metric to build legend
+      const { scale, label } = choroplethConfig[metric];
+      const [min, max] = scale.domain();
+
+      // build legend content
+      div.innerHTML = `<div class="legend-title">${label}</div>`;
+
+      // create gradient bar and range labels
+      const gradientBar = createGradientBar(scale);
+      div.appendChild(gradientBar);
+
+      const rangeLabels = createRangeLabels(metric, min, max);
+      div.appendChild(rangeLabels);
+
+      return div;
+    }
+
+    // marker legend -- set labels and colors based on type
     let labels = [],
       colors = [];
     switch (type) {
@@ -249,15 +271,9 @@ function addLegend(type) {
         );
         div.innerHTML = '<div class="legend-title">Property Type</div>';
         break;
-      case "Median Price":
-        div.innerHTML = '<div class="legend-title">Median Price</div>';
-        const gradientBar = createGradientBar();
-        div.appendChild(gradientBar);
-        div.appendChild(createPriceLabels());
-        return div;
     }
 
-    // Append the legend colors and labels
+    // append the legend colors and labels
     labels.forEach((label, index) => {
       div.innerHTML += `<div><i class="legend-color" style="background:${colors[index]}"></i>${label}</div>`;
     });
@@ -269,24 +285,39 @@ function addLegend(type) {
 }
 
 // create gradient bar for choropleth legend
-function createGradientBar() {
+function createGradientBar(scale) {
   const gradientBar = document.createElement("div");
   gradientBar.style.width = "100%";
   gradientBar.style.height = "20px";
-  gradientBar.style.background = `linear-gradient(to right, ${Array.from(
-    { length: 101 },
-    (_, i) =>
-      d3.scaleSequential(d3.interpolateViridis).domain([50, 300])(50 + i * 2.5),
-  ).join(", ")})`;
+
+  // generate array of colors for gradient based on scale domain
+  const [min, max] = scale.domain();
+  // create 100 color stops for smooth gradient
+  const colors = Array.from({ length: 100 }, (_, i) => {
+    const t = i / 99;
+    const value = min + t * (max - min);
+    return scale(value);
+  });
+
+  // set gradient background using generated colors
+  gradientBar.style.background = `linear-gradient(to right, ${colors.join(",")})`;
+
   return gradientBar;
 }
 
 // create labels for choropleth legend price range
-function createPriceLabels() {
+function createRangeLabels(metric, min, max) {
+  // create container for labels
   const labelContainer = document.createElement("div");
   labelContainer.style.display = "flex";
   labelContainer.style.justifyContent = "space-between";
-  labelContainer.innerHTML = `<div>$50</div><div>$300</div>`;
+
+  // format labels based on metric type
+  labelContainer.innerHTML = `
+    <div>${formatMetric(metric, min)}</div>
+    <div>${formatMetric(metric, max)}</div>
+  `;
+
   return labelContainer;
 }
 
