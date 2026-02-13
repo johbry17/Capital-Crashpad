@@ -106,8 +106,8 @@ function formatMetric(metric, value) {
     case "reviews_per_month":
       return Number(value).toFixed(1);
 
-    // case "multi_listing_pct":
-    //   return `${Math.round(value * 100)}%`;
+    case "multi_listing_pct":
+      return `${Math.round(value * 100)}%`;
 
     // case "listings_per_1000":
     //   return value.toFixed(1);

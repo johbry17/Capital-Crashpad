@@ -40,10 +40,10 @@ const choroplethConfig = {
     scale: d3.scaleSequential(d3.interpolatePlasma).domain([0, 5]),
     label: "Reviews per Month"
   },
-  // multi_listing_pct: {
-  //   scale: d3.scaleSequential(d3.interpolateOranges).domain([0, 1]),
-  //   label: "% Multi-Listing Hosts"
-  // },
+  multi_listing_pct: {
+    scale: d3.scaleSequential(d3.interpolateOranges).domain([0, 1]),
+    label: "% Multi-Listing Hosts"
+  },
   // listings_per_1000: {
   //   scale: d3.scaleSequential(d3.interpolateReds).domain([0, 20]),
   //   label: "Listings per 1,000"
