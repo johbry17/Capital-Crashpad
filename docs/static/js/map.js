@@ -53,6 +53,12 @@ function createMap(neighborhoods, listingsData, statsByNeighborhood) {
 
   // event listener for overlay and marker scheme changes
   setupOverlayListeners(neighborhoods, listingsData, statsByNeighborhood);
+
+  // update infoBox and plots for initial view
+  updateInfoBox(listingsData, "Washington, D.C.");
+  update31DaysInfoBox(listingsData, "Washington, D.C.");
+  updateMultiListings(listingsData, "Washington, D.C.");
+  allDCPlots(listingsData, statsByNeighborhood, defaultColors);
 }
 
 //////////////////////////////////////////////////////////
