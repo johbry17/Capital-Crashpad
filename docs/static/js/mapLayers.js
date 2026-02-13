@@ -6,15 +6,11 @@ function getColorForMetric(metric, value) {
 }
 
 // initialize choropleth layer and zoomIn function to neighborhoods
-function initializeChoroplethLayer(
-  map,
-  neighborhoods,
-  listingsData,
-  statsByNeighborhood,
-) {
+function initializeChoroplethLayer(neighborhoods, statsByNeighborhood) {
   const choroplethLayer = L.geoJSON(neighborhoods, {
     style: (feature) => {
-      if (!mapState.choroplethMetric) {
+      // if no metric selected, show default gray with no fill
+      if (mapState.choroplethMetric == null) {
         return {
           color: defaultColors.defaultGray,
           weight: 2,
@@ -22,6 +18,7 @@ function initializeChoroplethLayer(
         };
       }
 
+      // get metric value for neighborhood to determine fill color
       const metric = mapState.choroplethMetric;
       const value =
         statsByNeighborhood[feature.properties.neighbourhood]?.[metric] || 0;
@@ -33,7 +30,7 @@ function initializeChoroplethLayer(
         fillOpacity: 0.6,
       };
     },
-    // update dropdown and zoom in on neighborhood
+    // on click, update dropdown to zoom in on neighborhood
     onEachFeature: (feature, layer) => {
       layer.on("click", function () {
         const selectedNeighborhood = feature.properties.neighbourhood;
@@ -195,9 +192,7 @@ function addBubbles(bubbleLayerGroup, neighborhoods, statsByNeighborhood) {
       fillOpacity: 0.8,
     }).bindPopup(
       `${neighborhood}<br>
-        <span class="popup-text-right">Median Price: $${avgPrice
-          .toFixed(2)
-          .toLocaleString()}</span>
+        <span class="popup-text-right">Median Price: ${avgPrice.toLocaleString(undefined, { style: "currency", currency: "USD" })}</span>
         <span class="popup-text-right popup-text-right-larger"><b>Airbnb Count: ${count.toLocaleString()}</b></span>`,
       { className: "marker-popup" },
     );
@@ -372,7 +367,7 @@ function groupListingsByLatLon(data) {
 function createPopupContentForGroup(listings, markerColor = "#333") {
   const content = listings
     .map((listing) => {
-      const price = parseFloat(listing.price).toLocaleString("en-US", {
+      const price = parseFloat(listing.price).toLocaleString(undefined, {
         style: "currency",
         currency: "USD",
       });

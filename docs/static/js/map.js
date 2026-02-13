@@ -1,6 +1,6 @@
 // Description: This file contains the functions to create the map and controls, and to handle user interactions
 
-// global for tracking map state and active layers
+// globals for tracking map state and active layers
 const mapState = {
   map: null,
 
@@ -17,6 +17,12 @@ const mapState = {
   selectedNeighborhood: "top",
 };
 
+// default map view for resetting
+const DC_VIEW = {
+  center: [38.89511, -77.03637],
+  zoom: 12,
+};
+
 //////////////////////////////////////////////////////////
 
 // map creation
@@ -27,7 +33,7 @@ function createMap(neighborhoods, listingsData, statsByNeighborhood) {
   addBaseLayerControl(map);
 
   // initialize dropdown and choropleth layer
-  neighborhoodsControl(map, neighborhoods, listingsData, statsByNeighborhood);
+  neighborhoodsControl(neighborhoods, listingsData, statsByNeighborhood);
 
   // event listeners for resizing
   window.addEventListener("resize", () => {
@@ -84,7 +90,7 @@ function addResetButton(map) {
     L.DomEvent.disableClickPropagation(button);
 
     button.addEventListener("click", () => {
-      map.setView([38.89511, -77.03637], 12); // reset to initial view
+      map.setView(DC_VIEW.center, DC_VIEW.zoom); // reset to initial view
     });
 
     return button;
@@ -111,7 +117,6 @@ function addBaseLayerControl(map) {
 
 // create dropdown for neighborhood interaction
 function neighborhoodsControl(
-  map,
   neighborhoodsInfo,
   listingsData,
   statsByNeighborhood,
@@ -122,9 +127,7 @@ function neighborhoodsControl(
 
   // create neighborhoods layer but don't add it to the map yet
   mapState.choroplethLayer = initializeChoroplethLayer(
-    map,
     neighborhoodsInfo,
-    listingsData,
     statsByNeighborhood,
   );
 
@@ -156,14 +159,14 @@ function createNeighborhoodDropdown(neighborhoodsInfo) {
   dropdown.id = "neighborhoods-dropdown";
 
   // sort neighborhoods alphabetically
-  neighborhoodsInfo.features.sort((a, b) =>
+  const sortedFeatures = [...neighborhoodsInfo.features].sort((a, b) =>
     a.properties.neighbourhood.localeCompare(b.properties.neighbourhood),
   );
 
   // populate dropdown menu, DC first, then sorted neighborhoods
   const allDC = createOption("Washington, D.C.", "top");
   dropdown.appendChild(allDC);
-  neighborhoodsInfo.features.forEach((feature) => {
+  sortedFeatures.forEach((feature) => {
     const option = createOption(
       feature.properties.neighbourhood,
       feature.properties.neighbourhood,
@@ -239,9 +242,9 @@ function setupOverlayListeners(
       return;
     }
     // const metricMap = {
+    //   "License Compliance": "license_compliance",
     //   "Median Price": "median_price",
     //   "Reviews per Month": "reviews_per_month",
-    //   "Total Listings": "total_listings",
     //   "% Multi-Listing Hosts": "multi_listing_pct",
     //   "Listings per 1,000": "listings_per_1000",
     // };
@@ -306,12 +309,10 @@ function toggleBubbleLayer(neighborhoods, statsByNeighborhood) {
     );
   }
 
-  // toggle bubble layer visibility - done above in handleOverlayClick
-  // if (mapState.map.hasLayer(mapState.bubbleLayer)) {
-  //   mapState.map.removeLayer(mapState.bubbleLayer);
-  // } else {
-  mapState.map.addLayer(mapState.bubbleLayer);
-  // }
+  // show bubble layer if not present
+  if (!mapState.map.hasLayer(mapState.bubbleLayer)) {
+    mapState.map.addLayer(mapState.bubbleLayer);
+  }
 
   // remove marker layer if present
   if (mapState.markerLayer) {
@@ -401,7 +402,7 @@ function toggleButton(buttonId, enable = true) {
 // resets map view to all of D.C., updates infoBox and plots
 function resetMapView(map, listingsData, statsByNeighborhood) {
   // center map on D.C. and reset zoom
-  map.setView([38.89511, -77.03637], 12);
+  map.setView(DC_VIEW.center, DC_VIEW.zoom);
   // reset choropleth style (neighborhoods may remain uncovered otherwise)
   if (mapState.choroplethLayer) {
     mapState.choroplethLayer.resetStyle();

@@ -28,6 +28,10 @@ const propertyTypeColors = {
 
 // choropleth colors
 const choroplethConfig = {
+  // license_compliance: {
+  //   scale: d3.scaleSequential(d3.interpolateBlues).domain([0, 1]),
+  //   label: "License Compliance"
+  // },
   median_price: {
     scale: d3.scaleSequential(d3.interpolateViridis).domain([50, 300]),
     label: "Median Price"
@@ -35,10 +39,6 @@ const choroplethConfig = {
   // reviews_per_month: {
   //   scale: d3.scaleSequential(d3.interpolatePlasma).domain([0, 10]),
   //   label: "Reviews per Month"
-  // },
-  // total_listings: {
-  //   scale: d3.scaleSequential(d3.interpolateBlues).domain([0, 500]),
-  //   label: "Total Listings"
   // },
   // multi_listing_pct: {
   //   scale: d3.scaleSequential(d3.interpolateOranges).domain([0, 1]),
