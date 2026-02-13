@@ -254,7 +254,7 @@ function setupOverlayListeners(
       "License Compliance": "license_compliance",
       "Median Price": "median_price",
       "Reviews per Month": "reviews_per_month",
-      "% Multi-Listing Hosts": "multi_listing_pct",
+      "% Multi-Property Hosts": "multi_listing_pct",
       "Listings per 1,000 Residents": "listings_per_1000",
       "Total Listings": "total_listings",
     };

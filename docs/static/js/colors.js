@@ -34,7 +34,7 @@ const choroplethConfig = {
   },
   license_compliance_vs_dc_pct: {
     scale: d3.scaleDiverging(d3.interpolatePuOr).domain([-100, 0, 100]),
-    label: "License Compliance vs DC (%)",
+    label: "License Compliance vs DC Avg",
   },
   median_price: {
     scale: d3.scaleSequential(d3.interpolatePurples).domain([50, 250]),
@@ -42,7 +42,7 @@ const choroplethConfig = {
   },
   median_price_vs_dc_pct: {
     scale: d3.scaleDiverging(d3.interpolatePRGn).domain([-50, 0, 50]),
-    label: "Median Price vs DC (%)"
+    label: "Median Price vs DC Avg"
   },
   reviews_per_month: {
     scale: d3.scaleSequential(d3.interpolateGnBu).domain([0, 3]),
@@ -50,15 +50,15 @@ const choroplethConfig = {
   },
   reviews_per_month_vs_dc_pct: {
     scale: d3.scaleDiverging(d3.interpolateBrBG).domain([-50, 0, 50]),
-    label: "Reviews/Month vs DC (%)"
+    label: "Reviews/Month vs DC Avg"
   },
   multi_listing_pct: {
     scale: d3.scaleSequential(d3.interpolateOranges).domain([0, 1]),
-    label: "% Multi-Listing Hosts",
+    label: "% Multi-Property Hosts",
   },
   multi_listing_pct_vs_dc_pct: {
     scale: d3.scaleDiverging(d3.interpolateOrRd).domain([-50, 0, 50]),
-    label: "% Multi-Listing Hosts vs DC"
+    label: "% Multi-Property Hosts vs DC Avg"
   },
   listings_per_1000: {
     scale: d3.scaleSequential(d3.interpolateGreens).domain([0, 25]),
@@ -66,7 +66,7 @@ const choroplethConfig = {
   },
   listings_per_1000_vs_dc_pct: {
     scale: d3.scaleDiverging(d3.interpolatePiYG).domain([-100, 0, 100]),
-    label: "Listings/1,000 vs DC (%)"
+    label: "Listings per 1,000 Residents vs DC Avg"
   },
   total_listings: {
     scale: d3.scaleSequential(d3.interpolateReds).domain([0, 700]),
@@ -74,6 +74,6 @@ const choroplethConfig = {
   },
   total_listings_vs_dc_pct: {
     scale: d3.scaleDiverging(d3.interpolateRdBu).domain([-200, 0, 200]),
-    label: "Total Listings vs Avg Neighborhood (%)"
+    label: "Total Listings vs Neighborhood Avg"
   },
 };
