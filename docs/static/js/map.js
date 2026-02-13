@@ -250,6 +250,7 @@ function setupOverlayListeners(
       "Reviews per Month": "reviews_per_month",
       "% Multi-Listing Hosts": "multi_listing_pct",
       "Listings per 1,000 Residents": "listings_per_1000",
+      "Total Listings": "total_listings",
     };
 
     // set choropleth metric based on selected overlay and update layer style and legend

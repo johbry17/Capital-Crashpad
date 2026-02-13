@@ -112,6 +112,9 @@ function formatMetric(metric, value) {
     case "listings_per_1000":
       return Number(value).toFixed(1);
 
+    case "total_listings":
+      return `${Math.round(value)}`;
+
     default:
       return value;
   }
