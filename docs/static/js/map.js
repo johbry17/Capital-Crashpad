@@ -16,6 +16,8 @@ const mapState = {
   markerLegend: null,
 
   selectedNeighborhood: "top",
+
+  isRelative: false,
 };
 
 // default map view for resetting
@@ -204,10 +206,14 @@ function setupOverlayListeners(
   listingsData,
   statsByNeighborhood,
 ) {
-  // event listener for overlay and marker scheme changes
+  // event listener for choropleth changes
   document
     .getElementById("choropleth-control")
     .addEventListener("click", handleOverlayClick);
+
+  document
+    .getElementById("toggle-relative")
+    .addEventListener("change", toggleRelativeMode);
 
   // event listener for marker scheme changes
   document
@@ -260,6 +266,19 @@ function setupOverlayListeners(
     }
   }
 
+  // toggle relative mode for choropleth
+  function toggleRelativeMode(e) {
+    mapState.isRelative = e.target.checked;
+    // update choropleth metric to trigger style and legend updates
+    if (mapState.choroplethMetric) {
+      setChoroplethMetric(
+        mapState.choroplethMetric,
+        neighborhoods,
+        statsByNeighborhood,
+      );
+    }
+  }
+
   // handle marker scheme changes
   function handleMarkerChange(e) {
     const scheme = e.target.getAttribute("data-overlay");
@@ -283,10 +302,39 @@ function setupOverlayListeners(
 
 // set choropleth metric and update layer style and legend
 function setChoroplethMetric(metric, neighborhoods, statsByNeighborhood) {
+  // store selected metric in mapState
   mapState.choroplethMetric = metric;
+
+  // resolve metric key based on relative mode
+  const resolved = resolveMetric(metric);
+
+  // update choropleth layer style
+  mapState.choroplethLayer.options.metric = resolved;
   mapState.choroplethLayer.setStyle(mapState.choroplethLayer.options.style);
   updateChoroplethLabels(neighborhoods, statsByNeighborhood);
   updateChoroplethLegend();
+}
+
+// resolve metric key based on whether relative mode is toggled
+function resolveMetric(baseMetric) {
+  // safety check
+  if (!baseMetric) return null;
+
+  // return base metric if not in relative mode
+  if (!mapState.isRelative) return baseMetric;
+
+  // mapping of base metrics to their relative counterparts
+  const relativeMap = {
+    license_compliance: "license_compliance_vs_dc_pct",
+    median_price: "median_price_vs_dc_pct",
+    reviews_per_month: "reviews_per_month_vs_dc_pct",
+    multi_listing_pct: "multi_listing_pct_vs_dc_pct",
+    listings_per_1000: "listings_per_1000_vs_dc_pct",
+    total_listings: "total_listings_vs_dc_pct",
+  };
+
+  // return relative metric if available, else return base metric
+  return relativeMap[baseMetric] || baseMetric;
 }
 
 // update choropleth legend based on current metric

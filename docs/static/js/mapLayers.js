@@ -19,7 +19,8 @@ function initializeChoroplethLayer(neighborhoods, statsByNeighborhood) {
       }
 
       // get metric value for neighborhood to determine fill color
-      const metric = mapState.choroplethMetric;
+      const metric = resolveMetric(mapState.choroplethMetric);
+      console.log("Calculating color for metric:", metric);
       const value =
         statsByNeighborhood[feature.properties.neighbourhood]?.[metric] || 0;
 
@@ -48,7 +49,7 @@ function initializeChoroplethLayer(neighborhoods, statsByNeighborhood) {
 // create choropleth labels layer with metric values for each neighborhood
 function updateChoroplethLabels(neighborhoods, statsByNeighborhood) {
   const map = mapState.map;
-  const metric = mapState.choroplethMetric;
+  const metric = resolveMetric(mapState.choroplethMetric);
 
   // remove old layer if it exists
   if (mapState.choroplethLabels) {
@@ -115,6 +116,15 @@ function formatMetric(metric, value) {
     case "total_listings":
       return `${Math.round(value)}`;
 
+    // relative metrics - show percentage change with + or - sign
+    case "license_compliance_vs_dc_pct":
+    case "median_price_vs_dc_pct":
+    case "reviews_per_month_vs_dc_pct":
+    case "multi_listing_pct_vs_dc_pct":
+    case "listings_per_1000_vs_dc_pct":
+    case "total_listings_vs_dc_pct":
+      return `${value > 0 ? "+" : ""}${Math.round(value)}%`;
+
     default:
       return value;
   }
@@ -148,74 +158,6 @@ function popupMouseEvents(layer) {
 
 //////////////////////////////////////////////////////////
 
-// create bubble chart layer, - neighoborhood outlines and bubbles of count of airbnbs
-function initializeBubbleChartLayer(neighborhoods, statsByNeighborhood) {
-  const bubbleLayerGroup = L.layerGroup(); // create layer group for circle markers
-  initializeNeighborhoodOutlines(bubbleLayerGroup, neighborhoods);
-  addBubbles(bubbleLayerGroup, neighborhoods, statsByNeighborhood);
-  return bubbleLayerGroup;
-}
-
-// create neighborhood outlines layer
-function initializeNeighborhoodOutlines(bubbleLayerGroup, neighborhoods) {
-  const neighborhoodsOutlineLayer = L.geoJSON(neighborhoods, {
-    style: {
-      color: defaultColors.defaultGray,
-      weight: 2,
-      opacity: 1,
-      fillOpacity: 0, // no fill, just outlines
-    },
-  });
-  bubbleLayerGroup.addLayer(neighborhoodsOutlineLayer);
-}
-
-// create bubbles, text markers, and popups for each neighborhood
-function addBubbles(bubbleLayerGroup, neighborhoods, statsByNeighborhood) {
-  // loop through neighborhoods and create bubbles
-  neighborhoods.features.forEach((feature) => {
-    // get neighborhood stats for bubble size and popup content
-    const neighborhood = feature.properties.neighbourhood;
-    const avgPrice = +statsByNeighborhood[neighborhood]?.median_price || 0;
-    const count = +statsByNeighborhood[neighborhood]?.total_listings || 0;
-    const radius = Math.sqrt(count) * 2; // scale radius based on count
-    const latlng = calculateCentroid(feature); // for placing markers
-
-    // create circle marker at centroid, bind popup
-    const circleMarker = L.circleMarker(latlng, {
-      radius: radius,
-      fillColor: defaultColors.neighborhoodColor,
-      color: defaultColors.defaultGray,
-      weight: 1,
-      opacity: 1,
-      fillOpacity: 0.8,
-    }).bindPopup(
-      `${neighborhood}<br>
-        <span class="popup-text-right">Median Price: ${avgPrice.toLocaleString(undefined, { style: "currency", currency: "USD" })}</span>
-        <span class="popup-text-right popup-text-right-larger"><b>Airbnb Count: ${count.toLocaleString()}</b></span>`,
-      { className: "marker-popup" },
-    );
-
-    // create marker with text inside and add to layer
-    const textMarker = L.marker(latlng, {
-      icon: L.divIcon({
-        className: "bubble-text",
-        html: `<div>${count.toLocaleString()}</div>`,
-        iconSize: [radius * 2, radius * 2], // match size of circle marker
-        iconAnchor: [radius, radius], // center text
-      }),
-      interactive: false,
-    });
-
-    // open || close popup
-    popupMouseEvents(circleMarker);
-
-    // add markers to layer group
-    bubbleLayerGroup.addLayer(circleMarker).addLayer(textMarker);
-  });
-}
-
-//////////////////////////////////////////////////////////
-
 // create legend
 function addLegend(type) {
   let legend = L.control({ position: "topright" });
@@ -226,7 +168,7 @@ function addLegend(type) {
 
     // choropleth legend -- create gradient bar and labels based on selected metric
     if (type === "choropleth") {
-      const metric = mapState.choroplethMetric;
+      const metric = resolveMetric(mapState.choroplethMetric);
 
       // if no metric selected, return empty legend
       if (!metric || !choroplethConfig[metric]) {
@@ -245,7 +187,7 @@ function addLegend(type) {
       const gradientBar = createGradientBar(scale);
       div.appendChild(gradientBar);
 
-      const rangeLabels = createRangeLabels(metric, min, max);
+      const rangeLabels = createRangeLabels(metric, ...scale.domain());
       div.appendChild(rangeLabels);
 
       return div;
@@ -293,14 +235,34 @@ function createGradientBar(scale) {
   gradientBar.style.width = "100%";
   gradientBar.style.height = "20px";
 
-  // generate array of colors for gradient based on scale domain
-  const [min, max] = scale.domain();
-  // create 100 color stops for smooth gradient
-  const colors = Array.from({ length: 100 }, (_, i) => {
-    const t = i / 99;
-    const value = min + t * (max - min);
-    return scale(value);
-  });
+  const domain = scale.domain();
+  let colors = [];
+
+  // conditional for diverging vs sequential scales
+  if (domain.length === 3) {
+    // diverging scale: [min, mid, max]
+    const [min, mid, max] = domain;
+    // 0-49: min to mid, 50-99: mid to max
+    for (let i = 0; i < 100; i++) {
+      let t, value;
+      if (i < 50) {
+        t = i / 49; // 0 to 1
+        value = min + t * (mid - min);
+      } else {
+        t = (i - 50) / 49; // 0 to 1
+        value = mid + t * (max - mid);
+      }
+      colors.push(scale(value));
+    }
+  } else {
+    // sequential scale: [min, max]
+    const [min, max] = domain;
+    colors = Array.from({ length: 100 }, (_, i) => {
+      const t = i / 99;
+      const value = min + t * (max - min);
+      return scale(value);
+    });
+  }
 
   // set gradient background using generated colors
   gradientBar.style.background = `linear-gradient(to right, ${colors.join(",")})`;
@@ -309,17 +271,28 @@ function createGradientBar(scale) {
 }
 
 // create labels for choropleth legend price range
-function createRangeLabels(metric, min, max) {
+function createRangeLabels(metric, ...domain) {
   // create container for labels
   const labelContainer = document.createElement("div");
   labelContainer.style.display = "flex";
   labelContainer.style.justifyContent = "space-between";
+  labelContainer.style.alignItems = "center";
 
-  // format labels based on metric type
-  labelContainer.innerHTML = `
-    <div>${formatMetric(metric, min)}</div>
-    <div>${formatMetric(metric, max)}</div>
-  `;
+  // conditional formatting based on scale type
+  if (domain.length === 3) {
+    // diverging: min, mid, max
+    labelContainer.innerHTML = `
+      <div>${formatMetric(metric, domain[0])}</div>
+      <div style="text-align:center;">${formatMetric(metric, domain[1])}</div>
+      <div style="text-align:right;">${formatMetric(metric, domain[2])}</div>
+    `;
+  } else {
+    // sequential: min, max
+    labelContainer.innerHTML = `
+      <div>${formatMetric(metric, domain[0])}</div>
+      <div style="text-align:right;">${formatMetric(metric, domain[1])}</div>
+    `;
+  }
 
   return labelContainer;
 }
@@ -435,4 +408,72 @@ function createPopupContentForGroup(listings, markerColor = "#333") {
 
   // wrap in scrollable container
   return `<div style="max-height:300px;overflow-y:auto; border: 4px solid ${markerColor}; border-radius: 10px; padding: 16px;">${content}</div>`;
+}
+
+//////////////////////////////////////////////////////////
+
+// create bubble chart layer, - neighoborhood outlines and bubbles of count of airbnbs
+function initializeBubbleChartLayer(neighborhoods, statsByNeighborhood) {
+  const bubbleLayerGroup = L.layerGroup(); // create layer group for circle markers
+  initializeNeighborhoodOutlines(bubbleLayerGroup, neighborhoods);
+  addBubbles(bubbleLayerGroup, neighborhoods, statsByNeighborhood);
+  return bubbleLayerGroup;
+}
+
+// create neighborhood outlines layer
+function initializeNeighborhoodOutlines(bubbleLayerGroup, neighborhoods) {
+  const neighborhoodsOutlineLayer = L.geoJSON(neighborhoods, {
+    style: {
+      color: defaultColors.defaultGray,
+      weight: 2,
+      opacity: 1,
+      fillOpacity: 0, // no fill, just outlines
+    },
+  });
+  bubbleLayerGroup.addLayer(neighborhoodsOutlineLayer);
+}
+
+// create bubbles, text markers, and popups for each neighborhood
+function addBubbles(bubbleLayerGroup, neighborhoods, statsByNeighborhood) {
+  // loop through neighborhoods and create bubbles
+  neighborhoods.features.forEach((feature) => {
+    // get neighborhood stats for bubble size and popup content
+    const neighborhood = feature.properties.neighbourhood;
+    const avgPrice = +statsByNeighborhood[neighborhood]?.median_price || 0;
+    const count = +statsByNeighborhood[neighborhood]?.total_listings || 0;
+    const radius = Math.sqrt(count) * 2; // scale radius based on count
+    const latlng = calculateCentroid(feature); // for placing markers
+
+    // create circle marker at centroid, bind popup
+    const circleMarker = L.circleMarker(latlng, {
+      radius: radius,
+      fillColor: defaultColors.neighborhoodColor,
+      color: defaultColors.defaultGray,
+      weight: 1,
+      opacity: 1,
+      fillOpacity: 0.8,
+    }).bindPopup(
+      `${neighborhood}<br>
+        <span class="popup-text-right">Median Price: ${avgPrice.toLocaleString(undefined, { style: "currency", currency: "USD" })}</span>
+        <span class="popup-text-right popup-text-right-larger"><b>Airbnb Count: ${count.toLocaleString()}</b></span>`,
+      { className: "marker-popup" },
+    );
+
+    // create marker with text inside and add to layer
+    const textMarker = L.marker(latlng, {
+      icon: L.divIcon({
+        className: "bubble-text",
+        html: `<div>${count.toLocaleString()}</div>`,
+        iconSize: [radius * 2, radius * 2], // match size of circle marker
+        iconAnchor: [radius, radius], // center text
+      }),
+      interactive: false,
+    });
+
+    // open || close popup
+    popupMouseEvents(circleMarker);
+
+    // add markers to layer group
+    bubbleLayerGroup.addLayer(circleMarker).addLayer(textMarker);
+  });
 }
