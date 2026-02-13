@@ -248,7 +248,7 @@ function setupOverlayListeners(
     const metricMap = {
       "License Compliance": "license_compliance",
       "Median Price": "median_price",
-      // "Reviews per Month": "reviews_per_month",
+      "Reviews per Month": "reviews_per_month",
       // "% Multi-Listing Hosts": "multi_listing_pct",
       // "Listings per 1,000": "listings_per_1000",
     };
