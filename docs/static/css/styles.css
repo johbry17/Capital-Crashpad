@@ -233,7 +233,7 @@ h2 i {
   border-radius: 5px;
   overflow: hidden;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-  margin: 1.5em auto 0 auto;
+  margin: 0 auto 0 auto;
   position: relative;
   justify-content: center;
   gap: 0;

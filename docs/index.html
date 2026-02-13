@@ -101,7 +101,10 @@
             aria-label="Map of Washington, D.C. with Airbnb locations."
           ></div>
           <!-- Radio Buttons -->
-          <div id="choropleth-control" aria-label="Toggle different data layers">
+          <div
+            id="choropleth-control"
+            aria-label="Toggle different data layers"
+          >
             <button
               id="median-price-button"
               data-overlay="Median Price"
@@ -119,58 +122,61 @@
           </div>
         </div>
       </div>
-      <!-- Segmented Marker Overlay Button Group -->
-      <div
-        class="btn-group btn-group-toggle"
-        id="marker-overlay-group"
-        data-toggle="buttons"
-        role="group"
-        aria-label="Toggle marker overlays"
-        style="margin-top: 1em"
-      >
-        <label class="btn btn-primary active" aria-pressed="true">
-          <input
-            type="radio"
-            name="marker-overlay"
-            id="marker-none"
-            autocomplete="off"
-            data-overlay="None"
-            checked
-          />
-          None
-        </label>
-        <label class="btn btn-primary" aria-pressed="false">
-          <input
-            type="radio"
-            name="marker-overlay"
-            id="marker-default"
-            autocomplete="off"
-            data-overlay="Airbnb's"
-          />
-          Airbnb's
-        </label>
-        <label class="btn btn-primary" aria-pressed="false">
-          <input
-            type="radio"
-            name="marker-overlay"
-            id="marker-license"
-            autocomplete="off"
-            data-overlay="License Status"
-          />
-          License Status
-        </label>
-        <label class="btn btn-primary" aria-pressed="false">
-          <input
-            type="radio"
-            name="marker-overlay"
-            id="marker-property"
-            autocomplete="off"
-            data-overlay="Property Type"
-          />
-          Property Type
-        </label>
+      <div class="col-md-12 text-center">
+        <!-- Segmented Marker Overlay Button Group -->
+        <div
+          class="btn-group btn-group-toggle"
+          id="marker-overlay-group"
+          data-toggle="buttons"
+          role="group"
+          aria-label="Toggle marker overlays"
+          style="margin-top: 1em"
+        >
+          <label class="btn btn-primary active" aria-pressed="true">
+            <input
+              type="radio"
+              name="marker-overlay"
+              id="marker-none"
+              autocomplete="off"
+              data-overlay="None"
+              checked
+            />
+            None
+          </label>
+          <label class="btn btn-primary" aria-pressed="false">
+            <input
+              type="radio"
+              name="marker-overlay"
+              id="marker-default"
+              autocomplete="off"
+              data-overlay="Airbnb's"
+            />
+            Airbnb's
+          </label>
+          <label class="btn btn-primary" aria-pressed="false">
+            <input
+              type="radio"
+              name="marker-overlay"
+              id="marker-license"
+              autocomplete="off"
+              data-overlay="License Status"
+            />
+            License Status
+          </label>
+          <label class="btn btn-primary" aria-pressed="false">
+            <input
+              type="radio"
+              name="marker-overlay"
+              id="marker-property"
+              autocomplete="off"
+              data-overlay="Property Type"
+            />
+            Property Type
+          </label>
+        </div>
       </div>
     </div>
+
     <!-- Info Box -->
     <div class="info-box info legend">
       <strong class="neighborhood-toggle" id="neighborhood-name"
