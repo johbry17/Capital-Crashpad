@@ -1,6 +1,6 @@
 // set default color scheme
 const defaultColors = {
-  airbnbs: "red",
+  airbnbs: "#b56576",
   neighborhoodLayer: "green",
   defaultGray: "#343a40", // #6c757d
   neighborhoodColor: "#198754",
