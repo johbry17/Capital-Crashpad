@@ -222,22 +222,29 @@ function moveChoroplethControl() {
     }
   }
 }
-// const toggle = document.getElementById('toggle-relative');
-// const absoluteLabel = document.querySelector('.absolute-label');
-// const relativeLabel = document.querySelector('.relative-label');
 
 function updateToggleLabels() {
-const toggle = document.getElementById('toggle-relative');  
-const absoluteLabel = document.querySelector('.absolute-label');
+  const toggle = document.getElementById("toggle-relative");
+  const absoluteLabel = document.querySelector(".absolute-label");
   if (toggle.checked) {
-    absoluteLabel.classList.remove('active');
+    absoluteLabel.classList.remove("active");
   } else {
-    absoluteLabel.classList.add('active');
+    absoluteLabel.classList.add("active");
   }
 }
-document.getElementById('toggle-relative').addEventListener('change', updateToggleLabels);
-updateToggleLabels(); // set initial state
+document
+  .getElementById("toggle-relative")
+  .addEventListener("change", updateToggleLabels);
 
+const choroplethButtons = document.querySelectorAll(
+  "#choropleth-control button",
+);
+choroplethButtons.forEach((btn) => {
+  btn.addEventListener("click", function () {
+    choroplethButtons.forEach((b) => b.classList.remove("active"));
+    this.classList.add("active");
+  });
+});
 
 // setup event listeners for overlay and marker scheme changes
 function setupOverlayListeners(
@@ -245,6 +252,14 @@ function setupOverlayListeners(
   listingsData,
   statsByNeighborhood,
 ) {
+  // set initial state of toggle labels
+  updateToggleLabels();
+  // Set initial active button on load
+  const defaultBtn = document.getElementById("license-compliance-button");
+  if (defaultBtn) {
+    defaultBtn.classList.add("active");
+  }
+
   // event listener for choropleth changes
   document
     .getElementById("choropleth-control")

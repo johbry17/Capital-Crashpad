@@ -263,6 +263,7 @@ h2 i {
 #choropleth-control button {
   background-color: #0085a1;
   color: white;
+  font-size: 1.2em;
   border: none;
   border-radius: 5px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
@@ -275,6 +276,9 @@ h2 i {
 #choropleth-control button:disabled {
   background-color: #6c757d;
   cursor: not-allowed;
+}
+#choropleth-control button.active {
+  background-color: #00a8cc;
 }
 @media (max-width: 600px) {
   #choropleth-control {
@@ -292,7 +296,7 @@ h2 i {
   }
   #choropleth-control button {
     min-width: 0;
-    font-size: 1em;
+    font-size: 1.2em;
     padding: 10px 2px;
     white-space: normal;
   }

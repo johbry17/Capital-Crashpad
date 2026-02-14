@@ -283,7 +283,9 @@ h2 i {
       font-size: 0.95em;
       padding: 4px 10px;
       min-width: 60px;
-      transition: background 0.2s, color 0.2s;
+      transition:
+        background 0.2s,
+        color 0.2s;
 
       &:hover,
       &:focus {
@@ -316,6 +318,7 @@ h2 i {
   button {
     background-color: $primary-color;
     color: white;
+    font-size: 1.2em;
     border: none;
     border-radius: 5px;
     box-shadow: $box-shadow;
@@ -330,8 +333,12 @@ h2 i {
       background-color: $disabled-color;
       cursor: not-allowed;
     }
+    // active
+    &.active {
+      background-color: $hover-color;
+    }
   }
-  
+
   @media (max-width: 600px) {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -347,7 +354,7 @@ h2 i {
 
     button {
       min-width: 0;
-      font-size: 1em;
+      font-size: 1.2em;
       padding: 10px 2px;
       white-space: normal;
     }
@@ -406,7 +413,9 @@ h2 i {
   color: $text-color;
   font-weight: normal;
   vertical-align: middle; // middle of toggle
-  transition: background 0.2s, color 0.2s;
+  transition:
+    background 0.2s,
+    color 0.2s;
 }
 // change relative label color when checked on
 .switch:has(input:checked) + .toggle-label {
