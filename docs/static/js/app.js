@@ -48,6 +48,9 @@ Promise.all([
     modal.style.display = "none";
   });
 
+  // initialize rankings data
+  initializeRankings(statsByNeighborhood);
+
   // create the map
   createMap();
 });

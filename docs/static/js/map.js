@@ -138,6 +138,13 @@ function neighborhoodsControl() {
     // update markers based on selected neighborhood and current marker scheme
     updateMarkers();
 
+    // update rankings table
+    renderRankings(
+      mapState.choroplethMetric,
+      mapState.isRelative,
+      mapState.selectedNeighborhood,
+    );
+
     // change map view based on selected neighborhood
     if (mapState.selectedNeighborhood === "top") {
       resetMapView();
@@ -341,6 +348,12 @@ function setChoroplethMetric(metric) {
   mapState.choroplethLayer.setStyle(mapState.choroplethLayer.options.style);
   updateChoroplethLabels();
   updateChoroplethLegend();
+  // update rankings table
+  renderRankings(
+    mapState.choroplethMetric,
+    mapState.isRelative,
+    mapState.selectedNeighborhood,
+  );
 }
 
 // resolve metric key based on whether relative mode is toggled
