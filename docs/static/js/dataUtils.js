@@ -1,12 +1,12 @@
 // // Description: Utility functions for data processing and analysis
 
 // filter listings by neighborhood
-function filterListingsByNeighborhood(listingsData, selectedNeighborhood) {
-  if (selectedNeighborhood === "top") {
+function filterListingsByNeighborhood() {
+  if (mapState.selectedNeighborhood === "top") {
     return listingsData;
   }
   return listingsData.filter(
-    (listing) => listing.neighbourhood === selectedNeighborhood,
+    (listing) => listing.neighbourhood === mapState.selectedNeighborhood,
   );
 }
 

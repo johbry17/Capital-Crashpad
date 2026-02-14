@@ -1,5 +1,10 @@
 // Description: Main JavaScript file for the DC Airbnb Data Analysis project
 
+// globals for data
+let listingsData = [];
+let neighborhoods = {};
+let statsByNeighborhood = {};
+
 // fetch data and geojson, clean data, populate scrape date, create map
 Promise.all([
   d3.csv("./static/resources/airbnb_data.csv"),
@@ -9,7 +14,11 @@ Promise.all([
   d3.csv("./static/resources/neighborhood_map_stats.csv"),
   d3.csv("./static/resources/scraped.csv"),
 ]).then(
-  ([listingsData, neighborhoodGeojson, neighborhoodStats, scrapeDate]) => {
+  ([ld, ng, ns, sd]) => {
+    listingsData = ld;
+    neighborhoods = ng;
+    statsByNeighborhood = ns;
+    scrapeDate = sd;
     // 2025 September data - fix specific price anomalies
     listingsData.forEach((listing) => {
       const p = parseFloat(listing.price);
@@ -26,8 +35,7 @@ Promise.all([
     });
 
     // convert neighborhood stats to a javascript object for easy lookup
-    const statsByNeighborhood = {};
-    neighborhoodStats.forEach((row) => {
+    statsByNeighborhood.forEach((row) => {
       statsByNeighborhood[row.neighborhood] = row;
     });
 
@@ -48,7 +56,7 @@ Promise.all([
     });
 
     // create the map
-    createMap(neighborhoodGeojson, listingsData, statsByNeighborhood);
+    createMap();
   },
 );
 

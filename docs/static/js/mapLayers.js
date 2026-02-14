@@ -6,7 +6,7 @@ function getColorForMetric(metric, value) {
 }
 
 // initialize choropleth layer and zoomIn function to neighborhoods
-function initializeChoroplethLayer(neighborhoods, statsByNeighborhood) {
+function initializeChoroplethLayer() {
   const choroplethLayer = L.geoJSON(neighborhoods, {
     style: (feature) => {
       // if no metric selected, show default gray with no fill
@@ -46,7 +46,7 @@ function initializeChoroplethLayer(neighborhoods, statsByNeighborhood) {
 }
 
 // create choropleth labels layer with metric values for each neighborhood
-function updateChoroplethLabels(neighborhoods, statsByNeighborhood) {
+function updateChoroplethLabels() {
   const map = mapState.map;
   const metric = resolveMetric(mapState.choroplethMetric);
 
@@ -92,6 +92,12 @@ function updateChoroplethLabels(neighborhoods, statsByNeighborhood) {
   map.addLayer(labelGroup);
 }
 
+// calculates centroid for choropleth and bubble chart layers
+function calculateCentroid(feature) {
+  const centroid = turf.centroid(feature);
+  return [centroid.geometry.coordinates[1], centroid.geometry.coordinates[0]];
+}
+
 // helper function to format metric values for labels
 function formatMetric(metric, value) {
   if (!metric || value == null || isNaN(value)) return "";
@@ -131,32 +137,6 @@ function formatMetric(metric, value) {
 
 //////////////////////////////////////////////////////////
 
-// calculates centroid for choropleth and bubble chart layers
-function calculateCentroid(feature) {
-  const centroid = turf.centroid(feature);
-  return [centroid.geometry.coordinates[1], centroid.geometry.coordinates[0]];
-}
-
-// handle popup events
-function popupMouseEvents(layer) {
-  let popupOpen = false; // tracks popup state
-
-  layer.on({
-    mouseover() {
-      if (!popupOpen) this.openPopup();
-    },
-    mouseout() {
-      if (!popupOpen) this.closePopup();
-    },
-    click() {
-      popupOpen ? this.closePopup() : this.openPopup();
-      popupOpen = !popupOpen;
-    },
-  });
-}
-
-//////////////////////////////////////////////////////////
-
 // create legend
 function addLegend(type) {
   let legend = L.control({ position: "topright" });
@@ -177,7 +157,6 @@ function addLegend(type) {
 
       // get config for selected metric to build legend
       const { scale, label } = choroplethConfig[metric];
-      const [min, max] = scale.domain();
 
       // build legend content
       div.innerHTML = `<div class="legend-title">${label}</div>`;
@@ -299,9 +278,9 @@ function createRangeLabels(metric, ...domain) {
 //////////////////////////////////////////////////////////
 
 // create markers grouped by lat/long, optional color by license status or property type
-function createMarkers(data, colorScheme = null) {
+function createMarkers(filteredData) {
   // get license status for each listing
-  data = setLicenseStatus(data);
+  data = setLicenseStatus(filteredData);
 
   // empty marker layer
   const markers = L.layerGroup();
@@ -313,13 +292,13 @@ function createMarkers(data, colorScheme = null) {
   Object.values(grouped).forEach((listingsAtLocation) => {
     const { latitude, longitude } = listingsAtLocation[0];
 
-    // if applicable, assign color based on colorScheme
+    // if applicable, assign color based on markerScheme
     let markerColor = defaultColors.airbnbs; // default color
-    if (colorScheme === "license") {
+    if (mapState.markerScheme === "license") {
       markerColor =
         licenseColors[listingsAtLocation[0].licenseCategory] ||
         licenseColors.default;
-    } else if (colorScheme === "propertyType") {
+    } else if (mapState.markerScheme === "propertyType") {
       markerColor =
         propertyTypeColors[listingsAtLocation[0].room_type] ||
         propertyTypeColors.default;
@@ -427,10 +406,28 @@ function createPopupContentForGroup(listings, markerColor = "#333") {
   return `<div style="max-height:300px;overflow-y:auto; border: 4px solid ${markerColor}; border-radius: 10px; padding: 16px;">${content}</div>`;
 }
 
+// handle popup events
+function popupMouseEvents(layer) {
+  let popupOpen = false; // tracks popup state
+
+  layer.on({
+    mouseover() {
+      if (!popupOpen) this.openPopup();
+    },
+    mouseout() {
+      if (!popupOpen) this.closePopup();
+    },
+    click() {
+      popupOpen ? this.closePopup() : this.openPopup();
+      popupOpen = !popupOpen;
+    },
+  });
+}
+
 //////////////////////////////////////////////////////////
 
 // create bubble chart layer, - neighoborhood outlines and bubbles of count of airbnbs
-function initializeBubbleChartLayer(neighborhoods, statsByNeighborhood) {
+function initializeBubbleChartLayer() {
   const bubbleLayerGroup = L.layerGroup(); // create layer group for circle markers
   initializeNeighborhoodOutlines(bubbleLayerGroup, neighborhoods);
   addBubbles(bubbleLayerGroup, neighborhoods, statsByNeighborhood);
@@ -438,7 +435,7 @@ function initializeBubbleChartLayer(neighborhoods, statsByNeighborhood) {
 }
 
 // create neighborhood outlines layer
-function initializeNeighborhoodOutlines(bubbleLayerGroup, neighborhoods) {
+function initializeNeighborhoodOutlines(bubbleLayerGroup) {
   const neighborhoodsOutlineLayer = L.geoJSON(neighborhoods, {
     style: {
       color: defaultColors.defaultGray,
@@ -451,7 +448,7 @@ function initializeNeighborhoodOutlines(bubbleLayerGroup, neighborhoods) {
 }
 
 // create bubbles, text markers, and popups for each neighborhood
-function addBubbles(bubbleLayerGroup, neighborhoods, statsByNeighborhood) {
+function addBubbles(bubbleLayerGroup) {
   // loop through neighborhoods and create bubbles
   neighborhoods.features.forEach((feature) => {
     // get neighborhood stats for bubble size and popup content
