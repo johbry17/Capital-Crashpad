@@ -93,60 +93,6 @@
     </div>
     <!-- Map -->
     <div class="row">
-      <div class="col-md-12 text-center">
-        <!-- Segmented Marker Overlay Button Group -->
-        <div
-          class="btn-group btn-group-toggle"
-          id="marker-overlay-group"
-          data-toggle="buttons"
-          role="group"
-          aria-label="Toggle marker overlays"
-          style="margin-top: 1em"
-        >
-          <label class="btn btn-primary active" aria-pressed="true">
-            <input
-              type="radio"
-              name="marker-overlay"
-              id="marker-none"
-              autocomplete="off"
-              data-overlay="None"
-              checked
-            />
-            None
-          </label>
-          <label class="btn btn-primary" aria-pressed="false">
-            <input
-              type="radio"
-              name="marker-overlay"
-              id="marker-default"
-              autocomplete="off"
-              data-overlay="Airbnb's"
-            />
-            Airbnb's
-          </label>
-          <label class="btn btn-primary" aria-pressed="false">
-            <input
-              type="radio"
-              name="marker-overlay"
-              id="marker-license"
-              autocomplete="off"
-              data-overlay="License Status"
-            />
-            License Status
-          </label>
-          <label class="btn btn-primary" aria-pressed="false">
-            <input
-              type="radio"
-              name="marker-overlay"
-              id="marker-property"
-              autocomplete="off"
-              data-overlay="Property Type"
-            />
-            Property Type
-          </label>
-        </div>
-      </div>
-      <!-- <div class="col-md-12 text-center"></div> -->
       <div class="col-md-12">
         <div class="map-container">
           <div
@@ -209,6 +155,60 @@
               Total Airbnbs
             </button> -->
           </div>
+        </div>
+      </div>
+      <div class="col-md-12 text-center">
+        <div class="marker-controls-label">Individual Airbnbs (Optional):</div>
+        <!-- Segmented Marker Overlay Button Group -->
+        <div
+          class="btn-group btn-group-toggle"
+          id="marker-overlay-group"
+          data-toggle="buttons"
+          role="group"
+          aria-label="Toggle marker overlays"
+          style="margin-top: 1em"
+        >
+          <label class="btn btn-primary active" aria-pressed="true">
+            <input
+              type="radio"
+              name="marker-overlay"
+              id="marker-none"
+              autocomplete="off"
+              data-overlay="None"
+              checked
+            />
+            None
+          </label>
+          <label class="btn btn-primary" aria-pressed="false">
+            <input
+              type="radio"
+              name="marker-overlay"
+              id="marker-default"
+              autocomplete="off"
+              data-overlay="Airbnb's"
+            />
+            Airbnb's
+          </label>
+          <label class="btn btn-primary" aria-pressed="false">
+            <input
+              type="radio"
+              name="marker-overlay"
+              id="marker-license"
+              autocomplete="off"
+              data-overlay="License Status"
+            />
+            License Status
+          </label>
+          <label class="btn btn-primary" aria-pressed="false">
+            <input
+              type="radio"
+              name="marker-overlay"
+              id="marker-property"
+              autocomplete="off"
+              data-overlay="Property Type"
+            />
+            Property Type
+          </label>
         </div>
       </div>
       <div class="col-md-12 text-center">
