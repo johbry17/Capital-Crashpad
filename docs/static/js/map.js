@@ -222,6 +222,21 @@ function moveChoroplethControl() {
     }
   }
 }
+// const toggle = document.getElementById('toggle-relative');
+// const absoluteLabel = document.querySelector('.absolute-label');
+// const relativeLabel = document.querySelector('.relative-label');
+
+function updateToggleLabels() {
+const toggle = document.getElementById('toggle-relative');  
+const absoluteLabel = document.querySelector('.absolute-label');
+  if (toggle.checked) {
+    absoluteLabel.classList.remove('active');
+  } else {
+    absoluteLabel.classList.add('active');
+  }
+}
+document.getElementById('toggle-relative').addEventListener('change', updateToggleLabels);
+updateToggleLabels(); // set initial state
 
 
 // setup event listeners for overlay and marker scheme changes

@@ -355,7 +355,15 @@ h2 i {
 }
 
 // slider styling
+.slider-label {
+  font-size: 0.95em;
+  color: #888;
+  font-weight: 500;
+  text-align: center;
+  margin-top: 1em !important;
+}
 .switch {
+  margin-top: 0 !important;
   position: relative;
   display: inline-block;
   width: 50px;
@@ -374,7 +382,7 @@ h2 i {
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: #ccc;
+  background-color: $primary-color;
   border-radius: 20px;
   transition: background-color 0.3s ease;
 }
@@ -389,22 +397,24 @@ h2 i {
   border-radius: 50%; // circle inside toggle
   transition: transform 0.3s ease;
 }
-// fill background color when checked
-.switch input:checked + .slider {
-  background-color: $primary-color;
-}
 .switch input:checked + .slider:before {
   transform: translateX(25px); // move circle right
 }
 // default toggle label
 .toggle-label {
-  font-size: 1.2rem;
+  font-size: 1.2em;
   color: $text-color;
   font-weight: normal;
   vertical-align: middle; // middle of toggle
+  transition: background 0.2s, color 0.2s;
 }
-// change label color when checked on
+// change relative label color when checked on
 .switch:has(input:checked) + .toggle-label {
+  color: $primary-color;
+  font-weight: bold;
+}
+// change absolute label color when unchecked
+.toggle-label.active {
   color: $primary-color;
   font-weight: bold;
 }
