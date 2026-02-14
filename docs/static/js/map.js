@@ -33,7 +33,7 @@ function createMap() {
   addBaseLayerControl();
 
   // initialize dropdown and choropleth layer
-  neighborhoodsControl();
+  initializeNeighborhoodsDropdown();
 
   // event listeners for resizing
   window.addEventListener("resize", () => {
@@ -122,36 +122,13 @@ function addBaseLayerControl() {
 //////////////////////////////////////////////////////////
 
 // create dropdown for neighborhood interaction
-function neighborhoodsControl() {
+function initializeNeighborhoodsDropdown() {
   const controlDiv = document.getElementById("neighborhoods-control");
   const dropdown = createNeighborhoodDropdown();
   controlDiv.appendChild(dropdown);
 
   // create neighborhoods layer but don't add it to the map yet
   mapState.choroplethLayer = initializeChoroplethLayer();
-
-  // add event listener for dropdown changes
-  dropdown.addEventListener("change", function () {
-    // update selected neighborhood in mapState
-    mapState.selectedNeighborhood = this.value;
-
-    // update markers based on selected neighborhood and current marker scheme
-    updateMarkers();
-
-    // update rankings table
-    renderRankings(
-      mapState.choroplethMetric,
-      mapState.isRelative,
-      mapState.selectedNeighborhood,
-    );
-
-    // change map view based on selected neighborhood
-    if (mapState.selectedNeighborhood === "top") {
-      resetMapView();
-    } else {
-      zoomIn();
-    }
-  });
 }
 
 // create neighborhood dropdown elements
@@ -194,10 +171,43 @@ function createOption(text, value) {
 
 // setup event listeners for UI controls
 function initializeUIControls() {
+  wireNeighborhoodDropdown();
   wireChoroplethButtons();
   wireRelativeToggle();
   wireMarkerControls();
   wireResponsiveControlMove();
+}
+
+// event listener for neighborhood dropdown changes to update map and other components
+function wireNeighborhoodDropdown() {
+  const dropdown = document.getElementById("neighborhoods-dropdown");
+  // safety check
+  if (!dropdown) return;
+
+  // event listener for dropdown changes
+  dropdown.addEventListener("change", (e) => {
+    const selected = e.target.value;
+
+    // update selected neighborhood in mapState
+    mapState.selectedNeighborhood = selected;
+
+    // update markers based on selected neighborhood and current marker scheme
+    updateMarkers();
+
+    // update rankings table
+    renderRankings(
+      mapState.choroplethMetric,
+      mapState.isRelative,
+      mapState.selectedNeighborhood,
+    );
+
+    // change map view based on selected neighborhood
+    if (selected === "top") {
+      resetMapView();
+    } else {
+      zoomIn();
+    }
+  });
 }
 
 // setup event listeners for choropleth overlay buttons and toggle active class for buttons
