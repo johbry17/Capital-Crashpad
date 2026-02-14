@@ -70,6 +70,13 @@ function renderRankings(metric, isRelative, selectedNeighborhood) {
   // order rows by rank (dynamic reordering based on current metric)
   rowsMerge.order();
 
+  // add click handler to rows to trigger neighborhood selection in dropdown and update other components
+  rowsMerge.on("click", function (event, d) {
+    const dropdown = document.getElementById("neighborhoods-dropdown");
+    dropdown.value = d.neighborhood;
+    dropdown.dispatchEvent(new Event("change"));
+  });
+
   // highlight selected neighborhood
   rowsMerge.classed("selected", (d) => d.neighborhood === selectedNeighborhood);
 
