@@ -32,7 +32,6 @@ function createMap() {
   // event listeners for resizing
   window.addEventListener("resize", () => {
     mapState.map.invalidateSize();
-    // resizePlots();
   });
 
   // resize map to ensure it loads correctly
@@ -47,12 +46,6 @@ function createMap() {
 
   // setup UI control event listeners
   initializeUIControls();
-
-  // update infoBox and plots for initial view
-  // updateInfoBox(listingsData, "Washington, D.C.");
-  // update31DaysInfoBox(listingsData, "Washington, D.C.");
-  // updateMultiListings(listingsData, "Washington, D.C.");
-  // allDCPlots(listingsData, statsByNeighborhood, defaultColors);
 }
 
 //////////////////////////////////////////////////////////
@@ -511,12 +504,6 @@ function resetMapView() {
     mapState.choroplethLayer.resetStyle();
   }
 
-  // update infoBox and plots
-  // updateInfoBox(listingsData, "Washington, D.C.");
-  // update31DaysInfoBox(listingsData, "Washington, D.C.");
-  // updateMultiListings(listingsData, "Washington, D.C.");
-  // allDCPlots(listingsData, statsByNeighborhood, defaultColors);
-
   // toggle button
   toggleButton("total-airbnbs-button", true);
 }
@@ -552,16 +539,5 @@ function zoomIn() {
 
     // zoom to neighborhood boundaries
     mapState.map.fitBounds(boundaries.getBounds());
-
-    // update infoBox, and plots
-    // updateInfoBox(listingsData, selectedNeighborhood);
-    // update31DaysInfoBox(listingsData, selectedNeighborhood);
-    // updateMultiListings(listingsData, selectedNeighborhood);
-    // neighborhoodPlots(
-    //   listingsData,
-    //   selectedNeighborhood,
-    //   statsByNeighborhood,
-    //   defaultColors,
-    // );
   }
 }
