@@ -358,6 +358,24 @@ function createMarkers(data, colorScheme = null) {
   return markers;
 }
 
+// label each license status
+function setLicenseStatus(data) {
+  return data.map((item) => {
+    let license = item.license
+      ? item.license.split(":")[0].trim()
+      : "No License";
+    switch (license.toLowerCase()) {
+      case "hosted license":
+      case "unhosted license":
+        return { ...item, licenseCategory: "Licensed" };
+      case "exempt":
+        return { ...item, licenseCategory: "Exempt" };
+      default:
+        return { ...item, licenseCategory: "No License" };
+    }
+  });
+}
+
 // group listings by lat/lon for multiple listings at same location
 function groupListingsByLatLon(data) {
   const grouped = {};

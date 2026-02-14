@@ -41,7 +41,7 @@ function createMap(neighborhoods, listingsData, statsByNeighborhood) {
   // event listeners for resizing
   window.addEventListener("resize", () => {
     map.invalidateSize();
-    resizePlots();
+    // resizePlots();
   });
 
   // resize map to ensure it loads correctly
@@ -58,10 +58,10 @@ function createMap(neighborhoods, listingsData, statsByNeighborhood) {
   setupOverlayListeners(neighborhoods, listingsData, statsByNeighborhood);
 
   // update infoBox and plots for initial view
-  updateInfoBox(listingsData, "Washington, D.C.");
-  update31DaysInfoBox(listingsData, "Washington, D.C.");
-  updateMultiListings(listingsData, "Washington, D.C.");
-  allDCPlots(listingsData, statsByNeighborhood, defaultColors);
+  // updateInfoBox(listingsData, "Washington, D.C.");
+  // update31DaysInfoBox(listingsData, "Washington, D.C.");
+  // updateMultiListings(listingsData, "Washington, D.C.");
+  // allDCPlots(listingsData, statsByNeighborhood, defaultColors);
 }
 
 //////////////////////////////////////////////////////////
@@ -517,10 +517,10 @@ function resetMapView(map, listingsData, statsByNeighborhood) {
   }
 
   // update infoBox and plots
-  updateInfoBox(listingsData, "Washington, D.C.");
-  update31DaysInfoBox(listingsData, "Washington, D.C.");
-  updateMultiListings(listingsData, "Washington, D.C.");
-  allDCPlots(listingsData, statsByNeighborhood, defaultColors);
+  // updateInfoBox(listingsData, "Washington, D.C.");
+  // update31DaysInfoBox(listingsData, "Washington, D.C.");
+  // updateMultiListings(listingsData, "Washington, D.C.");
+  // allDCPlots(listingsData, statsByNeighborhood, defaultColors);
 
   // toggle button
   toggleButton("total-airbnbs-button", true);
@@ -558,14 +558,14 @@ function zoomIn(map, selectedNeighborhood, listingsData, statsByNeighborhood) {
     map.fitBounds(boundaries.getBounds());
 
     // update infoBox, and plots
-    updateInfoBox(listingsData, selectedNeighborhood);
-    update31DaysInfoBox(listingsData, selectedNeighborhood);
-    updateMultiListings(listingsData, selectedNeighborhood);
-    neighborhoodPlots(
-      listingsData,
-      selectedNeighborhood,
-      statsByNeighborhood,
-      defaultColors,
-    );
+    // updateInfoBox(listingsData, selectedNeighborhood);
+    // update31DaysInfoBox(listingsData, selectedNeighborhood);
+    // updateMultiListings(listingsData, selectedNeighborhood);
+    // neighborhoodPlots(
+    //   listingsData,
+    //   selectedNeighborhood,
+    //   statsByNeighborhood,
+    //   defaultColors,
+    // );
   }
 }
