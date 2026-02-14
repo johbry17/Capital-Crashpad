@@ -51,8 +51,8 @@ function createMap() {
   setChoroplethMetric("license_compliance");
   mapState.choroplethLayer.addTo(mapState.map);
 
-  // event listener for overlay and marker scheme changes
-  setupOverlayListeners();
+  // setup UI control event listeners
+  initializeUIControls();
 
   // update infoBox and plots for initial view
   // updateInfoBox(listingsData, "Washington, D.C.");
@@ -185,9 +185,91 @@ function createOption(text, value) {
 
 //////////////////////////////////////////////////////////
 
-// event listener to move choropleth control for mobile responsiveness
-window.addEventListener("DOMContentLoaded", moveChoroplethControl);
-window.addEventListener("resize", moveChoroplethControl);
+// setup event listeners for UI controls
+function initializeUIControls() {
+  wireChoroplethButtons();
+  wireRelativeToggle();
+  wireMarkerControls();
+  wireResponsiveControlMove();
+}
+
+// setup event listeners for choropleth overlay buttons and toggle active class for buttons
+function wireChoroplethButtons() {
+  const container = document.getElementById("choropleth-control");
+  const buttons = container.querySelectorAll("button");
+
+  // set initial active button on load
+  document.getElementById("license-compliance-button")?.classList.add("active");
+
+  // event listener for choropleth changes
+  container.addEventListener("click", (e) => {
+    const selectedOverlay = e.target.getAttribute("data-overlay");
+    if (!selectedOverlay) return;
+
+    // visual active state
+    buttons.forEach((b) => b.classList.remove("active"));
+    e.target.classList.add("active");
+
+    // update map based on selected overlay
+    handleOverlaySelection(selectedOverlay);
+  });
+}
+
+// event listener for toggle slider changes and styling of toggle labels
+function wireRelativeToggle() {
+  const toggle = document.getElementById("toggle-relative");
+
+  // set initial state of toggle labels
+  updateToggleLabels();
+
+  // event listener for toggle changes
+  toggle.addEventListener("change", (e) => {
+    mapState.isRelative = e.target.checked;
+    updateToggleLabels();
+
+    // update choropleth metric to trigger style and legend updates
+    if (mapState.choroplethMetric) {
+      setChoroplethMetric(mapState.choroplethMetric);
+    }
+  });
+}
+
+// setup event listener for marker scheme changes and toggle active class for buttons
+function wireMarkerControls() {
+  const container = document.getElementById("marker-overlay-group");
+  const labels = container.querySelectorAll("label");
+
+  // event listener for marker scheme changes
+  container.addEventListener("change", (e) => {
+    const scheme = e.target.getAttribute("data-overlay");
+    if (!scheme) return;
+
+    // toggle active class for ui visual feedback
+    labels.forEach((l) => l.classList.remove("active"));
+    e.target.parentElement.classList.add("active");
+
+    // update marker scheme in mapState and refresh markers
+    mapState.markerScheme = resolveMarkerScheme(scheme);
+    updateMarkers();
+  });
+}
+
+// move control on load and on resize for mobile responsiveness
+function wireResponsiveControlMove() {
+  moveChoroplethControl();
+  window.addEventListener("resize", moveChoroplethControl);
+}
+
+// style toggle slider labels based on state
+function updateToggleLabels() {
+  const toggle = document.getElementById("toggle-relative");
+  const absoluteLabel = document.querySelector(".absolute-label");
+  if (toggle.checked) {
+    absoluteLabel.classList.remove("active");
+  } else {
+    absoluteLabel.classList.add("active");
+  }
+}
 
 // toggle to move choropleth control for mobile responsiveness
 function moveChoroplethControl() {
@@ -208,126 +290,41 @@ function moveChoroplethControl() {
   }
 }
 
-function updateToggleLabels() {
-  const toggle = document.getElementById("toggle-relative");
-  const absoluteLabel = document.querySelector(".absolute-label");
-  if (toggle.checked) {
-    absoluteLabel.classList.remove("active");
-  } else {
-    absoluteLabel.classList.add("active");
+/////////////////////////////////////////////////////////////
+
+// change map overlay based on selected option
+function handleOverlaySelection(selectedOverlay) {
+  // early exit if no overlay selected
+  if (!selectedOverlay) return;
+
+  // add bubble layer and exit if selected
+  if (selectedOverlay === "Total Airbnbs") {
+    toggleBubbleLayer();
+    return;
+  }
+
+  // map overlay names to metric keys for easier handling
+  const metricMap = {
+    "License Compliance": "license_compliance",
+    "Median Price": "median_price",
+    "Reviews per Month": "reviews_per_month",
+    "% Multi-Property Hosts": "multi_listing_pct",
+    "Listings per 1,000 Residents": "listings_per_1000",
+    "Total Listings": "total_listings",
+  };
+
+  // set choropleth metric to trigger style and legend updates
+  const metric = metricMap[selectedOverlay];
+  if (metric) {
+    removeBubbleLayerIfPresent();
+    setChoroplethMetric(metric);
   }
 }
-document
-  .getElementById("toggle-relative")
-  .addEventListener("change", updateToggleLabels);
 
-const choroplethButtons = document.querySelectorAll(
-  "#choropleth-control button",
-);
-choroplethButtons.forEach((btn) => {
-  btn.addEventListener("click", function () {
-    choroplethButtons.forEach((b) => b.classList.remove("active"));
-    this.classList.add("active");
-  });
-});
-
-// setup event listeners for overlay and marker scheme changes
-function setupOverlayListeners() {
-  // set initial state of toggle labels
-  updateToggleLabels();
-  // Set initial active button on load
-  const defaultBtn = document.getElementById("license-compliance-button");
-  if (defaultBtn) {
-    defaultBtn.classList.add("active");
-  }
-
-  // event listener for choropleth changes
-  document
-    .getElementById("choropleth-control")
-    .addEventListener("click", handleOverlayClick);
-
-  document
-    .getElementById("toggle-relative")
-    .addEventListener("change", toggleRelativeMode);
-
-  // event listener for marker scheme changes
-  document
-    .getElementById("marker-overlay-group")
-    .addEventListener("change", handleMarkerChange);
-
-  // toggle active class for marker scheme buttons
-  // (only for visual feedback, doesn't affect functionality)
-  const markerLabels = document.querySelectorAll("#marker-overlay-group label");
-  document
-    .querySelectorAll('#marker-overlay-group input[type="radio"]')
-    .forEach((input) => {
-      input.addEventListener("change", function () {
-        markerLabels.forEach((label) => label.classList.remove("active"));
-        this.parentElement.classList.add("active");
-      });
-    });
-
-  // change overlay based on click
-  function handleOverlayClick(e) {
-    const selectedOverlay = e.target.getAttribute("data-overlay");
-    // early exit if no overlay selected
-    if (!selectedOverlay) return;
-
-    // remove bubble layer if it exists
-    if (mapState.bubbleLayer && mapState.map.hasLayer(mapState.bubbleLayer)) {
-      mapState.map.removeLayer(mapState.bubbleLayer);
-    }
-
-    // toggle bubble layer for total Airbnbs
-    if (selectedOverlay === "Total Airbnbs") {
-      toggleBubbleLayer();
-      return;
-    }
-
-    // map overlay names to metric keys for easier handling
-    const metricMap = {
-      "License Compliance": "license_compliance",
-      "Median Price": "median_price",
-      "Reviews per Month": "reviews_per_month",
-      "% Multi-Property Hosts": "multi_listing_pct",
-      "Listings per 1,000 Residents": "listings_per_1000",
-      "Total Listings": "total_listings",
-    };
-
-    // set choropleth metric based on selected overlay and update layer style and legend
-    const metric = metricMap[selectedOverlay];
-    if (metric) {
-      setChoroplethMetric(metric);
-    }
-  }
-
-  // toggle relative mode for choropleth
-  function toggleRelativeMode(e) {
-    mapState.isRelative = e.target.checked;
-    // update choropleth metric to trigger style and legend updates
-    if (mapState.choroplethMetric) {
-      setChoroplethMetric(mapState.choroplethMetric);
-    }
-  }
-
-  // handle marker scheme changes
-  function handleMarkerChange(e) {
-    const scheme = e.target.getAttribute("data-overlay");
-    // do nothing if the same scheme is selected
-    if (!scheme) return;
-    // update marker scheme in mapState
-    mapState.markerScheme =
-      scheme === "None"
-        ? "none"
-        : scheme === "Airbnb's"
-          ? "default"
-          : scheme === "License Status"
-            ? "license"
-            : scheme === "Property Type"
-              ? "propertyType"
-              : "none";
-    // update markers based on selected neighborhood and new scheme
-    updateMarkers();
+// utility function to remove bubble layer if it exists
+function removeBubbleLayerIfPresent() {
+  if (mapState.bubbleLayer && mapState.map.hasLayer(mapState.bubbleLayer)) {
+    mapState.map.removeLayer(mapState.bubbleLayer);
   }
 }
 
@@ -406,8 +403,6 @@ function toggleBubbleLayer() {
     mapState.markerLegend = null;
   }
   // reset marker radio button to "None" and update button state
-  // const markerNone = document.getElementById("marker-none");
-  // if (markerNone) markerNone.checked = true;
   const markerLabels = document.querySelectorAll("#marker-overlay-group label");
   markerLabels.forEach((label) => label.classList.remove("active"));
   // set the first label (None) to active (hacky, but it works)
@@ -419,6 +414,15 @@ function toggleBubbleLayer() {
   // set choropleth to null (default borders, no fill) and update legend
   setChoroplethMetric(null);
   updateChoroplethLegend();
+}
+
+// resolve marker scheme based on selected option
+function resolveMarkerScheme(label) {
+  if (label === "None") return "none";
+  if (label === "Airbnb's") return "default";
+  if (label === "License Status") return "license";
+  if (label === "Property Type") return "propertyType";
+  return "none";
 }
 
 // update markers based on selected neighborhood and marker scheme
