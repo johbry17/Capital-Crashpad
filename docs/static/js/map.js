@@ -200,6 +200,30 @@ function createOption(text, value) {
 
 //////////////////////////////////////////////////////////
 
+// event listener to move choropleth control for mobile responsiveness
+window.addEventListener("DOMContentLoaded", moveChoroplethControl);
+window.addEventListener("resize", moveChoroplethControl);
+
+// toggle to move choropleth control for mobile responsiveness
+function moveChoroplethControl() {
+  const control = document.getElementById("choropleth-control");
+  const mapContainer = document.querySelector(".map-container");
+  const parentRow = document.querySelector(".row");
+
+  if (window.innerWidth <= 600) {
+    // move below map
+    if (parentRow && control && control.parentNode !== parentRow) {
+      parentRow.appendChild(control);
+    }
+  } else {
+    // move inside map
+    if (mapContainer && control && control.parentNode !== mapContainer) {
+      mapContainer.appendChild(control);
+    }
+  }
+}
+
+
 // setup event listeners for overlay and marker scheme changes
 function setupOverlayListeners(
   neighborhoods,

@@ -201,6 +201,56 @@ h2 i {
   background-color: #f9f9f9;
 }
 
+#marker-overlay-group {
+  display: flex;
+  border-radius: 5px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  margin: 0 auto 1em auto;
+  position: relative;
+  justify-content: center;
+  gap: 0;
+  width: fit-content;
+}
+#marker-overlay-group label {
+  margin: 0;
+  padding: 0;
+}
+#marker-overlay-group label input[type=radio] {
+  display: none;
+}
+#marker-overlay-group label button, #marker-overlay-group label.btn {
+  background-color: #0085a1;
+  color: white;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  padding: 8px 18px;
+  font-size: 1em;
+  outline: none;
+}
+#marker-overlay-group label button:hover, #marker-overlay-group label button:focus, #marker-overlay-group label.btn:hover, #marker-overlay-group label.btn:focus {
+  background-color: #00a8cc;
+}
+#marker-overlay-group label.active,
+#marker-overlay-group label input[type=radio]:checked + button, input[type=radio]:checked + #marker-overlay-group label.btn {
+  background-color: #00a8cc;
+  color: white;
+  z-index: 2;
+}
+#marker-overlay-group label:first-child button,
+#marker-overlay-group label:first-child.btn {
+  border-top-left-radius: 5px;
+  border-bottom-left-radius: 5px;
+}
+#marker-overlay-group label:last-child button,
+#marker-overlay-group label:last-child.btn {
+  border-top-right-radius: 5px;
+  border-bottom-right-radius: 5px;
+}
+
 #choropleth-control {
   position: absolute;
   bottom: 10px;
@@ -226,6 +276,27 @@ h2 i {
 #choropleth-control button:disabled {
   background-color: #6c757d;
   cursor: not-allowed;
+}
+@media (max-width: 600px) {
+  #choropleth-control {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-auto-rows: 1fr;
+    gap: 8px;
+    position: static;
+    left: unset;
+    transform: none;
+    margin: 0 auto 10px auto;
+    width: 98vw;
+    max-width: 400px;
+    justify-items: stretch;
+  }
+  #choropleth-control button {
+    min-width: 0;
+    font-size: 1em;
+    padding: 10px 2px;
+    white-space: normal;
+  }
 }
 
 .switch {
@@ -284,56 +355,6 @@ h2 i {
 .switch:has(input:checked) + .toggle-label {
   color: #0085a1;
   font-weight: bold;
-}
-
-#marker-overlay-group {
-  display: flex;
-  border-radius: 5px;
-  overflow: hidden;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-  margin: 0 auto 1em auto;
-  position: relative;
-  justify-content: center;
-  gap: 0;
-  width: fit-content;
-}
-#marker-overlay-group label {
-  margin: 0;
-  padding: 0;
-}
-#marker-overlay-group label input[type=radio] {
-  display: none;
-}
-#marker-overlay-group label button, #marker-overlay-group label.btn {
-  background-color: #0085a1;
-  color: white;
-  border: none;
-  border-radius: 0;
-  box-shadow: none;
-  cursor: pointer;
-  transition: background-color 0.3s;
-  padding: 8px 18px;
-  font-size: 1em;
-  outline: none;
-}
-#marker-overlay-group label button:hover, #marker-overlay-group label button:focus, #marker-overlay-group label.btn:hover, #marker-overlay-group label.btn:focus {
-  background-color: #00a8cc;
-}
-#marker-overlay-group label.active,
-#marker-overlay-group label input[type=radio]:checked + button, input[type=radio]:checked + #marker-overlay-group label.btn {
-  background-color: #00a8cc;
-  color: white;
-  z-index: 2;
-}
-#marker-overlay-group label:first-child button,
-#marker-overlay-group label:first-child.btn {
-  border-top-left-radius: 5px;
-  border-bottom-left-radius: 5px;
-}
-#marker-overlay-group label:last-child button,
-#marker-overlay-group label:last-child.btn {
-  border-top-right-radius: 5px;
-  border-bottom-right-radius: 5px;
 }
 
 #tableau-viz {

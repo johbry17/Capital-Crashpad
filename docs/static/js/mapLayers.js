@@ -20,7 +20,6 @@ function initializeChoroplethLayer(neighborhoods, statsByNeighborhood) {
 
       // get metric value for neighborhood to determine fill color
       const metric = resolveMetric(mapState.choroplethMetric);
-      console.log("Calculating color for metric:", metric);
       const value =
         statsByNeighborhood[feature.properties.neighbourhood]?.[metric] || 0;
 
