@@ -18,12 +18,6 @@ const mapState = {
   markerLegend: null,
 };
 
-// default map view for resetting
-const DC_VIEW = {
-  center: [38.89511, -77.03637],
-  zoom: 12,
-};
-
 //////////////////////////////////////////////////////////
 
 // map creation
@@ -96,7 +90,11 @@ function addResetButton() {
     L.DomEvent.disableClickPropagation(button);
 
     button.addEventListener("click", () => {
-      mapState.map.setView(DC_VIEW.center, DC_VIEW.zoom); // reset to initial view
+      const dropdown = document.getElementById("neighborhoods-dropdown");
+      if (dropdown) {
+        dropdown.value = "top";
+        dropdown.dispatchEvent(new Event("change"));
+      }
     });
 
     return button;
@@ -507,7 +505,7 @@ function toggleButton(buttonId, enable = true) {
 // resets map view to all of D.C., updates infoBox and plots
 function resetMapView() {
   // center map on D.C. and reset zoom
-  mapState.map.setView(DC_VIEW.center, DC_VIEW.zoom);
+  mapState.map.setView([38.89511, -77.03637], 12);
   // reset choropleth style (neighborhoods may remain uncovered otherwise)
   if (mapState.choroplethLayer) {
     mapState.choroplethLayer.resetStyle();
