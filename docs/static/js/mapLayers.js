@@ -1,5 +1,8 @@
 // Description: Functions to create and initialize map layers - neighborhoods, choropleth, bubble chart, and markers
 
+// global for popups
+let lockedPopupLayer = null;
+
 // get color for choropleth based on metric and value
 function getColorForMetric(metric, value) {
   return choroplethConfig[metric].scale(value);
@@ -408,21 +411,69 @@ function createPopupContentForGroup(listings, markerColor = "#333") {
 
 // handle popup events
 function popupMouseEvents(layer) {
-  let popupOpen = false; // tracks popup state
-
   layer.on({
     mouseover() {
-      if (!popupOpen) this.openPopup();
+      
+      // only open/close on hover if nothing is locked
+      // highlight and reset style on hover
+      if (!lockedPopupLayer) {
+        highlightMarker(this);
+        this.openPopup();
+      }
     },
+
     mouseout() {
-      if (!popupOpen) this.closePopup();
+      if (!lockedPopupLayer) {
+        resetMarkerStyle(this);
+        this.closePopup();
+      }
     },
+
     click() {
-      popupOpen ? this.closePopup() : this.openPopup();
-      popupOpen = !popupOpen;
+      // if clicking the already locked layer → unlock it
+      if (lockedPopupLayer === this) {
+        this.closePopup();
+        lockedPopupLayer = null;
+        return;
+      }
+
+      // if another popup is locked → close it first
+      if (lockedPopupLayer) {
+        lockedPopupLayer.closePopup();
+      }
+
+      // lock this one
+      lockedPopupLayer = this;
+      this.openPopup();
     },
   });
+
+  // close any open popups when clicking on the map
+  mapState.map.on("click", () => {
+    if (lockedPopupLayer) {
+      lockedPopupLayer.closePopup();
+      lockedPopupLayer = null;
+    }
+  });
 }
+
+// highlight marker on hover
+function highlightMarker(layer) {
+  layer.setStyle({
+    radius: layer.options.radius * 2,
+    color: "#ffffff",
+  });
+}
+
+// reset marker style on mouseout
+// !!! hardcoded !!! to match createMarkers
+function resetMarkerStyle(layer) {
+  layer.setStyle({
+    radius: 2,
+    color: "black",
+  });
+}
+
 
 //////////////////////////////////////////////////////////
 
