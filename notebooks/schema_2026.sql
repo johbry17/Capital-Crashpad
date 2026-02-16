@@ -38,6 +38,13 @@ CREATE TABLE listings_long (
     is_high_availability BOOLEAN,
     likely_commercial BOOLEAN,
 
+    review_scores_rating FLOAT,
+    host_name TEXT,
+    is_verified_host BOOLEAN,
+    is_high_concentration_host BOOLEAN,
+    listing_url TEXT,
+    hover_description TEXT,
+
     PRIMARY KEY (listing_id, quarter)
 );
 

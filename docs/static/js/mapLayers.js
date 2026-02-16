@@ -283,13 +283,13 @@ function createRangeLabels(metric, ...domain) {
 // create markers grouped by lat/long, optional color by license status or property type
 function createMarkers(filteredData) {
   // get license status for each listing
-  data = setLicenseStatus(filteredData);
+  // data = setLicenseStatus(filteredData);
 
   // empty marker layer
   const markers = L.layerGroup();
 
   // group listings by coordinates
-  const grouped = groupListingsByLatLon(data);
+  const grouped = groupListingsByLatLon(filteredData);
 
   // loop to populate markers
   Object.values(grouped).forEach((listingsAtLocation) => {
@@ -299,7 +299,7 @@ function createMarkers(filteredData) {
     let markerColor = defaultColors.airbnbs; // default color
     if (mapState.markerScheme === "license") {
       markerColor =
-        licenseColors[listingsAtLocation[0].licenseCategory] ||
+        licenseColors[listingsAtLocation[0].license] ||
         licenseColors.default;
     } else if (mapState.markerScheme === "propertyType") {
       markerColor =
@@ -340,23 +340,23 @@ function createMarkers(filteredData) {
   return markers;
 }
 
-// label each license status
-function setLicenseStatus(data) {
-  return data.map((item) => {
-    let license = item.license
-      ? item.license.split(":")[0].trim()
-      : "No License";
-    switch (license.toLowerCase()) {
-      case "hosted license":
-      case "unhosted license":
-        return { ...item, licenseCategory: "Licensed" };
-      case "exempt":
-        return { ...item, licenseCategory: "Exempt" };
-      default:
-        return { ...item, licenseCategory: "No License" };
-    }
-  });
-}
+// // label each license status
+// function setLicenseStatus(data) {
+//   return data.map((item) => {
+//     let license = item.license
+//       ? item.license.split(":")[0].trim()
+//       : "No License";
+//     switch (license.toLowerCase()) {
+//       case "hosted license":
+//       case "unhosted license":
+//         return { ...item, licenseCategory: "Licensed" };
+//       case "exempt":
+//         return { ...item, licenseCategory: "Exempt" };
+//       default:
+//         return { ...item, licenseCategory: "No License" };
+//     }
+//   });
+// }
 
 // group listings by lat/lon for multiple listings at same location
 function groupListingsByLatLon(data) {
@@ -389,8 +389,6 @@ function createPopupContentForGroup(listings, markerColor = "#333") {
 
       // regulatory
       const license = listing.license
-        ? listing.license.split(":")[0].trim()
-        : "No License";
 
       const minNights = `Min ${listing.minimum_nights} nights`;
       // const available = listing.availability_365
@@ -411,7 +409,7 @@ function createPopupContentForGroup(listings, markerColor = "#333") {
       if (listing.host_identity_verified === "True")
         badges.push("Verified host");
       if (!listing.license) badges.push("Unlicensed");
-      if (listing.minimum_nights >= 31) badges.push("Long-term listing");
+      if (listing.minimum_nights >= 31) badges.push("Long-term listing (not STR)");
       if (listing.host_listings_count > 5)
         badges.push("High-concentration host");
 
