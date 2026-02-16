@@ -373,47 +373,88 @@ function groupListingsByLatLon(data) {
 function createPopupContentForGroup(listings, markerColor = "#333") {
   const content = listings
     .map((listing) => {
+      const hoverDesc = listing.hover_description
+        ? `<span class="popup-desc-muted">${listing.hover_description}</span>`
+        : "";
       const price = parseFloat(listing.price).toLocaleString(undefined, {
         style: "currency",
         currency: "USD",
       });
-      const hostVerified =
-        listing.host_identity_verified === "True" ? "Verified" : "Unverified";
-      const hoverDescription = listing.hover_description
-        ? `<h4><b>${listing.hover_description}</b></h4>`
-        : "<h4><b>Description not available</b></h4>";
       const rating = listing.review_scores_rating
-        ? `${listing.review_scores_rating} \u2605`
-        : "No rating yet";
+        ? `★${listing.review_scores_rating}`
+        : "No rating";
+
+      // market identity
+      const header = `${listing.room_type} · ${price} · ${rating}`;
+
+      // regulatory
       const license = listing.license
         ? listing.license.split(":")[0].trim()
         : "No License";
 
-      return `
-      ${hoverDescription}
-      <a href="${listing.listing_url}" target="_blank">Link to listing</a><br>
-      <b>Price:</b> ${price}<br>
-      <b>Property Type:</b> ${listing.room_type}<br>
-      <b>Property Subtype:</b> ${listing.property_type}<br>
-      <b>Accommodates:</b> ${listing.accommodates}<br>
-      <b>Rating:</b> ${rating}<br>
-      <b>Host:</b> ${listing.host_name}<br>
-      <b>Host Verified:</b> ${hostVerified}<br>
-      <b>Host Total Airbnbs:</b> ${listing.host_listings_count}<br>
-      <b>License:</b> ${license}<br>
-    `;
-    })
-    .join("<hr>");
+      const minNights = `Min ${listing.minimum_nights} nights`;
+      // const available = listing.availability_365
+      //   ? `${Math.round((listing.availability_365 / 365) * 100)}% available`
+      //   : "";
 
-  // wrap in scrollable container
-  return `<div style="max-height:300px;overflow-y:auto; border: 4px solid ${markerColor}; border-radius: 10px; padding: 16px;">${content}</div>`;
+      // demand / intensity
+      const reviews = listing.reviews_per_month
+        ? `${listing.reviews_per_month} reviews/month`
+        : "";
+
+      // commercial?
+      // ? add '(Unverified host)' text for unverified hosts?
+      const host = `Host: ${listing.host_name} · ${listing.host_listings_count} listings`;
+
+      // optional badges
+      const badges = [];
+      if (listing.host_identity_verified === "True")
+        badges.push("Verified host");
+      if (!listing.license) badges.push("Unlicensed");
+      if (listing.minimum_nights >= 31) badges.push("Long-term listing");
+      if (listing.host_listings_count > 5)
+        badges.push("High-concentration host");
+
+      return `
+        <div class="popup-card">
+          <div class="popup-head">
+            ${hoverDesc}
+            ${header}
+          </div>
+
+          <div class="popup-sub">
+            ${license} · ${minNights}
+          </div>
+
+          <div class="popup-meta">
+            ${reviews}
+          </div>
+
+          <div class="popup-meta">
+            ${host}
+          </div>
+
+          ${badges.length ? `<div class="popup-badges">${badges.join(" · ")}</div>` : ""}
+
+          <a class="popup-link" href="${listing.listing_url}" target="_blank">
+            View Listing <span class="popup-ext-icon" aria-label="Opens in new tab">↗</span>
+          </a>
+        </div>
+      `;
+    })
+    .join("<div class='popup-divider'></div>");
+
+  return `
+    <div class="marker-popup-wrapper" style="border-color:${markerColor}">
+      ${content}
+    </div>
+  `;
 }
 
 // handle popup events
 function popupMouseEvents(layer) {
   layer.on({
     mouseover() {
-      
       // only open/close on hover if nothing is locked
       // highlight and reset style on hover
       if (!lockedPopupLayer) {
@@ -473,7 +514,6 @@ function resetMarkerStyle(layer) {
     color: "black",
   });
 }
-
 
 //////////////////////////////////////////////////////////
 

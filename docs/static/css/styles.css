@@ -107,30 +107,59 @@ h2 i {
   margin-bottom: 1em;
 }
 
-.marker-popup {
-  font-size: 16px;
-  border-radius: 10px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+.marker-popup-wrapper {
+  max-height: 260px;
+  overflow-y: auto;
+  border: 3px solid;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-family: system-ui, -apple-system, sans-serif;
 }
 
-.leaflet-popup-close-button {
-  top: -15px !important;
-  right: -15px !important;
-  color: black !important;
-  background-color: white !important;
-  border: none;
-  border-radius: 50%;
-  width: 20px;
-  height: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-  z-index: 1000;
+.popup-card {
+  margin-bottom: 8px;
 }
-.leaflet-popup-close-button:hover {
-  color: #2a9d8f !important;
+
+.popup-head {
+  font-weight: 600;
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+.popup-desc-muted {
+  color: #aaa;
+  font-size: 11px;
+  font-style: italic;
+  display: block;
+  margin-bottom: 2px;
+}
+
+.popup-sub {
+  font-size: 12px;
+  color: #555;
+  margin-bottom: 4px;
+}
+
+.popup-meta {
+  font-size: 11px;
+  color: #777;
+  margin-bottom: 6px;
+}
+
+.popup-link {
+  font-size: 12px;
+  text-decoration: none;
+  color: #355f8a;
+}
+
+.popup-link:hover {
+  text-decoration: underline;
+}
+
+.popup-divider {
+  height: 1px;
+  background: #eee;
+  margin: 8px 0;
 }
 
 .choropleth-label {
