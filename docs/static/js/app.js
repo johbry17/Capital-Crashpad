@@ -8,7 +8,7 @@ let statsByNeighborhood = {};
 // fetch data and geojson, clean data, populate scrape date, create map
 Promise.all([
   d3.csv("./static/resources/listings_for_mapping.csv"),
-  fetch("./static/resources/neighbourhoods_cleaned.geojson").then((response) =>
+  fetch("./static/resources/neighborhoods_for_mapping.geojson").then((response) =>
     response.json(),
   ),
   d3.csv("./static/resources/neighborhood_map_stats.csv"),
