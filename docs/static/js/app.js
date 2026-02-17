@@ -12,7 +12,7 @@ Promise.all([
     response.json(),
   ),
   d3.csv("./static/resources/neighborhood_map_stats.csv"),
-  d3.csv("./static/resources/scraped.csv"),
+  d3.csv("./static/resources/dashboard_metadata.csv"),
 ]).then(([ld, ng, ns, sd]) => {
   listingsData = ld;
   neighborhoods = ng;
@@ -57,10 +57,7 @@ Promise.all([
 
 // populate scrape date
 function populateScrapeDate(scrapeDate) {
-  const scrapeDateRow = scrapeDate.find(
-    (row) => row.key === "avg_calendar_last_scraped",
-  );
-  const formattedDate = dayjs(scrapeDateRow.value).format("DD MMMM YYYY"); // format as DD Month YYYY, e.g. 13 March 2025
+  const formattedDate = dayjs(scrapeDate[0].last_scraped).format("DD MMMM YYYY"); // format as DD Month YYYY, e.g. 13 March 2025
   document.querySelectorAll(".last-scraped").forEach((el) => {
     el.textContent = `Scraped data as of ~${formattedDate}`;
   });
