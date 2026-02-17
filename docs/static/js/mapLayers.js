@@ -282,9 +282,6 @@ function createRangeLabels(metric, ...domain) {
 
 // create markers grouped by lat/long, optional color by license status or property type
 function createMarkers(filteredData) {
-  // get license status for each listing
-  // data = setLicenseStatus(filteredData);
-
   // empty marker layer
   const markers = L.layerGroup();
 
@@ -299,8 +296,7 @@ function createMarkers(filteredData) {
     let markerColor = defaultColors.airbnbs; // default color
     if (mapState.markerScheme === "license") {
       markerColor =
-        licenseColors[listingsAtLocation[0].license] ||
-        licenseColors.default;
+        licenseColors[listingsAtLocation[0].license] || licenseColors.default;
     } else if (mapState.markerScheme === "propertyType") {
       markerColor =
         propertyTypeColors[listingsAtLocation[0].room_type] ||
@@ -340,24 +336,6 @@ function createMarkers(filteredData) {
   return markers;
 }
 
-// // label each license status
-// function setLicenseStatus(data) {
-//   return data.map((item) => {
-//     let license = item.license
-//       ? item.license.split(":")[0].trim()
-//       : "No License";
-//     switch (license.toLowerCase()) {
-//       case "hosted license":
-//       case "unhosted license":
-//         return { ...item, licenseCategory: "Licensed" };
-//       case "exempt":
-//         return { ...item, licenseCategory: "Exempt" };
-//       default:
-//         return { ...item, licenseCategory: "No License" };
-//     }
-//   });
-// }
-
 // group listings by lat/lon for multiple listings at same location
 function groupListingsByLatLon(data) {
   const grouped = {};
@@ -373,6 +351,7 @@ function groupListingsByLatLon(data) {
 function createPopupContentForGroup(listings, markerColor = "#333") {
   const content = listings
     .map((listing) => {
+      // description and market identity
       const hoverDesc = listing.hover_description
         ? `<span class="popup-desc-muted">${listing.hover_description}</span>`
         : "";
@@ -388,12 +367,11 @@ function createPopupContentForGroup(listings, markerColor = "#333") {
       const header = `${listing.room_type} · ${price} · ${rating}`;
 
       // regulatory
-      const license = listing.license
-
+      const license = listing.license;
       const minNights = `Min ${listing.minimum_nights} nights`;
-      // const available = listing.availability_365
-      //   ? `${Math.round((listing.availability_365 / 365) * 100)}% available`
-      //   : "";
+      const available = listing.availability_pct
+        ? `${listing.availability_pct}% available`
+        : "";
 
       // demand / intensity
       const reviews = listing.reviews_per_month
@@ -402,15 +380,15 @@ function createPopupContentForGroup(listings, markerColor = "#333") {
 
       // commercial?
       // ? add '(Unverified host)' text for unverified hosts?
-      const host = `Host: ${listing.host_name} · ${listing.host_listings_count} listings`;
+      const host = `Host: ${listing.host_name} · ${listing.host_listings_count} listings${listing.is_verified_host === "True" ? "" : " (Unverified)"}`;
 
       // optional badges
       const badges = [];
-      if (listing.host_identity_verified === "True")
-        badges.push("Verified host");
-      if (!listing.license) badges.push("Unlicensed");
-      if (listing.minimum_nights >= 31) badges.push("Long-term listing (not STR)");
-      if (listing.host_listings_count > 5)
+      if (listing.is_verified_host === "True") badges.push("Verified host");
+      if (listing.license === "No License") badges.push("Unlicensed");
+      if (listing.minimum_nights >= 31)
+        badges.push("Long-term listing (not STR)");
+      if (listing.is_high_concentration_host === "True")
         badges.push("High-concentration host");
 
       return `
@@ -421,7 +399,7 @@ function createPopupContentForGroup(listings, markerColor = "#333") {
           </div>
 
           <div class="popup-sub">
-            ${license} · ${minNights}
+            ${license} · ${minNights} · ${available}
           </div>
 
           <div class="popup-meta">

@@ -6,6 +6,6 @@ function filterListingsByNeighborhood() {
     return listingsData;
   }
   return listingsData.filter(
-    (listing) => listing.neighbourhood === mapState.selectedNeighborhood,
+    (listing) => listing.neighborhood === mapState.selectedNeighborhood,
   );
 }
