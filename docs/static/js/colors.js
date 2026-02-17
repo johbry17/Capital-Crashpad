@@ -3,10 +3,10 @@ const defaultColors = {
   airbnbs: "#b56576",
   neighborhoodLayer: "green",
   defaultGray: "#343a40", // #6c757d
-  neighborhoodColor: "#198754",
-  neighborhoodColorLight: "lightgreen",
-  cityColor: "#0085A1",
-  cityColorLight: "lightblue",
+  neighborhoodColor: "#ff9800",
+  // neighborhoodColorLight: "lightgreen",
+  cityColor: "#90caf9",
+  // cityColorLight: "lightblue",
 };
 
 // color scheme for license categories
