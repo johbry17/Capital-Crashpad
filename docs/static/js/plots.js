@@ -885,8 +885,8 @@ function renderConcentrationPareto(selectedNeighborhood) {
         x: {
           ticks: {
             callback: function (value, index, ticks) {
-              const label = this.getLabelForValue(value);
-              return label.length > 12 ? label.slice(0, 12) + "…" : label;
+              // Show rank as 1-based index
+              return (index + 1).toString();
             },
             maxRotation: 90,
             minRotation: 90,
