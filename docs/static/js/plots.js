@@ -494,9 +494,10 @@ function renderHostConcentrationLorenz(neighborhood) {
   // gini coefficient (display in title)
   const gini = giniCoefficient(revenues);
 
-  // annotations for top 1% and 10% hosts based on cumulative shares at those percentiles
+  // annotations for top 1% (and conditionally 10%) hosts based on cumulative shares at those percentiles
   // with dashed lines to show intersection points on the curve
-  const Xs = [0.01, 0.1];
+  const isMobile = window.innerWidth < 600; // mobile breakpoint
+  const Xs = isMobile ? [0.01] : [0.01, 0.1];
   const annotations = {};
   Xs.forEach((X, i) => {
     const idx = hostPct.findIndex((pct) => pct >= X);
@@ -544,6 +545,19 @@ function renderHostConcentrationLorenz(neighborhood) {
       borderColor: "black",
       borderWidth: 2,
     };
+    annotations.giniLabel = {
+      type: "label",
+      xValue: 0.5, // adjust as needed
+      yValue: 0.85, // adjust as needed
+      backgroundColor: "#fff",
+      borderColor: "#2196f3",
+      borderWidth: 1,
+      color: "#2196f3",
+      font: { size: 14, weight: "bold" },
+      content: [`Gini: ${gini.toFixed(2)}`],
+      enabled: true,
+      position: "center",
+    };
   });
 
   // destroy existing chart
@@ -578,10 +592,10 @@ function renderHostConcentrationLorenz(neighborhood) {
     options: {
       plugins: {
         // title with Gini coefficient
-        title: {
-          display: true,
-          text: `Revenue Concentration (Gini: ${gini.toFixed(2)})`,
-        },
+        // title: {
+        //   display: true,
+        //   text: `Revenue Concentration (Gini: ${gini.toFixed(2)})`,
+        // },
         // annotations for top 1% and 10% hosts and their revenue shares
         annotation: {
           annotations: annotations,
