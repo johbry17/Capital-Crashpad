@@ -10,6 +10,16 @@ function filterListingsByNeighborhood() {
   );
 }
 
+// set height of plotly based on container width for responsive design
+function getResponsivePlotHeight() {
+  // approximate Chart.js default aspect ratio (2:1)
+  const container = document.getElementById("plot-container");
+  const width = container.offsetWidth;
+  // use 2:1 aspect ratio, but set a min/max for usability
+  return Math.max(300, Math.min(0.5 * width, 600));
+}
+
+// calculate percentile (for box plot)
 function percentile(arr, p) {
   if (!arr.length) return 0;
   const sorted = [...arr].sort((a, b) => a - b);
@@ -20,15 +30,16 @@ function percentile(arr, p) {
   return sorted[lower] + (sorted[upper] - sorted[lower]) * (idx - lower);
 }
 
-function linearRegression(data) {
-  const n = data.length;
-  if (n === 0) return { slope: 0, intercept: 0 };
-  const sumX = data.reduce((sum, d) => sum + d.x, 0);
-  const sumY = data.reduce((sum, d) => sum + d.y, 0);
-  const sumXY = data.reduce((sum, d) => sum + d.x * d.y, 0);
-  const sumXX = data.reduce((sum, d) => sum + d.x * d.x, 0);
-
-  const slope = (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX);
-  const intercept = (sumY - slope * sumX) / n;
-  return { slope, intercept };
+// calculate Gini coefficient (for Lorenz curve)
+function giniCoefficient(arr) {
+  if (!arr.length) return 0;
+  const sorted = [...arr].sort((a, b) => a - b);
+  const n = sorted.length;
+  let cumSum = 0;
+  let sum = 0;
+  for (let i = 0; i < n; i++) {
+    cumSum += sorted[i] * (i + 1);
+    sum += sorted[i];
+  }
+  return sum === 0 ? 0 : (2 * cumSum) / (n * sum) - (n + 1) / n;
 }
