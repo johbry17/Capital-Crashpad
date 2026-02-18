@@ -16,7 +16,7 @@ function getResponsivePlotHeight() {
   const container = document.getElementById("plot-container");
   const width = container.offsetWidth;
   // use 2:1 aspect ratio, but set a min/max for usability
-  return Math.max(300, Math.min(0.5 * width, 600));
+  return Math.max(250, Math.min(0.5 * width, 600));
 }
 
 // calculate percentile (for box plot)
