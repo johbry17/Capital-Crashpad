@@ -5,6 +5,7 @@ let rankingsData = [];
 let dcBaseline = {};
 let avgTotalListings = null;
 
+// for rankings title
 reverseMetricMap = {
   license_compliance: "License Compliance",
   median_price: "Median Price",
@@ -31,13 +32,13 @@ function initializeRankings(data) {
 // render rankings table based on selected metric and neighborhood
 function renderRankings(metric, isRelative, selectedNeighborhood) {
   const container = d3.select("#rankings-container");
+  
+  // populate title (before resolving metric)
+  const title = reverseMetricMap[metric] || metric;
+  document.getElementById("rankings-title").textContent = title;
 
   // resolve metric key based on whether relative mode is toggled
   const resolved = resolveMetric(metric);
-
-  // populate title
-  const title = reverseMetricMap[resolved] || resolved;
-  document.getElementById("rankings-title").textContent = title;
 
   // prepare data: filter out DC, convert values to numbers, sort by pre-computed rank
   const rankKey = metric + "_rank";
