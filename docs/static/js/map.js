@@ -43,6 +43,7 @@ function createMap() {
   // set initial choropleth metric and add layer to map
   setChoroplethMetric("license_compliance");
   mapState.choroplethLayer.addTo(mapState.map);
+  renderStatsCard("top");
 
   // setup UI control event listeners
   initializeUIControls();
@@ -184,6 +185,9 @@ function wireNeighborhoodDropdown() {
 
     // update markers based on selected neighborhood and current marker scheme
     updateMarkers();
+
+    // update stats card with new neighborhood data
+    renderStatsCard(mapState.selectedNeighborhood);
 
     // update plot
     renderPlot(mapState.choroplethMetric, mapState.selectedNeighborhood);

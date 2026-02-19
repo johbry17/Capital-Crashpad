@@ -3,16 +3,20 @@
 // globals to store rankings data and DC baseline for relative metrics
 let rankingsData = [];
 let dcBaseline = {};
+let avgTotalListings = null;
 
 // initialize rankings data and DC baseline
 function initializeRankings(data) {
   rankingsData = data;
   dcBaseline = data.find((d) => d.neighborhood === "Washington, D.C.");
 
-  // minor data cleanup (all other rankingsData is pre-processed in Python)
-  // compute DC baseline for total_listings as average of all neighborhoods
-  dcBaseline.total_listings =
-    rankingsData["Washington, D.C."].total_listings / (rankingsData.length - 1);
+  // Compute average total_listings for all neighborhoods except DC
+  const neighborhoods = data.filter(
+    (d) => d.neighborhood !== "Washington, D.C.",
+  );
+  avgTotalListings =
+    neighborhoods.reduce((sum, d) => sum + (+d.total_listings || 0), 0) /
+    neighborhoods.length;
 }
 
 // render rankings table based on selected metric and neighborhood
@@ -129,7 +133,14 @@ function renderRankings(metric, isRelative, selectedNeighborhood) {
 
   // add reference line for DC baseline if in absolute mode
   if (!isRelative && dcBaseline) {
-    const dcValue = dcBaseline[resolved];
+    let dcValue,
+      dcLabel = "DC";
+    if (resolved === "total_listings") {
+      dcValue = avgTotalListings;
+      dcLabel = "Avg";
+    } else {
+      dcValue = dcBaseline[resolved];
+    }
 
     // determine where DC would rank in the sorted neighborhoods
     const sortedValues = neighborhoods.map((d) => d.value);
@@ -148,7 +159,7 @@ function renderRankings(metric, isRelative, selectedNeighborhood) {
       const topPx = rowHeight * dcRankIndex - 1;
 
       // add reference line at computed position
-      const ref = container
+      container
         .append("div")
         .attr("class", "dc-ref-line")
         .style("top", topPx + "px");
@@ -158,7 +169,7 @@ function renderRankings(metric, isRelative, selectedNeighborhood) {
         .append("div")
         .attr("class", "dc-ref-label")
         .style("top", topPx - 10 + "px")
-        .text(`DC: ${formatMetric(resolved, dcValue)}`);
+        .text(`${dcLabel}: ${formatMetric(resolved, dcValue)}`);
     }
   }
 }

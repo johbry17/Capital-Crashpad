@@ -400,6 +400,52 @@ h2 i {
   font-weight: bold;
 }
 
+.stats-card {
+  padding: 20px;
+  margin-top: 20px;
+  font-size: 0.95rem;
+}
+
+.stats-title h3 {
+  margin-bottom: 15px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+}
+
+.stats-section h4 {
+  margin-bottom: 8px;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #666;
+}
+
+.stats-section ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.stats-section li {
+  margin-bottom: 6px;
+}
+
+.stats-section span {
+  font-weight: 600;
+}
+
+@media (max-width: 600px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+}
 #rankings-container {
   width: 100%;
   font-family: sans-serif;
