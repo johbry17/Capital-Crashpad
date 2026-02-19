@@ -5,6 +5,15 @@ let rankingsData = [];
 let dcBaseline = {};
 let avgTotalListings = null;
 
+reverseMetricMap = {
+  license_compliance: "License Compliance",
+  median_price: "Median Price",
+  reviews_per_month: "Reviews per Month",
+  multi_listing_pct: "% Multi-Property Hosts",
+  listings_per_1000: "Listings per 1,000 Residents",
+  total_listings: "Total Listings",
+};
+
 // initialize rankings data and DC baseline
 function initializeRankings(data) {
   rankingsData = data;
@@ -25,6 +34,10 @@ function renderRankings(metric, isRelative, selectedNeighborhood) {
 
   // resolve metric key based on whether relative mode is toggled
   const resolved = resolveMetric(metric);
+
+  // populate title
+  const title = reverseMetricMap[resolved] || resolved;
+  document.getElementById("rankings-title").textContent = title;
 
   // prepare data: filter out DC, convert values to numbers, sort by pre-computed rank
   const rankKey = metric + "_rank";

@@ -486,6 +486,15 @@ h2 i {
   background-color: #0085a1;
 }
 
+.rankings-title {
+  text-align: center;
+  font-size: 1.4em;
+  font-weight: 600;
+  margin-bottom: 0.5em;
+  color: #444;
+  letter-spacing: 0.01em;
+}
+
 #rankings-container {
   width: 100%;
   font-family: sans-serif;
