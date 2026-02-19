@@ -274,6 +274,27 @@
     <!-- Plot Container -->
     <div id="plot-container"></div>
 
+    <!-- Secondary Controls (Muted Version) -->
+    <div id="secondary-controls">
+      <div id="choropleth-control-secondary" class="choropleth-muted">
+        <button data-overlay="License Compliance">License</button>
+        <button data-overlay="Median Price">Price</button>
+        <button data-overlay="Reviews per Month">Reviews</button>
+        <button data-overlay="% Multi-Property Hosts">Multi</button>
+        <button data-overlay="Listings per 1,000 Residents">Density</button>
+        <button data-overlay="Total Listings">Total</button>
+      </div>
+
+      <div class="slider-muted-wrapper">
+        <span class="toggle-label absolute-label">Absolute</span>
+        <label class="switch switch-muted">
+          <input type="checkbox" id="toggle-relative-secondary" />
+          <span class="slider"></span>
+        </label>
+        <span class="toggle-label">Relative</span>
+      </div>
+    </div>
+
     <!-- Rankings Table Container -->
     <div id="rankings-container"></div>
 

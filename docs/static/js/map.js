@@ -210,42 +210,54 @@ function wireNeighborhoodDropdown() {
 
 // setup event listeners for choropleth overlay buttons and toggle active class for buttons
 function wireChoroplethButtons() {
-  const container = document.getElementById("choropleth-control");
-  const buttons = container.querySelectorAll("button");
+  const containers = [
+    document.getElementById("choropleth-control"),
+    document.getElementById("choropleth-control-secondary"),
+  ].filter(Boolean);
 
   // set initial active button on load
-  document.getElementById("license-compliance-button")?.classList.add("active");
+  syncChoroplethButtons("License Compliance");
 
   // event listener for choropleth changes
-  container.addEventListener("click", (e) => {
-    const selectedOverlay = e.target.getAttribute("data-overlay");
-    if (!selectedOverlay) return;
+  containers.forEach((container) => {
+    container.addEventListener("click", (e) => {
+      const selectedOverlay = e.target.getAttribute("data-overlay");
+      if (!selectedOverlay) return;
 
-    // visual active state
-    buttons.forEach((b) => b.classList.remove("active"));
-    e.target.classList.add("active");
-
-    // update map based on selected overlay
-    handleOverlaySelection(selectedOverlay);
+      // update map based on selected overlay
+      handleOverlaySelection(selectedOverlay);
+      syncChoroplethButtons(selectedOverlay);
+    });
   });
 }
 
 // event listener for toggle slider changes and styling of toggle labels
 function wireRelativeToggle() {
-  const toggle = document.getElementById("toggle-relative");
+  const toggles = [
+    document.getElementById("toggle-relative"),
+    document.getElementById("toggle-relative-secondary"),
+  ].filter(Boolean);
 
   // set initial state of toggle labels
   updateToggleLabels();
 
   // event listener for toggle changes
-  toggle.addEventListener("change", (e) => {
-    mapState.isRelative = e.target.checked;
-    updateToggleLabels();
+  toggles.forEach((toggle) => {
+    toggle.addEventListener("change", (e) => {
+      mapState.isRelative = e.target.checked;
 
-    // update choropleth metric to trigger style and legend updates
-    if (mapState.choroplethMetric) {
-      setChoroplethMetric(mapState.choroplethMetric);
-    }
+      // sync both sliders
+      toggles.forEach((t) => {
+        t.checked = mapState.isRelative;
+      });
+
+      updateToggleLabels();
+
+      // update choropleth metric to trigger style and legend updates
+      if (mapState.choroplethMetric) {
+        setChoroplethMetric(mapState.choroplethMetric);
+      }
+    });
   });
 }
 
@@ -275,15 +287,30 @@ function wireResponsiveControlMove() {
   window.addEventListener("resize", moveChoroplethControl);
 }
 
+function syncChoroplethButtons(selectedOverlay) {
+  const allButtons = document.querySelectorAll(
+    "#choropleth-control button, #choropleth-control-secondary button",
+  );
+
+  allButtons.forEach((btn) => {
+    btn.classList.toggle(
+      "active",
+      btn.getAttribute("data-overlay") === selectedOverlay,
+    );
+  });
+}
+
 // style toggle slider labels based on state
 function updateToggleLabels() {
-  const toggle = document.getElementById("toggle-relative");
-  const absoluteLabel = document.querySelector(".absolute-label");
-  if (toggle.checked) {
-    absoluteLabel.classList.remove("active");
-  } else {
-    absoluteLabel.classList.add("active");
-  }
+  const absoluteLabels = document.querySelectorAll(".absolute-label");
+
+  absoluteLabels.forEach((label) => {
+    if (mapState.isRelative) {
+      label.classList.remove("active");
+    } else {
+      label.classList.add("active");
+    }
+  });
 }
 
 // toggle to move choropleth control for mobile responsiveness
