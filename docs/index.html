@@ -237,7 +237,7 @@
           <ul>
             <li><span id="stat-total-listings"></span> listings</li>
             <li><span id="stat-per-1000"></span> per 1,000 residents</li>
-            <li><span id="stat-share-city"></span> of DC supply</li>
+            <li><span id="stat-share-city"></span> of city supply</li>
           </ul>
         </div>
 
@@ -245,16 +245,16 @@
           <h4>Compliance</h4>
           <ul>
             <li><span id="stat-license-rate"></span> licensed</li>
-            <li><span id="stat-entire-home"></span> entire home</li>
-            <li><span id="stat-31plus"></span> 31+ night listings</li>
+            <li><span id="stat-entire-home"></span> entire home listings</li>
+            <li><span id="stat-31plus"></span> 31+ night minimum</li>
           </ul>
         </div>
 
         <div class="stats-section">
           <h4>Utilization</h4>
           <ul>
-            <li><span id="stat-occupancy"></span> est. occupancy</li>
-            <li><span id="stat-reviews"></span> reviews/month</li>
+            <li><span id="stat-occupancy"></span> estimated occupancy</li>
+            <li><span id="stat-reviews"></span> reviews per month</li>
             <li><span id="stat-availability"></span> median available days</li>
           </ul>
         </div>
@@ -272,7 +272,70 @@
     </div>
 
     <!-- Plot Container -->
+    <div class="plot-header">Market Structure & Distribution</div>
     <div id="plot-container"></div>
+
+    <div id="plot-captions" class="plot-captions">
+      <div class="plot-caption" id="caption-license_compliance">
+        <h3>Minimum Nights Distribution</h3>
+        <p>
+          Listings cluster at two thresholds: 1–3 night stays and 31-night
+          minimums. The 31-night group is predominantly unlicensed, reflecting a
+          structural shift toward medium-term rental positioning. Shorter
+          minimums represent traditional short-term rental activity. The split
+          highlights strategic differences in compliance and operating model.
+        </p>
+      </div>
+      <div class="plot-caption" id="caption-median_price">
+        <h3>Price Distribution</h3>
+        <p>
+          The vertical violin shows the full distribution of nightly prices.
+          Taller and wider sections indicate greater density at those price
+          levels, while extended upper tails reveal high-end outliers. Median
+          markers allow direct comparison to the city baseline and expose
+          neighborhood-level pricing spread.
+        </p>
+      </div>
+      <div class="plot-caption" id="caption-reviews_per_month">
+        <h3>Occupancy Scatter</h3>
+        <p>
+          Availability over the upcoming year serves as a proxy for occupancy. A
+          slight downward trend suggests that listings with lower availability
+          tend to generate more reviews. The clustering of points at lower
+          occupancy reflects hosts who only open calendars three to six months
+          in advance, limiting observed availability.
+        </p>
+      </div>
+      <div class="plot-caption" id="caption-multi_listing_pct">
+        <h3>Lorenz Curve — Revenue Concentration</h3>
+        <p>
+          The Lorenz curve measures revenue concentration across hosts. The gray
+          diagonal line represents perfect equality. Deviation from that line
+          indicates concentration among higher-earning operators. The Gini
+          coefficient quantifies this inequality (0 = equal distribution, 1 =
+          complete concentration).
+        </p>
+      </div>
+      <div class="plot-caption" id="caption-listings_per_1000">
+        <h3>Density Bubble Plot</h3>
+        <p>
+          Listings per 1,000 residents measures short-term rental intensity
+          relative to neighborhood population. Bubble size reflects total
+          listings. High per-capita density with large bubble size indicates
+          structurally concentrated short‑term rental markets.
+        </p>
+      </div>
+      <div class="plot-caption" id="caption-total_listings">
+        <h3>Pareto Concentration</h3>
+        <p>
+          Neighborhoods are ranked by total listings. The cumulative curve
+          identifies how quickly supply concentrates across the city.
+          Neighborhoods to the left of the 80% marker account for the majority
+          of active listings, illustrating the uneven spatial distribution of
+          supply.
+        </p>
+      </div>
+    </div>
 
     <!-- Secondary Controls (Muted Version) -->
     <div id="secondary-controls">
@@ -296,7 +359,14 @@
     </div>
 
     <!-- Rankings Table -->
-     <div id="rankings-title" class="rankings-title"></div>
+    <div id="rankings-title" class="rankings-title"></div>
+    <div class="rankings-section-header">
+      <div class="rankings-section-main">Neighborhood Comparison</div>
+      <div class="rankings-section-sub">
+        Ranked by selected metric.<br />
+        Toggle relative view to compare against the citywide baseline.
+      </div>
+    </div>
     <div id="rankings-container"></div>
 
     <!-- Footer -->

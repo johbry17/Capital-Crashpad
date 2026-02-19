@@ -35,6 +35,8 @@ function renderPlot(metric, selectedNeighborhood) {
     default:
       renderPlaceholder();
   }
+
+  showPlotCaption(metric);
 }
 
 // utility to clear plot container before rendering a new plot
@@ -51,6 +53,13 @@ function clearPlotContainer() {
 function renderPlaceholder() {
   document.getElementById("plot-container").innerHTML =
     "<div style='text-align:center;color:#888;'>No plot selected</div>";
+}
+
+function showPlotCaption(metricKey) {
+  const all = document.querySelectorAll(".plot-caption");
+  all.forEach((el) => (el.style.display = "none"));
+  const sel = document.getElementById("caption-" + metricKey);
+  if (sel) sel.style.display = "block";
 }
 
 //////////////////////////////////////////////////////////
