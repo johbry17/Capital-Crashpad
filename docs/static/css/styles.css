@@ -75,39 +75,37 @@ body {
 }
 
 .why-brief {
-  background: #f7f7fa;
-  border-radius: 8px;
   border-left: 4px solid #b0b6c3;
-  max-width: 800px;
+  max-width: 700px;
   margin: 1.5em auto 1.5em auto;
   padding: 1em 1.5em;
-  font-style: italic;
+  font-style: normal;
   color: #444;
   text-align: center;
 }
 
 .context-band {
-  background: #e3eafc;
-  border-radius: 8px;
-  border: 1px solid #d1d9ee;
+  background: #f7fafd;
+  border-radius: 6px;
+  border: 1px solid #f0f2fa;
   max-width: 900px;
-  margin: 1.2em auto 1.2em auto;
-  padding: 1.1em 1.5em 1.1em 1.5em;
-  box-shadow: 0 1px 6px rgba(26, 35, 126, 0.04);
+  margin: 1.2em auto;
+  padding: 0.9em 1.2em;
+  box-shadow: 0 1px 4px rgba(26, 35, 126, 0.02);
   text-align: center;
 }
 
 .context-title {
-  font-size: 1.08em;
-  font-weight: 600;
-  color: #1a237e;
-  margin-bottom: 0.3em;
+  font-size: 1.05em;
+  font-weight: 500;
+  color: #3a4a8c;
+  margin-bottom: 0.25em;
   letter-spacing: 0.01em;
 }
 
 .context-body {
-  font-size: 1em;
-  color: #444;
+  font-size: 0.98em;
+  color: #555;
   font-weight: 400;
   line-height: 1.5;
 }
@@ -138,7 +136,7 @@ body {
   width: 90%;
   height: 80vh;
   margin: 0 auto;
-  border: 2px solid #2a9d8f;
+  border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: 10px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
   position: relative;

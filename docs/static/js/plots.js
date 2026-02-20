@@ -56,6 +56,7 @@ function renderPlaceholder() {
     "<div style='text-align:center;color:#888;'>No plot selected</div>";
 }
 
+// toggle visibility of metric definitions based on selected metric
 function showMetricDefinition(metricKey) {
   const all = document.querySelectorAll(".metric-definition");
   all.forEach((el) => (el.style.display = "none"));
@@ -63,6 +64,7 @@ function showMetricDefinition(metricKey) {
   if (sel) sel.style.display = "block";
 }
 
+// toggle visibility of plot captions based on selected metric
 function showPlotCaption(metricKey) {
   const all = document.querySelectorAll(".plot-caption");
   all.forEach((el) => (el.style.display = "none"));
