@@ -59,6 +59,6 @@ Promise.all([
 function populateScrapeDate(scrapeDate) {
   const formattedDate = dayjs(scrapeDate[0].last_scraped).format("DD MMMM YYYY"); // format as DD Month YYYY, e.g. 13 March 2025
   document.querySelectorAll(".last-scraped").forEach((el) => {
-    el.textContent = `Scraped data as of ~${formattedDate}`;
+    el.textContent = `~${formattedDate}`;
   });
 }

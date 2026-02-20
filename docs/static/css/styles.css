@@ -30,47 +30,74 @@ body {
   white-space: nowrap;
 }
 
-.custom-hr {
-  border: none;
-  background-color: white;
-  margin: 0;
-}
-
-.stats-icons {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-direction: row;
-  width: 60px;
-  margin: 0 auto;
-}
-
-h2 i {
-  padding: 5px;
-}
-
-.jumbotron {
-  background-color: #f9f9f9;
-  border: 2px solid #e0e0e0;
-  border-radius: 10px;
-  padding: 10px;
-  color: white;
+.dashboard-header {
   text-align: center;
-  width: 100%;
-  margin: 0 auto;
-  background: url("../images/background.jpg") center center/cover no-repeat;
+  margin: 1.5em 0 1em 0;
 }
 
-.info-box {
-  background-color: #f9f9f9;
-  border: 2px solid #e0e0e0;
-  border-radius: 10px;
-  padding: 10px;
-  color: white;
+.dashboard-header h1 {
+  font-size: 2.1em;
+  font-weight: 700;
+  color: #1a237e;
+  margin-bottom: 0.15em;
+  letter-spacing: 0.01em;
+}
+
+.dashboard-header h2 {
+  font-size: 1.15em;
+  font-weight: 500;
+  color: #444;
+  margin-bottom: 0.3em;
+  letter-spacing: 0.01em;
+}
+
+.dashboard-subtitle {
+  font-size: 1em;
+  color: #666;
+  margin-bottom: 0.4em;
+  font-weight: 400;
+}
+
+.dashboard-date {
+  font-size: 0.98em;
+  color: #888;
+  margin-bottom: 0.2em;
+}
+
+.lede {
   text-align: center;
-  width: 80%;
-  margin: 10px auto;
-  background: url("../images/background.jpg") center center/cover no-repeat;
+  font-size: 0.98em;
+  color: #888;
+  margin: 0.7em auto 1.2em auto;
+  max-width: 800px;
+  font-style: italic;
+  letter-spacing: 0.01em;
+}
+
+.context-band {
+  background: #e3eafc;
+  border-radius: 8px;
+  border: 1px solid #d1d9ee;
+  max-width: 900px;
+  margin: 1.2em auto 1.2em auto;
+  padding: 1.1em 1.5em 1.1em 1.5em;
+  box-shadow: 0 1px 6px rgba(26, 35, 126, 0.04);
+  text-align: center;
+}
+
+.context-title {
+  font-size: 1.08em;
+  font-weight: 600;
+  color: #1a237e;
+  margin-bottom: 0.3em;
+  letter-spacing: 0.01em;
+}
+
+.context-body {
+  font-size: 1em;
+  color: #444;
+  font-weight: 400;
+  line-height: 1.5;
 }
 
 .leaflet-container.leaflet-touch-drag {
