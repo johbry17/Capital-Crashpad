@@ -57,10 +57,11 @@
     <div class="dashboard-header">
       <h1>Capital Crashpad</h1>
       <h2>
-        Washington, D.C. Short-Term Rental Market — Post-Verification Snapshot
+        Washington, D.C. Short-Term Rental Market — After Platform Verification
       </h2>
       <div class="dashboard-subtitle">
-        Supply structure, compliance, utilization, and host concentration
+        How supply, pricing, licensing, and host structure look following
+        large-scale listing removals
       </div>
       <div class="dashboard-date">
         Data last scraped: <span class="last-scraped"></span>
@@ -69,21 +70,23 @@
 
     <!-- Lede -->
     <div class="lede">
-      Following Airbnb’s 2023–2024 identity and listing verification rollout,
-      thousands of listings were removed nationwide. This dashboard examines the
-      structure of the remaining market in Washington, D.C.
+      In 2023–2024, Airbnb rolled out stronger identity and listing verification
+      rules. Thousands of listings were removed nationwide. This dashboard
+      examines what remains in Washington, D.C., and how the structure of the
+      market has shifted.
     </div>
 
     <!-- Context Band -->
     <div class="context-band">
       <div class="context-title">About This Dashboard</div>
       <div class="context-body">
-        This dashboard presents a neighborhood-level snapshot of Washington,
-        D.C.’s Airbnb market. The goal is to examine how supply, pricing,
-        compliance, and host concentration appear following large-scale listing
-        removals.<br /><br />
-        Use the map and controls to explore absolute values or relative
-        performance compared to the citywide baseline.
+        This dashboard provides a neighborhood-level snapshot of Washington,
+        D.C.’s Airbnb market. It focuses on licensing, pricing, demand, and host
+        structure to understand how the market operates after verification
+        changes.<br /><br />
+        Use the map and controls to explore each metric and compare
+        neighborhoods to the city overall. Summary stats, a rankings table, and
+        detailed plots provide additional context and insight.
       </div>
     </div>
 
@@ -225,9 +228,9 @@
     <div id="map-metric-definitions" class="metric-definitions">
       <div class="metric-definition" id="def-license_compliance">
         <strong>Average License Compliance</strong><br />
-        Share of listings linked to a valid Washington, D.C. Short-Term Rental
-        (STR) license. Under D.C. regulations, stays under 30 nights generally
-        require a license unless the property, such as a hotel, qualifies for an exemption.
+        Share of listings connected to a valid D.C. Short-Term Rental (STR)
+        license. In Washington, stays under 30 nights generally require such a
+        license unless exempt (such as certain hotel properties).
       </div>
       <div class="metric-definition" id="def-median_price">
         <strong>Median Nightly Price</strong><br />
@@ -237,9 +240,9 @@
       </div>
       <div class="metric-definition" id="def-reviews_per_month">
         <strong>Reviews per Month</strong><br />
-        Average number of reviews per month over the lifetime of each listing.
-        While not a direct measure of bookings, review frequency serves as a
-        proxy for demand and occupancy intensity.
+        Average number of reviews per month over a listing’s lifetime. While not
+        a direct booking count, review frequency is commonly used as a proxy for
+        demand.
       </div>
       <div class="metric-definition" id="def-multi_listing_pct">
         <strong>% Multi-Property Hosts</strong><br />
@@ -255,9 +258,9 @@
       </div>
       <div class="metric-definition" id="def-total_listings">
         <strong>Total Listings</strong><br />
-        Count of active listings within each neighborhood. Relative mode
-        expresses supply as a share of total Washington, D.C. listings,
-        benchmarked against the average per-neighborhood share.
+        Number of active listings in each neighborhood. In relative mode, values
+        are shown compared to the average neighborhood share of the city’s total
+        listings.
       </div>
     </div>
 
@@ -280,7 +283,7 @@
         <div class="stats-section">
           <h4>Compliance</h4>
           <ul>
-            <li><span id="stat-license-rate"></span> licensed</li>
+            <li><span id="stat-license-rate"></span> STR licensed</li>
             <li><span id="stat-entire-home"></span> entire home listings</li>
             <li><span id="stat-31plus"></span> 31+ night minimum</li>
           </ul>
@@ -335,21 +338,21 @@
       <div class="plot-caption" id="caption-reviews_per_month">
         <h3>Occupancy Scatter</h3>
         <p>
-          Availability over the upcoming year serves as a proxy for occupancy. A
-          slight downward trend suggests that listings with lower availability
-          tend to generate more reviews. The clustering of points at lower
-          occupancy reflects hosts who only open calendars three to six months
-          in advance, limiting observed availability.
+          Availability over the upcoming year serves as a rough proxy for
+          occupancy. Listings with fewer open days tend to generate more
+          reviews. Many hosts only open calendars three to six months in
+          advance, which helps explain the clustering at lower availability
+          levels.
         </p>
       </div>
       <div class="plot-caption" id="caption-multi_listing_pct">
         <h3>Lorenz Curve — Revenue Concentration</h3>
         <p>
           The Lorenz curve measures revenue concentration across hosts. The gray
-          diagonal line represents perfect equality. Deviation from that line
-          indicates concentration among higher-earning operators. The Gini
-          coefficient quantifies this inequality (0 = equal distribution, 1 =
-          complete concentration).
+          diagonal line represents perfect equality. The farther the curve bends
+          away from that line, the more revenue is concentrated among a small
+          number of hosts. The Gini coefficient sums up this inequality: 0 means
+          perfect equality, 1 means total concentration.
         </p>
       </div>
       <div class="plot-caption" id="caption-listings_per_1000">
@@ -514,4 +517,3 @@
     <script src="./static/js/app.js"></script>
   </body>
 </html>
-
