@@ -36,6 +36,7 @@ function renderPlot(metric, selectedNeighborhood) {
       renderPlaceholder();
   }
 
+  showMetricDefinition(metric);
   showPlotCaption(metric);
 }
 
@@ -53,6 +54,13 @@ function clearPlotContainer() {
 function renderPlaceholder() {
   document.getElementById("plot-container").innerHTML =
     "<div style='text-align:center;color:#888;'>No plot selected</div>";
+}
+
+function showMetricDefinition(metricKey) {
+  const all = document.querySelectorAll(".metric-definition");
+  all.forEach((el) => (el.style.display = "none"));
+  const sel = document.getElementById("def-" + metricKey);
+  if (sel) sel.style.display = "block";
 }
 
 function showPlotCaption(metricKey) {
