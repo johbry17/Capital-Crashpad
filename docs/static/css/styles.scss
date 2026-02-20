@@ -51,6 +51,7 @@ body {
   }
 }
 
+// header / title
 .dashboard-header {
   text-align: center;
   margin: 1.5em 0 1em 0;
@@ -92,6 +93,19 @@ body {
   letter-spacing: 0.01em;
 }
 
+.why-brief {
+  background: #f7f7fa;
+  border-radius: 8px;
+  border-left: 4px solid #b0b6c3;
+  max-width: 800px;
+  margin: 1.5em auto 1.5em auto;
+  padding: 1em 1.5em;
+  font-style: italic;
+  color: #444;
+  text-align: center;
+}
+
+// about band
 .context-band {
   background: #e3eafc;
   border-radius: 8px;
