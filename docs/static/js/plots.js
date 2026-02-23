@@ -37,6 +37,7 @@ function renderPlot(metric, selectedNeighborhood) {
   }
 
   showMetricDefinition(metric);
+  showPlotTitle(metric);
   showPlotCaption(metric);
 }
 
@@ -62,6 +63,22 @@ function showMetricDefinition(metricKey) {
   all.forEach((el) => (el.style.display = "none"));
   const sel = document.getElementById("def-" + metricKey);
   if (sel) sel.style.display = "block";
+}
+
+// predefined plot titles for each metric key
+const plotTitles = {
+  license_compliance: "Minimum Nights Distribution",
+  median_price: "Price Distribution",
+  reviews_per_month: "Occupancy Scatter",
+  multi_listing_pct: "Lorenz Curve — Revenue Concentration",
+  listings_per_1000: "Density Bubble Plot",
+  total_listings: "Pareto Concentration"
+};
+
+// toggle plot title based on selected metric
+function showPlotTitle(metricKey) {
+  const titleDiv = document.getElementById("plot-title");
+  titleDiv.textContent = plotTitles[metricKey] || "";
 }
 
 // toggle visibility of plot captions based on selected metric
