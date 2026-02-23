@@ -36,6 +36,7 @@ function renderPlot(metric, selectedNeighborhood) {
       renderPlaceholder();
   }
 
+  // show metric definition, plot title, and caption based on selected metric
   showMetricDefinition(metric);
   showPlotTitle(metric);
   showPlotCaption(metric);
@@ -67,12 +68,12 @@ function showMetricDefinition(metricKey) {
 
 // predefined plot titles for each metric key
 const plotTitles = {
-  license_compliance: "Minimum Nights Distribution",
-  median_price: "Price Distribution",
-  reviews_per_month: "Occupancy Scatter",
-  multi_listing_pct: "Lorenz Curve — Revenue Concentration",
-  listings_per_1000: "Density Bubble Plot",
-  total_listings: "Pareto Concentration"
+  license_compliance: "Minimum Stay Patterns by License Status",
+  median_price: "Where Prices Cluster (Typical Nightly Cost)",
+  reviews_per_month: "Booking Intensity: Availability vs Review Activity",
+  multi_listing_pct: "Host Revenue Concentration (Who Controls Earnings?)",
+  listings_per_1000: "Listings per 1,000 Residents — Density vs Scale",
+  total_listings: "How Supply Concentrates Across Neighborhoods",
 };
 
 // toggle plot title based on selected metric
