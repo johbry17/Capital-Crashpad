@@ -88,36 +88,35 @@ The Flask / Django version of the price-availability chart has formatting issues
 
 ## Gallery
 
-Tableau Dashboard:
-
-![Tableau Plot](./resources/images/dc_airbnb_tableau_rental_type.png)
-
 Web Dashboards Plots:
 
-![Website Plot of Price and Availability, Upcoming Year](./resources/images/dc_airbnb_price_availability_plot.png)
+![Website Plot of Price and Availability, Upcoming Year](./resources/images/price_violin_plot.png)
 
-![Minimum Nights Plot](./resources/images/minimum_nights_plots.png)
+![Minimum Nights Plot](./resources/images/minimum_nights_plot.png)
 
 Interactive Map:
 
-![Map](./resources/images/map.png)
+![Map](./resources/images/map_total_listings.png)
 
-![Map of Neighborhood](./resources/images/dc_airbnb_neighborhood.png)
+![Map of Neighborhood](./resources/images/map_neighborhood_license.png)
 
-![Neighborhood Map Color Coded by Rental Type](./resources/images/dc_airbnb_neighborhood_alt.png)
+![Neighborhood Map Color Coded by Rental Type](./resources/images/map_neighborhood_property.png)
 
-![Choropleth Map of Average Price per Neighborhood](./resources/images/choropleth.png)
+![Choropleth Map of Average Price per Neighborhood](./resources/images/map_license.png)
 
-![Bubble Map of Number of AirBnB's per Neighborhood](./resources/images/bubble.png)
+![Bubble Map of Number of AirBnB's per Neighborhood](./resources/images/map_median_price.png)
+
 Exploratory Data Analysis:
 
-![Price Plot](./resources/images/dc_airbnb_price.png)
+![Price Plot](./resources/images/eda_listing_drop.png)
 
-![Average Neighborhood Price Plot](./resources/images/dc_airbnb_avg_price.png)
+![Average Neighborhood Price Plot](./resources/images/eda_license_change.png)
 
-Entity Relationship Diagram:
+![ERD](./resources/images/eda_bubble_neighborhoods.png)
 
-![ERD](./resources/images/ERD.png)
+Tableau Dashboard:
+
+![Tableau Plot](./resources/images/dc_airbnb_tableau_rental_type.png)
 
 ## Course Certificates
 
