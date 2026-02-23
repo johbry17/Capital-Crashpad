@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Airbnb Data Hub DC</title>
+
+    <!-- Leaflet CSS -->
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+      crossorigin=""
+    />
+    <!-- Bootstrap CSS -->
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+    />
+    <!-- Font Awesome -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+    />
+    <!-- conditional for CSS and favicon -->
+    <script>
+      // check environment host
+      const isGitHubPages = window.location.hostname.includes("github.io");
+      const isLocalhost =
+        window.location.hostname.includes("127.0.0.1") ||
+        window.location.hostname.includes("localhost");
+
+      const favicon = document.createElement("link");
+      favicon.rel = "icon";
+      favicon.type = "image/x-icon";
+
+      const cssLink = document.createElement("link");
+      cssLink.rel = "stylesheet";
+
+      if (
+        isGitHubPages ||
+        (isLocalhost && !window.location.hostname.includes(":5000"))
+      ) {
+        // GitHub Pages or localhost, for GitHub Pages
+        favicon.href = "./static/images/favicon.ico";
+        cssLink.href = "./static/css/styles.css";
+      } else {
+        // Flask or localhost, for Flask
+        favicon.href = "/static/images/favicon.ico";
+        cssLink.href = "/static/css/style.css";
+      }
+
+      document.head.appendChild(favicon);
+      document.head.appendChild(cssLink);
+    </script>
+  </head>
+  <body>
+    <!-- navbar -->
+    <div class="navbar navbar-default navbar-fixed-top">
+      <div class="container-fluid">
+        <div class="navbar-header"></div>
+        <div id="neighborhoods-control" class="navbar-center">
+          <div class="control-header">
+            <label for="neighborhoods-dropdown">Select a Neighborhood</label>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- jumbotron title header -->
+    <div class="container">
+      <div class="col-md-12 jumbotron text-center">
+        <h1>Airbnb Data Hub DC</h1>
+        <h2 aria-label="Icons for Map, Home, Bed, Users, Globe">
+          <i class="fas fa-map-marked-alt"></i>
+          <i class="fas fa-home"></i>
+          <i class="fas fa-bed"></i>
+          <i class="fas fa-users"></i>
+          <i class="fas fa-globe"></i>
+        </h2>
+        <span class="last-scraped"></span>
+      </div>
+    </div>
+    <!-- to forcibly separate jumbotron from welcome-box -->
+    <hr class="custom-hr" />
+    <!-- Welcome box with background -->
+    <div class="info-box">
+      <div class="stats-icons" aria-label="Home and Location icons">
+        <i class="fas fa-home" aria-hidden="true"></i>
+        <i class="fas fa-map-marker-alt" aria-hidden="true"></i>
+      </div>
+      <span>Choose a neighborhood to zoom in.</span>
+      <br />
+      <span
+        >Airbnb (<i class="fas fa-map-pin" aria-hidden="true"></i>) locations
+        are approximate.</span
+      ><br />
+      <span
+        >Tap <i class="fas fa-layer-group" aria-hidden="true"></i> to change the
+        background.</span
+      ><br />
+      <span>Buttons below toggle data.</span><br />
+      <span
+        >Tap <i class="fas fa-map-marked-alt" aria-hidden="true"></i> to open
+        popups.</span
+      >
+    </div>
+    <!-- Map -->
+    <div class="row">
+      <div class="col-md-12">
+        <div class="map-container">
+          <div
+            id="map-id"
+            role="application"
+            aria-label="Map of Washington, D.C. with Airbnb locations."
+          ></div>
+          <!-- Radio Buttons -->
+          <div id="overlay-control" aria-label="Toggle different data layers">
+            <button data-overlay="Airbnb's" aria-label="Show Airbnb's">
+              Airbnb's
+            </button>
+            <button
+              data-overlay="License Status"
+              aria-label="Show License Status"
+            >
+              License Status
+            </button>
+            <button
+              data-overlay="Property Type"
+              aria-label="Show Property Type"
+            >
+              Property Type
+            </button>
+            <button
+              id="average-price-button"
+              data-overlay="Average Price"
+              aria-label="Show Average Price"
+            >
+              Average Price
+            </button>
+            <button
+              id="total-airbnbs-button"
+              data-overlay="Total Airbnbs"
+              aria-label="Show Total Airbnbs"
+            >
+              Total Airbnbs
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Info Box -->
+    <div class="info-box info legend">
+      <strong class="neighborhood-toggle" id="neighborhood-name"
+        >${selectedNeighborhood}</strong
+      >
+      <i class="fas fa-info-circle" aria-hidden="true"></i>
+      <div class="neighborhood-toggle">
+        Number of Airbnb's in Neighborhood:
+        <span id="neighborhood-count" style="font-size: 1.6em">0</span>
+        of <span id="total-count">0</span><br />
+        <u><b style="font-size: 1.2em">Neighborhood Stats:</b></u
+        ><br />
+        Mean Price:
+        <span id="neighborhood-mean-price" style="font-size: 1.2em">0</span>,
+        <span id="mean-price-diff">0%</span> vs DC<br />
+        Median Price:
+        <span class="neighborhood-median-price" style="font-size: 1.2em">0</span
+        >, <span id="median-price-diff">0%</span> vs DC<br />
+        <div
+          class="stats-icons"
+          aria-label="Dollar and Star icons for price and rating"
+        >
+          <i class="fas fa-dollar-sign" aria-hidden="true"></i>
+          <i class="fas fa-star" aria-hidden="true"></i>
+        </div>
+        <u><b style="font-size: 1.2em">Washington, D.C.</b> (for Comparison):</u
+        ><br />
+      </div>
+      <div class="all-dc-comparison">
+        Number of Airbnb's in city:
+        <span id="total-count-all-dc" style="font-size: 1.6em">0</span><br />
+        <u><b style="font-size: 1.2em">Washington, D.C. Stats</b></u>
+      </div>
+      <div>
+        Mean Price: <span id="dc-mean-price">0</span><br />
+        Median Price: <span class="dc-median-price">0</span><br />
+      </div>
+      -<br />
+      <i class="fas fa-clock"></i> <span class="last-scraped"></span>
+      <i class="fas fa-clock"></i>
+    </div>
+    <!-- intro to plots, Tableau -->
+    <div class="info-box">
+      <strong>Tableau Story and Plots</strong><br />
+      <span>Scroll down for more</span><br />
+      <i class="fas fa-stopwatch"></i> (Snapshot from June 2024)
+      <i class="fas fa-stopwatch"></i>
+    </div>
+    <!-- Tableau Mobile Embed -->
+    <div class="col-sm-12 col-md-12">
+      <!-- begin tableau css div to center on mobile, at very end of styles.css -->
+      <div
+        id="tableau-viz"
+        aria-label="Embedded Tableau visualization of Airbnb data in DC"
+      >
+        <!-- begin tableau mobile embed code -->
+        <div
+          class="tableauPlaceholder"
+          id="viz1727416352687"
+          style="position: relative"
+        >
+          <noscript>
+            <a href="#">
+              <img
+                alt="DC Airbnb Mobile "
+                src="https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;DC&#47;DC-Airbnb&#47;DCAirbnbMobile&#47;1_rss.png"
+                style="border: none"
+              />
+            </a>
+          </noscript>
+          <object class="tableauViz" style="display: none">
+            <param
+              name="host_url"
+              value="https%3A%2F%2Fpublic.tableau.com%2F"
+            />
+            <param name="embed_code_version" value="3" />
+            <param name="site_root" value="" />
+            <param name="name" value="DC-Airbnb&#47;DCAirbnbMobile" />
+            <param name="tabs" value="no" />
+            <param name="toolbar" value="yes" />
+            <param
+              name="static_image"
+              value="https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;DC&#47;DC-Airbnb&#47;DCAirbnbMobile&#47;1.png"
+            />
+            <param name="animate_transition" value="yes" />
+            <param name="display_static_image" value="yes" />
+            <param name="display_spinner" value="yes" />
+            <param name="display_overlay" value="yes" />
+            <param name="display_count" value="yes" />
+            <param name="language" value="en-US" />
+            <param name="filter" value="publish=yes" />
+          </object>
+        </div>
+        <script type="text/javascript">
+          var divElement = document.getElementById("viz1727416352687");
+          var vizElement = divElement.getElementsByTagName("object")[0];
+          vizElement.style.width = "420px";
+          vizElement.style.height = "677px";
+          var scriptElement = document.createElement("script");
+          scriptElement.src =
+            "https://public.tableau.com/javascripts/api/viz_v1.js";
+          vizElement.parentNode.insertBefore(scriptElement, vizElement);
+        </script>
+        <!-- end tableau mobile embed code -->
+      </div>
+      <!-- end tableau css div -->
+    </div>
+    <!-- to separate Tableau from plots -->
+    <div id="hidden-container" class="container">
+      <hr class="custom-hr" />
+    </div>
+    <!-- directions for plots -->
+    <div class="info-box">
+      <span>Tap / Hover over the bars for more details</span>
+    </div>
+    <!-- Plots -->
+    <div id="plot-container" class="container">
+      <div class="row">
+        <div class="col-sm-12 col-md-6">
+          <div
+            id="price-plot"
+            class="plot"
+            aria-label="Mean and Median Price bar chart"
+          ></div>
+        </div>
+        <div class="col-sm-12 col-md-6">
+          <div
+            id="minimum-nights-plot"
+            class="plot"
+            aria-label="Minimum nights required for booking bar chart"
+          ></div>
+        </div>
+      </div>
+      <div class="info-box">
+        <strong style="font-size: 1.2em">Short Term Rentals (STR's)</strong
+        ><br />
+        <p>Legally 30 nights or less in DC</p>
+        <p>
+          <span id="count-31-nights">0</span> of
+          <span id="total-31-nights">0</span>,
+          <span id="percent-31-nights" style="font-size: 1.3em">0</span>, of
+          Airbnbs have exactly 31 nights minimum stay
+        </p>
+      </div>
+      <div class="info-box">
+        <p>'Licensed': hosted or unhosted STR's</p>
+        <span>Long term stays, hotels, motels can claim 'Exempt'</span>
+      </div>
+      <div class="row">
+        <div class="col-sm-12 col-md-6">
+          <div
+            id="license-plot"
+            class="plot"
+            aria-label="License status donut chart"
+          ></div>
+        </div>
+        <div class="col-sm-12 col-md-6">
+          <div
+            id="license-price-plot"
+            class="plot"
+            aria-label="Average price by license status bar chart"
+          ></div>
+        </div>
+      </div>
+      <div class="info-box">
+        <span>Most rentals are entire houses or apartments</span>
+      </div>
+      <div class="row">
+        <div class="col-sm-12 col-md-6">
+          <div
+            id="property-type-plot"
+            class="plot"
+            aria-label="Property type percentage bar chart"
+          ></div>
+        </div>
+        <div class="col-sm-12 col-md-6">
+          <div
+            id="property-type-price-plot"
+            class="plot"
+            aria-label="Average price by property type bar chart"
+          ></div>
+        </div>
+      </div>
+      <div class="info-box">
+        <p>
+          Hosts with multiple listings could be renting out multiple rooms in
+          their primary residence.<br />But are they running a business? They
+          can easily be property managers.
+        </p>
+        <span
+          ><span id="percent-multi-properties" style="font-size: 1.3em">0</span>
+          of listings are run by hosts with multiple properties,
+          <span id="count-multi-properties">0</span> of
+          <span id="total-multi-properties">0</span>.</span
+        >
+      </div>
+      <div class="row">
+        <div class="col-sm-12 col-md-6">
+          <div
+            id="host-number-of-airbnbs-plot"
+            class="plot"
+            aria-label="Number of Airbnbs per host bar chart"
+          ></div>
+        </div>
+        <div class="col-sm-12 col-md-6">
+          <div
+            id="top-20-hosts-table"
+            class="plot"
+            aria-label="Table of top 20 hosts offering the most Airbnbs"
+          ></div>
+        </div>
+      </div>
+      <div class="info-box">
+        <!-- <p>Lorem ipsum</p> -->
+      </div>
+      <div class="row">
+        <div class="col-md-12">
+          <div
+            id="price-availability-plot"
+            class="plot"
+            aria-label="Price and Availability of Airbnbs in upcoming year, line chart"
+          ></div>
+        </div>
+      </div>
+      <div class="info-box">
+        <p>
+          This data set skews expensive. Median, over mean, more accurately
+          represents the norm.
+        </p>
+        <span
+          >DC's median price: <span class="dc-median-price">0</span
+          ><span class="neighborhood-toggle"
+            >Neighborhood's median price:
+            <span class="neighborhood-median-price">0</span></span
+          ></span
+        >
+      </div>
+      <div class="row">
+        <div class="col-sm-12 col-md-6">
+          <div
+            id="median-price-plot"
+            class="plot"
+            aria-label="Bar chart of neighborhoods ordered by Median Price"
+          ></div>
+        </div>
+        <div class="col-sm-12 col-md-6">
+          <div
+            id="ratings-plot"
+            class="plot"
+            aria-label="Mean and Median Ratings bar chart"
+          ></div>
+        </div>
+      </div>
+      <div class="info-box">
+        <div
+          class="stats-icons"
+          aria-label="Icons for Star, Globe, and Hourglass"
+        >
+          <i class="fas fa-star"></i>
+          <i class="fas fa-globe"></i>
+          <i class="fas fa-hourglass-end"></i>
+        </div>
+        <!-- <p>Lorem ipsum</p> -->
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="site-footer" role="contentinfo">
+      <span class="footer-owner">
+        &copy; <span id="copyright-year">2025</span>
+        <span class="footer-author">Bryan C. Johns</span>
+      </span>
+      <span class="footer-links">
+        <a
+          href="https://johbry17.github.io/portfolio/index.html"
+          target="_blank"
+          class="portfolio-link"
+          aria-label="Portfolio"
+        >
+          <i
+            class="fas fa-laptop-code footer-icon"
+            aria-hidden="true"
+            title="Portfolio"
+          ></i
+          >Portfolio
+        </a>
+        <a
+          href="https://www.linkedin.com/in/b-johns/"
+          target="_blank"
+          class="linkedin-link"
+          aria-label="LinkedIn"
+        >
+          <i
+            class="fab fa-linkedin footer-icon"
+            aria-hidden="true"
+            title="LinkedIn"
+          ></i
+          >LinkedIn
+        </a>
+        <a
+          href="https://github.com/johbry17/DC-Airbnb-Data"
+          target="_blank"
+          class="github-link"
+          aria-label="GitHub"
+        >
+          <i
+            class="fab fa-github footer-icon"
+            aria-hidden="true"
+            title="GitHub"
+          ></i
+          >GitHub
+        </a>
+      </span>
+    </footer>
+    <script>
+      // Auto-update year
+      const yearElement = document.getElementById("copyright-year");
+      if (yearElement) {
+        yearElement.textContent = new Date().getFullYear();
+      }
+    </script>
+
+    <!-- JavaScript -->
+    <!-- d3 JS -->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <!-- Leaflet JS -->
+    <script
+      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+      crossorigin=""
+    ></script>
+    <!-- ESRI plugin for base layers -->
+    <script src="https://cdn.jsdelivr.net/npm/esri-leaflet@2.3.3/dist/esri-leaflet.js"></script>
+    <!-- Plotly JS -->
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <!-- Turf JS for bubble chart -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Turf.js/6.5.0/turf.min.js"></script>
+    <!-- DayJS for formatting calendar scrape date -->
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
+    <!-- Conditional JS Loading -->
+    <script>
+      // const isGitHubPages = window.location.hostname.includes('github.io');
+      // const isLocalhost = window.location.hostname.includes('127.0.0.1') || window.location.hostname.includes('localhost');
+      function loadScript(src) {
+        const script = document.createElement("script");
+        script.src = src;
+        document.body.appendChild(script);
+      }
+
+      if (
+        isGitHubPages ||
+        (isLocalhost && !window.location.hostname.includes(":5000"))
+      ) {
+        // GitHub Pages or localhost for GitHub Pages
+        loadScript("./static/js/colors.js");
+        loadScript("./static/js/mapLayers.js");
+        loadScript("./static/js/map.js");
+        loadScript("./static/js/plots.js");
+        loadScript("./static/js/dataUtils.js");
+        loadScript("./static/js/app.js");
+      } else {
+        // Flask or localhost for Flask
+        loadScript("/static/js/colors.js");
+        loadScript("/static/js/mapLayers.js");
+        loadScript("/static/js/map.js");
+        loadScript("/static/js/plots.js");
+        loadScript("/static/js/dataUtils.js");
+        loadScript("/static/js/app.js");
+      }
+    </script>
+  </body>
+</html>
+
+<!-- <div>
+      <i class="fas fa-map-marked-alt"></i>
+      <i class="fas fa-map-pin"></i>
+      <i class="fas fa-home"></i>
+      <i class="fas fa-building"></i>
+      <i class="fas fa-dollar-sign"></i>
+      <i class="fas fa-star"></i>
+      <i class="fas fa-map-marker-alt"></i>
+      <i class="fas fa-search"></i>
+      <i class="fas fa-users"></i>
+      <i class="fas fa-compass"></i>
+      <i class="fas fa-map"></i>
+      <i class="fas fa-bed"></i>
+      <i class="fas fa-info-circle"></i>
+      <i class="fas fa-filter"></i>
+      <i class="fas fa-th"></i>
+      <i class="fas fa-list"></i>
+      <i class="fas fa-car"></i>
+      <i class="fas fa-globe"></i>
+      <i class="fas fa-layer-group"></i>
+      <i class="fas fa-check-circle"></i>
+      <i class="fas fa-times-circle"></i>
+      <i class="fas fa-flag-checkered"></i>
+      <i class="fas fa-door-closed"></i>
+      <i class="fas fa-power-off"></i>
+      <i class="fas fa-book"></i>
+      <i class="fas fa-film"></i>
+      <i class="fas fa-theater-masks"></i>
+      <i class="fas fa-map-marker-alt"></i>
+      <i class="fas fa-globe"></i>
+      <i class="fas fa-fireworks"></i>
+      <i class="fas fa-gift"></i>
+      <i class="fas fa-flag"></i>
+      <i class="fas fa-hourglass-end"></i>
+    </div> -->

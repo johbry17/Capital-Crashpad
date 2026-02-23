@@ -1,0 +1,121 @@
+"hosts"
+--
+"host_id" BIGINT PK
+"host_url" TEXT
+"host_name" TEXT
+"host_since" DATE
+"host_location" TEXT NULL
+"host_about" TEXT NULL
+"host_response_time" TEXT NULL
+"host_response_rate" FLOAT NULL
+"host_acceptance_rate" FLOAT NULL
+"host_is_superhost" BOOLEAN
+"host_thumbnail_url" TEXT
+"host_picture_url" TEXT
+"host_neighbourhood" TEXT NULL
+"host_listings_count" INT
+"host_total_listings_count" INT
+"host_verifications" TEXT
+"host_has_profile_pic" BOOLEAN
+"host_identity_verified" BOOLEAN
+
+"host_listings_count"
+--
+"host_id" BIGINT PK FK - "hosts"."host_id"
+"host_listings_total_count" INT
+"host_listings_entire_homes_count" INT
+"host_listings_private_rooms_count" INT
+"host_listings_shared_rooms_count" INT
+
+"neighbourhoods"
+--
+"neighbourhood_id" serial PK
+"neighbourhood" TEXT
+
+"listings"
+--
+"listing_id" BIGINT PK
+"host_id" int FK >- "hosts"."host_id"
+"neighbourhood_id" int FK >- "neighbourhoods"."neighbourhood_id"
+"latitude" FLOAT
+"longitude" FLOAT
+"accommodates" INT
+"bathrooms" decimal NULL
+"bedrooms" decimal NULL
+"beds" decimal NULL
+"price" decimal
+
+"listings_categorical"
+--
+"listing_id" bigint PK FK - "listings"."listing_id"
+"listing_name" TEXT
+"hover_description" TEXT NULL
+"description" TEXT NULL
+"listing_url" TEXT
+"neighborhood_overview" TEXT NULL
+"picture_url" TEXT
+"property_type" TEXT
+"room_type" TEXT
+"amenities" TEXT
+"bathrooms_text" TEXT NULL
+"license" TEXT NULL
+
+"availability"
+--
+"listing_id" BIGINT PK FK - "listings"."listing_id"
+"has_availability" BOOLEAN
+"availability_30" INT
+"availability_60" INT
+"availability_90" INT
+"availability_365" INT
+"calendar_last_scraped" DATE
+"instant_bookable" BOOLEAN
+
+"min_max_night"
+--
+"listing_id" BIGINT PK FK - "listings"."listing_id"
+"minimum_nights" DECIMAL
+"maximum_nights" DECIMAL
+"minimum_minimum_nights" DECIMAL
+"maximum_minimum_nights" DECIMAL
+"minimum_maximum_nights" DECIMAL
+"maximum_maximum_nights" DECIMAL
+"minimum_nights_avg_ntm" DECIMAL
+"maximum_nights_avg_ntm" DECIMAL
+
+"listing_reviews"
+--
+"listing_id" BIGINT PK FK - "listings"."listing_id"
+"number_of_reviews" INT
+"number_of_reviews_ltm" INT
+"number_of_reviews_l30d" INT
+"first_review" DATE NULL
+"last_review" DATE NULL
+"review_scores_rating" DECIMAL NULL
+"review_scores_accuracy" DECIMAL NULL
+"review_scores_cleanliness" DECIMAL NULL
+"review_scores_checkin" DECIMAL NULL
+"review_scores_communication" DECIMAL NULL
+"review_scores_location" DECIMAL NULL
+"reviews_per_month" DECIMAL NULL
+"review_scores_value" DECIMAL NULL
+
+"reviews"
+--
+"review_id" BIGINT PK
+"listing_id" BIGINT FK >- "listings"."listing_id"
+"review_date" DATE
+"reviewer_id" BIGINT
+"reviewer_name" TEXT NULL
+ "review_comments" TEXT,
+
+"calendar"
+--
+"id" serial PK
+"listing_id" BIGINT FK >- "listings"."listing_id"
+"date" DATE
+"available" BOOLEAN
+"price" decimal
+"minimum_nights" INT
+"maximum_nights" INT
+
