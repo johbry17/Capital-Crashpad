@@ -63,7 +63,7 @@ body {
   letter-spacing: 0.01em;
 }
 .dashboard-header h2 {
-  font-size: 1.15em;
+  font-size: 1.35em;
   font-weight: 500;
   color: #444;
   margin-bottom: 0.3em;
@@ -76,10 +76,40 @@ body {
   font-weight: 400;
 }
 .dashboard-date {
-  font-size: 0.98em;
+  font-size: 0.9em;
   color: #888;
   margin-bottom: 0.2em;
 }
+// case study link/button
+.analysis-link {
+  margin-top: 18px;
+  margin-bottom: 6px;
+}
+.analysis-button {
+  display: inline-block;
+  padding: 8px 18px;
+  border: 1.5px solid #222;
+  border-radius: 999px;
+  font-size: 1.35rem;
+  letter-spacing: 0.3px;
+  text-decoration: none;
+  color: #222;
+  background-color: transparent;
+  transition: all 0.2s ease-in-out;
+}
+.analysis-button .arrow {
+  margin-left: 6px;
+  transition: transform 0.2s ease-in-out;
+}
+.analysis-button:hover {
+  background-color: #222;
+  color: #fff;
+  text-decoration: none;
+}
+.analysis-button:hover .arrow {
+  transform: translateX(4px);
+}
+
 
 // lede line
 .lede {
