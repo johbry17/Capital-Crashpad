@@ -8,8 +8,8 @@ let statsByNeighborhood = {};
 // fetch data and geojson, clean data, populate scrape date, create map
 Promise.all([
   d3.csv("./static/resources/listings_for_mapping.csv"),
-  fetch("./static/resources/neighborhoods_for_mapping.geojson").then((response) =>
-    response.json(),
+  fetch("./static/resources/neighborhoods_for_mapping.geojson").then(
+    (response) => response.json(),
   ),
   d3.csv("./static/resources/neighborhood_map_stats.csv"),
   d3.csv("./static/resources/dashboard_metadata.csv"),
@@ -41,13 +41,6 @@ Promise.all([
   // populate scrape date
   populateScrapeDate(scrapeDate);
 
-  // show welcome modal on page load
-  const modal = document.getElementById("welcome-modal");
-  modal.style.display = "flex"; // toggle modal display on / off
-  modal.addEventListener("click", () => {
-    modal.style.display = "none";
-  });
-
   // initialize rankings data
   initializeRankings(statsByNeighborhood);
 
@@ -57,7 +50,9 @@ Promise.all([
 
 // populate scrape date
 function populateScrapeDate(scrapeDate) {
-  const formattedDate = dayjs(scrapeDate[0].last_scraped).format("DD MMMM YYYY"); // format as DD Month YYYY, e.g. 13 March 2025
+  const formattedDate = dayjs(scrapeDate[0].last_scraped).format(
+    "DD MMMM YYYY",
+  ); // format as DD Month YYYY, e.g. 13 March 2025
   document.querySelectorAll(".last-scraped").forEach((el) => {
     el.textContent = `~${formattedDate}`;
   });
