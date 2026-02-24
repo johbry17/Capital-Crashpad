@@ -76,7 +76,7 @@ Data Pipeline:
 
 Legacy Archive:
 
-- Flask and Django implementations preserved in /legacy
+- Flask and Django implementations preserved in `/legacy`
 - Earlier exploratory dashboards and Tableau version retained for reference
 
 ## Tools & Technologies
