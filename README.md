@@ -1,16 +1,15 @@
-# Capital Crashpad: Visualizing the Airbnb Market in Washington, DC
+# Capital Crashpad: Platform Governance and Airbnb in Washington, DC
 
 ![GitHub last commit](https://img.shields.io/github/last-commit/johbry17/Capital-Crashpad)
 
-*Explore, visualize, and understand DC’s Airbnb landscape—interactive dashboards and maps powered by open data and modern web tech.*
+*When platforms change the rules, markets respond. This project examines how Airbnb’s 2024 verification expansion reshaped Washington, D.C.’s short-term rental market in size, structure, and revenue distribution.*
 
 🔗 [Live Website](https://johbry17.github.io/Capital-Crashpad/)  
-🔗 [Tableau Dashboard](https://public.tableau.com/app/profile/bryan.johns6699/viz/DC-Airbnb/DCAirbnbMobile)  
-🔗 [Exploratory Data Analysis (EDA)](/exploratory_data_analysis/eda.ipynb)
+🔗 [Case Study](https://johbry17.github.io/Capital-Crashpad/case_study.html)
+<!-- 🔗 [Tableau Dashboard](https://public.tableau.com/app/profile/bryan.johns6699/viz/DC-Airbnb/DCAirbnbMobile)   -->
+<!-- 🔗 [Exploratory Data Analysis (EDA)](/exploratory_data_analysis/eda.ipynb) -->
 
-> ⚠️ ℹ️ Status: This project is under active, rapid refinement. Adding a summary analysis and updating the dashboard for the GitHub Pages version.
-
-<!-- This project is maintained as a portfolio example. While not under active development, data and dashboards are refreshed semiannually as new information becomes available. -->
+> ℹ️ Status: While not under active development, the dashboard is refreshed semiannually as new data becomes available. Legacy full-stack versions (Flask and Django) are archived in the `/legacy` folder.
 
 ## Table of Contents
 
@@ -19,6 +18,7 @@
 - [Tools & Technologies](#tools--technologies)
 - [Usage](#usage)
 - [Gallery](#gallery)
+- [Data & Methodology](#data--methodology)
 - [References](#references)
 - [License](#license)
 - [Acknowledgements](#acknowledgements)
@@ -26,107 +26,151 @@
 
 ## Project Overview
 
-This full-stack project explores the landscape of short-term rentals in Washington, DC. Using data from Inside AirBnB, it combines:
+Capital Crashpad analyzes a structural break in Washington, D.C.’s Airbnb market.
 
-- A **live, interactive web dashboard** hosted on GitHub Pages
-- A **Tableau story-style EDA** for strategic analysis
-- A **PostgreSQL backend** with Flask and Django implementations
-- A **Jupyter-based ETL pipeline** that transforms and loads data for multiple outputs
+In Q2 2024, after Airbnb expanded listing verification requirements, roughly 1,800 listings disappeared from the platform. This project investigates what changed — not just how many listings left, but which ones, and what the market looked like afterward.
 
-The goal is to visualize the availability, pricing, and neighborhood distribution of short-term rentals and highlight interesting patterns in the DC vacation rental market.
+The analysis combines:
+
+- An interactive public-facing dashboard (GitHub Pages)
+- A structured, narrative case study (nbconverted HTML)
+- A PostgreSQL-backed ETL pipeline
+- Multi-quarter panel data analysis in Python
+
+Key questions explored:
+
+- Did the market simply shrink — or reorganize?
+- Were unlicensed listings disproportionately removed?
+- What happened to extended-stay (31+ minimum night) rentals?
+- Did revenue decline because low-performers exited — or high earners?
+- Did enforcement reduce concentration among top hosts?
+
+The findings suggest the contraction was not random. Listings clustered around the 30-day regulatory threshold declined sharply, driving much of the revenue shift. The platform became smaller, more licensed, more operational — but earnings remained highly concentrated.
+
+This project sits at the intersection of housing policy, platform governance, and data storytelling.
 
 ## Features
 
-- Dynamic map with multiple layers and neighborhood overlays
-- Interactive plots aggregating neighborhood trends
-- Tableau dashboard for filtering and exploring rental trends
-- Clean ETL pipeline to prep and load data across platforms
-- Choropleth and bubble maps to compare neighborhoods
-- Flask and Django versions for backend experimentation
-- Mobile-friendly static version with JavaScript interactivity
+Interactive Dashboard:
+
+- Multi-metric neighborhood comparison
+- Dynamic titles tied to analytical questions
+- Density vs scale visualizations
+- Revenue concentration analysis
+- Interactive filtering by neighborhood and metric
+
+Case Study:
+
+- Structured narrative analysis
+- Combined plots for clarity and space efficiency
+- Revenue segmentation by minimum-night category
+- Before/after structural comparison
+- Policy-relevant interpretation without technical jargon
+
+Data Pipeline:
+
+- PostgreSQL database with quarterly snapshots
+- SQL aggregation queries for structural metrics
+- Jupyter ETL workflow for reproducible updates
+- nbconvert automation for HTML publication
+
+Legacy Archive:
+
+- Flask and Django implementations preserved in /legacy
+- Earlier exploratory dashboards and Tableau version retained for reference
 
 ## Tools & Technologies
 
-- **Data**: Inside AirBnB, CSV, PostgreSQL, SQLite
-- **Backend**: Flask, Django, SQL, Jupyter, Pandas
-- **Frontend**: JavaScript, Plotly, Leaflet, Bootstrap, HTML/CSS
-- **Visualization**: Tableau, Choropleths, Bubble Maps, Plotly
-- **Deployment**: GitHub Pages, Tableau Public
-
+- **Backend**: Python (Pandas, NumPy), PostgreSQL, SQLAlchemy, Jupyter Notebook
+- **Visualization**: Matplotlib, Seaborn, Plotly, Chart.js, Leaflet
+- **Frontend**: JavaScript, HTML/CSS, Bootstrap, GitHub Pages Deployment
+- **Automation**: Nbconvert for HTML Case Study Export
+- **Database**: Structured SQL Views for Reusable Metrics
 
 ## Usage
 
-### Website
-- [Visit GitHub Pages version](https://johbry17.github.io/Capital-Crashpad/) 
-- Explore listings, prices, and availability
-- Navigate through the embedded Tableau dashboard
+### Explore the Live Version
 
-### ETL Pipeline
-- Edit and run `./notebooks/data_pipeline_postgres_export.ipynb` to clean and update source data
-- Automatically loads PostgreSQL tables and exports data for Flask and GitHub Pages
+Visit:  
+https://johbry17.github.io/Capital-Crashpad/ 
 
-### Full-Stack Versions
-- Flask app: `flask/app.py` (pulls from PostgreSQL)
-- Django app: `django/django_airbnb_dc` (uses SQLite)
+Navigate between:
 
-### Data Backup
-Restore the included PostgreSQL backup:
-```bash
-pg_restore -U <username> -d <dbname> -1 airbnb.backup
+- Interactive dashboard views
+- Case study analysis (HTML)
+
+### Update the Data
+
+1. Open the ETL notebook:
 ```
+/notebooks/etl_2026.ipynb
+```
+2. Run all cells to:
 
+- Update quarterly tables
+- Regenerate summary views
+- Export CSVs for GitHub Pages
 
-### Note to Self
-- Run all cells in `./notebooks/data_pipeline_postgres_export.ipynb` to update the source data
-- Recheck plotPriceAvailability annotations in `plots.js` after updates
-- Review `schema.sql` and `neighbourhoods_dict` in `data_processing.ipynb`
-- Export updated `map_listings` and `price_availability` views to CSV for GitHub Pages
-- Leave Tableau as-is (June 2024)
-
-### Errata
-The Flask / Django version of the price-availability chart has formatting issues. Be sure to toggle the allDCData filter correctly in `plotPriceAvailability()`.
+3. Regenerate the case study from `/notebooks`:
+```
+jupyter nbconvert --to html --no-input --output ../docs/case_study.html case_study.ipynb
+```
 
 ## Gallery
 
-Web Dashboards Plots:
+Below are key visualizations from the dashboard and case study:
 
-![Website Plot of Price and Availability, Upcoming Year](./resources/images/price_violin_plot.png)
+**Dashboard:**
+- ![Violin plot of nightly prices and availability for the upcoming year, with median annotated](./resources/images/price_violin_plot.png)  
+_Distribution of nightly prices and availability for Airbnb listings, highlighting the median value._  
 
-![Minimum Nights Plot](./resources/images/minimum_nights_plot.png)
+- ![Bar plot of minimum nights required for Airbnb listings, colored by license status](./resources/images/minimum_nights_plot.png)  
+_Minimum nights required for Airbnb listings, segmented by license status._  
 
-Interactive Map:
+**Interactive Map:**
+- ![Choropleth map showing total Airbnb listings by neighborhood in Washington, D.C., relative to the average](./resources/images/map_total_listings.png)  
+_Total Airbnb listings by neighborhood, compared to the citywide average._  
 
-![Map](./resources/images/map_total_listings.png)
+- ![Map showing license status of Airbnb listings in a neighborhood](./resources/images/map_neighborhood_license.png)  
+_License status of Airbnb listings within a selected neighborhood._  
 
-![Map of Neighborhood](./resources/images/map_neighborhood_license.png)
+- ![Map showing Airbnb property types in neighborhood](./resources/images/map_neighborhood_property.png)  
+_Distribution of Airbnb property types in a highlighted neighborhood._  
 
-![Neighborhood Map Color Coded by Rental Type](./resources/images/map_neighborhood_property.png)
+- ![Choropleth map of license compliance percentage per neighborhood](./resources/images/map_license.png)  
+_Percentage of licensed Airbnb listings in each neighborhood._  
 
-![Choropleth Map of Average Price per Neighborhood](./resources/images/map_license.png)
+- ![Choropleth map of Airbnb median price per neighborhood, relative to the citywide median](./resources/images/map_median_price.png)  
+_Median Airbnb price per neighborhood, relative to the citywide median._  
 
-![Bubble Map of Number of AirBnB's per Neighborhood](./resources/images/map_median_price.png)
+**Case Study:**
+- ![Line chart showing drop and rebound in Airbnb listings after verification expansion](./resources/images/case_study_listing_drop.png)  
+_Sharp decline and partial rebound in Airbnb listings following verification expansion._  
 
-Exploratory Data Analysis:
+- ![Line chart showing increase in licensed Airbnb listings](./resources/images/case_study_license_change.png)  
+_Increase in the share of licensed Airbnb listings after enforcement._  
 
-![Price Plot](./resources/images/eda_listing_drop.png)
+- ![Line chart showing revenue drop in extended-stay Airbnb listings](./resources/images/case_study_revenue_drop.png)  
+_Revenue decline in extended-stay Airbnb listings post-verification._  
 
-![Average Neighborhood Price Plot](./resources/images/eda_license_change.png)
+- ![Bar chart showing decline in unlicensed extended-stay Airbnb listings](./resources/images/case_study_license_minimum_nights.png)  
+_Decrease in unlicensed extended-stay listings after policy change._  
 
-![ERD](./resources/images/eda_bubble_neighborhoods.png)
+- ![Lorenz curve of Airbnb host revenue concentration before and after verification, showing no change](./resources/images/case_study_lorenz.png)  
+_Lorenz curves showing persistent concentration of Airbnb revenue among top hosts before and after verification._  
 
-Tableau Dashboard:
+- ![Bubble chart showing neighborhoods with higher licensing and availability](./resources/images/case_study_bubble_neighborhoods.png)  
+_Neighborhoods with higher licensing rates and greater listing availability._  
 
-![Tableau Plot](./resources/images/dc_airbnb_tableau_rental_type.png)
+## Data & Methodology
 
-## Course Certificates
+Primary dataset: Inside Airbnb quarterly scrape data.
 
-Parts of this project served as capstones for two of HarvardX’s free online computer science courses:  
-- [CS50's Web Programming with Python and JavaScript](https://cs50.harvard.edu/web/2020/)
-- [CS50's Introduction to Databases with SQL](https://cs50.harvard.edu/sql/2024/)
+Revenue estimates are derived from `price * (365 - availability_365)`. This serves as a directional proxy for annualized booking value. Results should be interpreted structurally rather than as exact financial totals.
 
-![cs50 Web Certificate](./resources/images/CS50W.png)
+Neighborhood population data used for per-1,000 density metrics.
 
-![cs50SQL Certificate](./resources/images/CS50SQL.png)
+Analysis covers multiple quarterly snapshots to identify structural inflection rather than seasonal fluctuation.
 
 ## References
 
@@ -145,7 +189,7 @@ Neighborhood population and housing unit data from [Census Reporter](https://cen
 
 ## Author
 
-Bryan Johns, October 2024  
+Bryan Johns, February 2026  
 [bryan.johns@informedwanderer.com](mailto:bryan.johns@informedwanderer.com) | [LinkedIn](https://www.linkedin.com/in/b-johns/) | [GitHub](https://github.com/johbry17) | [Portfolio](https://informedwanderer.com)  
 — Fluent in Data. Fluent in Human.
 
