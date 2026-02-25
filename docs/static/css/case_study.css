@@ -96,6 +96,33 @@ em {
   transform: translateX(4px);
 }
 
+/* ---------- Footnote ---------- */
+
+.footnote-ref {
+  font-size: 0.75em;
+  vertical-align: super;
+  color: #4e79a7;
+  cursor: pointer;
+}
+.footnotes {
+  font-size: 0.95em;
+  color: #555;
+  border-top: 1px solid #eee;
+  margin-top: 2em;
+  padding-top: 1em;
+}
+.footnotes ol {
+  margin: 0;
+  padding-left: 1.2em;
+}
+.footnotes li {
+  margin-bottom: 0.5em;
+}
+.footnotes a {
+  color: #4e79a7;
+  text-decoration: underline;
+}
+
 /* ---------- Paragraphs ---------- */
 
 p {
