@@ -111,9 +111,9 @@ Navigate between:
 - Regenerate summary views
 - Export CSVs for GitHub Pages
 
-3. Regenerate the case study from `/notebooks`:
+3. Regenerate the case study from the command line in `/notebooks`:
 ```
-jupyter nbconvert --to html --no-input --output ../docs/case_study.html case_study.ipynb
+python export_case_study.py
 ```
 
 ## Gallery
