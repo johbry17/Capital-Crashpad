@@ -8,7 +8,7 @@
 🔗 [Case Study](https://johbry17.github.io/Capital-Crashpad/case_study.html)
 <!-- 🔗 [Tableau Dashboard](https://public.tableau.com/app/profile/bryan.johns6699/viz/DC-Airbnb/DCAirbnbMobile)   -->
 
-> ℹ️ Status: While not under active development, the dashboard is refreshed semiannually as new data becomes available. The accompanying case study is intentionally frozen at 2025 Q3. Legacy full-stack versions (Flask and Django) are archived in the `/legacy` folder.
+> ℹ️ Status: The dashboard is refreshed semiannually as new data becomes available. The accompanying case study is intentionally frozen at 2025 Q3 to preserve a consistent before-and-after analysis of Airbnb’s 2024 verification expansion. Legacy full-stack versions (Flask and Django) are archived in the `/legacy` folder.
 
 ## Table of Contents
 
@@ -110,7 +110,9 @@ Navigate between:
 
 - Update quarterly tables
 - Regenerate summary views
-- Export CSVs for GitHub Pages
+- Export CSVs for GitHub Pages  
+
+The case study export pipeline is archived; future updates apply only to the interactive dashboard.
 
 ## Gallery
 
