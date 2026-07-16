@@ -119,45 +119,45 @@ The case study export pipeline is archived; future updates apply only to the int
 Below are key visualizations from the dashboard and case study:
 
 **Dashboard:**
-- ![Violin plot of nightly prices and availability for the upcoming year, with median annotated](./resources/images/price_violin_plot.png)  
+![Violin plot of nightly prices and availability for the upcoming year, with median annotated](./resources/images/price_violin_plot.png)  
 _Distribution of nightly prices and availability for Airbnb listings, highlighting the median value._  
 
-- ![Bar plot of minimum nights required for Airbnb listings, colored by license status](./resources/images/minimum_nights_plot.png)  
+![Bar plot of minimum nights required for Airbnb listings, colored by license status](./resources/images/minimum_nights_plot.png)  
 _Minimum nights required for Airbnb listings, segmented by license status._  
 
 **Interactive Map:**
-- ![Choropleth map showing total Airbnb listings by neighborhood in Washington, D.C., relative to the average](./resources/images/map_total_listings.png)  
+![Choropleth map showing total Airbnb listings by neighborhood in Washington, D.C., relative to the average](./resources/images/map_total_listings.png)  
 _Total Airbnb listings by neighborhood, compared to the citywide average._  
 
-- ![Map showing license status of Airbnb listings in a neighborhood](./resources/images/map_neighborhood_license.png)  
+![Map showing license status of Airbnb listings in a neighborhood](./resources/images/map_neighborhood_license.png)  
 _License status of Airbnb listings within a selected neighborhood._  
 
-- ![Map showing Airbnb property types in neighborhood](./resources/images/map_neighborhood_property.png)  
+![Map showing Airbnb property types in neighborhood](./resources/images/map_neighborhood_property.png)  
 _Distribution of Airbnb property types in a highlighted neighborhood._  
 
-- ![Choropleth map of license compliance percentage per neighborhood](./resources/images/map_license.png)  
+![Choropleth map of license compliance percentage per neighborhood](./resources/images/map_license.png)  
 _Percentage of licensed Airbnb listings in each neighborhood._  
 
-- ![Choropleth map of Airbnb median price per neighborhood, relative to the citywide median](./resources/images/map_median_price.png)  
+![Choropleth map of Airbnb median price per neighborhood, relative to the citywide median](./resources/images/map_median_price.png)  
 _Median Airbnb price per neighborhood, relative to the citywide median._  
 
 **Case Study:**
-- ![Line chart showing drop and rebound in Airbnb listings after verification expansion](./resources/images/case_study_listing_drop.png)  
+![Line chart showing drop and rebound in Airbnb listings after verification expansion](./resources/images/case_study_listing_drop.png)  
 _Sharp decline and partial rebound in Airbnb listings following verification expansion._  
 
-- ![Line chart showing increase in licensed Airbnb listings](./resources/images/case_study_license_change.png)  
+![Line chart showing increase in licensed Airbnb listings](./resources/images/case_study_license_change.png)  
 _Increase in the share of licensed Airbnb listings after enforcement._  
 
-- ![Line chart showing revenue drop in extended-stay Airbnb listings](./resources/images/case_study_revenue_drop.png)  
+![Line chart showing revenue drop in extended-stay Airbnb listings](./resources/images/case_study_revenue_drop.png)  
 _Revenue decline in extended-stay Airbnb listings post-verification._  
 
-- ![Bar chart showing decline in unlicensed extended-stay Airbnb listings](./resources/images/case_study_license_minimum_nights.png)  
+![Bar chart showing decline in unlicensed extended-stay Airbnb listings](./resources/images/case_study_license_minimum_nights.png)  
 _Decrease in unlicensed extended-stay listings after policy change._  
 
-- ![Lorenz curve of Airbnb host revenue concentration before and after verification, showing no change](./resources/images/case_study_lorenz.png)  
+![Lorenz curve of Airbnb host revenue concentration before and after verification, showing no change](./resources/images/case_study_lorenz.png)  
 _Lorenz curves showing persistent concentration of Airbnb revenue among top hosts before and after verification._  
 
-- ![Bubble chart showing neighborhoods with higher licensing and availability](./resources/images/case_study_bubble_neighborhoods.png)  
+![Bubble chart showing neighborhoods with higher licensing and availability](./resources/images/case_study_bubble_neighborhoods.png)  
 _Neighborhoods with higher licensing rates and greater listing availability._  
 
 ## Data & Methodology
