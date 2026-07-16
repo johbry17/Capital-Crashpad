@@ -63,7 +63,7 @@ const choroplethConfig = {
     label: "License Compliance vs DC Avg",
   },
   median_price: {
-    scale: d3.scaleSequential(d3.interpolatePurples).domain([50, 250]),
+    scale: d3.scaleSequential(d3.interpolatePurples).domain([100, 300]),
     label: "Median Price",
   },
   median_price_vs_dc_pct: {
