@@ -18,13 +18,6 @@ Promise.all([
   neighborhoods = ng;
   statsByNeighborhood = ns;
   scrapeDate = sd;
-  // 2025 September data - fix specific price anomalies
-  listingsData.forEach((listing) => {
-    const p = parseFloat(listing.price);
-    if (!Number.isNaN(p) && new Set([7000, 40000, 50000]).has(p)) {
-      listing.price = (p / 100).toString();
-    }
-  });
 
   // convert price to number, set invalid prices to null (data cleaning)
   // note the nifty concise unary plus operator to convert string to number
