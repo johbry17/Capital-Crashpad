@@ -7,9 +7,8 @@
 🔗 [Live Website](https://johbry17.github.io/Capital-Crashpad/)  
 🔗 [Case Study](https://johbry17.github.io/Capital-Crashpad/case_study.html)
 <!-- 🔗 [Tableau Dashboard](https://public.tableau.com/app/profile/bryan.johns6699/viz/DC-Airbnb/DCAirbnbMobile)   -->
-<!-- 🔗 [Exploratory Data Analysis (EDA)](/exploratory_data_analysis/eda.ipynb) -->
 
-> ℹ️ Status: While not under active development, the dashboard is refreshed semiannually as new data becomes available. Legacy full-stack versions (Flask and Django) are archived in the `/legacy` folder.
+> ℹ️ Status: While not under active development, the dashboard is refreshed semiannually as new data becomes available. The accompanying case study is intentionally frozen at 2025 Q3. Legacy full-stack versions (Flask and Django) are archived in the `/legacy` folder.
 
 ## Table of Contents
 
@@ -66,6 +65,8 @@ Case Study:
 - Revenue segmentation by minimum-night category
 - Before/after structural comparison
 - Policy-relevant interpretation without technical jargon
+- Snapshot analysis covering 2023 Q2 – 2025 Q3
+- Preserved as an archival narrative rather than a continuously updated report
 
 Data Pipeline:
 
@@ -99,7 +100,7 @@ Navigate between:
 - Interactive dashboard views
 - Case study analysis (HTML)
 
-### Update the Data
+### Update the Dashboard
 
 1. Open the ETL notebook:
 ```
@@ -110,11 +111,6 @@ Navigate between:
 - Update quarterly tables
 - Regenerate summary views
 - Export CSVs for GitHub Pages
-
-3. Regenerate the case study from the command line in `/notebooks`:
-```
-python export_case_study.py
-```
 
 ## Gallery
 
@@ -170,7 +166,7 @@ Revenue estimates are derived from `price * (365 - availability_365)`. This serv
 
 Neighborhood population data used for per-1,000 density metrics.
 
-Analysis covers multiple quarterly snapshots to identify structural inflection rather than seasonal fluctuation.
+Analysis covers multiple quarterly snapshots to identify structural inflection rather than seasonal fluctuation, intentionally concluding with 2025 Q3 in order to preserve a coherent before-and-after examination of Airbnb's 2024 verification expansion. The interactive dashboard includes more recent data releases when available.
 
 ## References
 
