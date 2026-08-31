@@ -232,6 +232,10 @@ body {
   margin: 8px 0;
 }
 
+.leaflet-overlay-pane svg path {
+  transition: fill 0.3s ease, fill-opacity 0.3s ease;
+}
+
 .choropleth-label {
   display: flex;
   justify-content: center;

@@ -110,7 +110,6 @@ body {
   transform: translateX(4px);
 }
 
-
 // lede line
 .lede {
   text-align: center;
@@ -266,6 +265,13 @@ body {
 //     color: $map-border-color !important;
 //   }
 // }
+
+// smooth transitions for choropleth fill colors
+.leaflet-overlay-pane svg path {
+  transition:
+    fill 0.3s ease,
+    fill-opacity 0.3s ease;
+}
 
 // choropleth markers
 .choropleth-label {
@@ -831,32 +837,6 @@ body {
   color: #0d47a1;
   text-decoration: underline solid;
 }
-
-// // tableau viz
-// #tableau-viz {
-//   margin: 0 auto;
-//   margin-bottom: 10px;
-//   padding: $padding;
-//   overflow-x: hidden;
-//   box-sizing: border-box;
-//   color: $text-color;
-//   border: 2px solid $border-color;
-//   border-radius: $border-radius;
-//   box-shadow: $box-shadow;
-//   width: 100%; // full viewport width to prevent right shifting
-//   @include flex-center(column); // prevent horizontal layout issues
-//   // flex-direction: column; // prevent horizontal layout issues
-//   max-width: 420px; // match tableau viz width
-
-//   // media queries
-//   @media (min-width: 768px) {
-//     max-width: 90%; // limit width for larger screens
-//   }
-
-//   @media (min-width: 1200px) {
-//     max-width: 80%; // on larger devices
-//   }
-// }
 
 /* Footer styles */
 .site-footer {
