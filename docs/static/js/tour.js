@@ -80,7 +80,7 @@ function initTour() {
   }
 
   function scrollToPlot() {
-    return scrollToEl("#plot-container", isMobile() ? 0.3 : 0.5);
+    return scrollToEl("#plot-container", isMobile() ? 0.35 : 0.5);
   }
 
   // ── Button spotlight functions ───────────────────────────────────────────────────
@@ -285,8 +285,8 @@ function initTour() {
     id: "welcome",
     title: "When Platforms Clean House",
     text: `
-      <p>In Q2 2024, approximately 1,800 listings disappeared from Washington, D.C.'s Airbnb market in a single quarter — coinciding with Airbnb's expansion of identity verification and hosting quality standards.</p>
-      <p>This tour examines the market that remained: the structural changes visible in the data, neighborhood by neighborhood.</p>
+      <p>In Q2 2024, roughly 1,800 Airbnb listings disappeared from Washington, D.C. in a single quarter.</p>
+      <p>What did the market that remained look like?</p>
     `,
     beforeShowPromise() {
       resetDashboard();
@@ -312,7 +312,7 @@ function initTour() {
     classes: "cc-tour-map-step",
     title: "A More Licensed Market",
     text: `
-      <p>D.C. requires a license for short-term rentals of 30 nights or fewer. After the contraction, the share of active listings with that license increased. Neighborhoods shaded darker show higher compliance in the current data.</p>
+      <p>After the contraction, a larger share of surviving listings carried a short-term rental (STR) license. The market changed while getting smaller.</p>
     `,
     beforeShowPromise() {
       return scrollToMapTop()
@@ -340,9 +340,9 @@ function initTour() {
     classes: "cc-tour-map-step",
     title: "The 31-Night Pattern",
     text: `
-      <p>Listings cluster at two points: short stays (1–3 nights) and exactly 31-night minimums — just beyond D.C.'s 30-night licensing threshold.</p>
-      <p>In the current market, unlicensed listings require those 31-night minimums almost exclusively — just long enough to fall outside the licensing requirement. Licensed listings spread across shorter stays.</p>
-      <p class="cc-tour-caveat">The data shows the pattern. It does not tell us the motivation behind each individual listing's exit.</p>
+      <p>Licensing isn't the whole story.</p>
+      <p>Unlicensed listings cluster overwhelmingly at a 31-night minimum, just beyond D.C.'s 30-night STR threshold. Licensed listings are much more concentrated among shorter stays.</p>
+      <p class="cc-tour-caveat">The pattern is clear. The reason for each listing's behavior isn't.</p>
     `,
     popperOptions: {
       modifiers: [{ name: "offset", options: { offset: [0, 8] } }],
@@ -359,7 +359,7 @@ function initTour() {
   tour.addStep({
     id: "multi-hosts-map",
     title: "Concentration Persisted",
-    text: `<p>The market didn't just shrink — it reoriented.</p>`,
+    text: `<p>The market shrank. But who held the listings changed much less.</p>`,
     beforeShowPromise() {
       return scrollToMapTop();
     },
@@ -398,8 +398,7 @@ function initTour() {
           step.updateStepOptions({
             classes: "cc-tour-map-step",
             text: `
-            <p>Among the listings that remain, portfolio operators — hosts with two or more D.C. listings — are a measurable presence in specific neighborhoods.</p>
-            <p>The market changed in scale. The pattern of who holds listings did not.</p>
+            <p>Multi-property operators remain concentrated in particular neighborhoods.</p>
           `,
             buttons: [nextBtn()],
           });
@@ -416,8 +415,9 @@ function initTour() {
     classes: "cc-tour-map-step",
     title: "Who Controls the Earnings",
     text: `
-      <p>The Lorenz curve measures how unevenly revenue is distributed across hosts. The number on the chart — the Gini coefficient — summarizes the gap: 0 is perfect equality, 1 is total concentration.</p>
-      <p>Before the Q2 reset, roughly half of projected revenue flowed to about 10% of hosts. After the contraction, the distribution barely moved. The market shrank; the concentration did not.</p>
+      <p>The same pattern appears in the money.</p>
+      <p>Before the contraction, roughly half of projected revenue went to about 10% of hosts. Afterward, the distribution barely moved.</p>
+      <p>The market shrank; the concentration didn't.</p>
     `,
     popperOptions: {
       modifiers: [{ name: "offset", options: { offset: [0, 8] } }],
@@ -433,7 +433,7 @@ function initTour() {
   tour.addStep({
     id: "density-map",
     title: "Not Uniform Across the City",
-    text: `<p>Every neighborhood tells a different version of the story.</p>`,
+    text: `<p>But this isn't one story everywhere.</p>`,
     beforeShowPromise() {
       return scrollToMapTop();
     },
@@ -472,7 +472,7 @@ function initTour() {
           step.updateStepOptions({
             classes: "cc-tour-map-step",
             text: `
-            <p>Listing density — active Airbnbs per 1,000 residents — varies sharply by neighborhood. Dense corridors near downtown look very different from residential wards further from the center.</p>
+            <p>Listing density — active Airbnbs per 1,000 residents — varies sharply from neighborhood to neighborhood.</p>
           `,
             buttons: [nextBtn()],
           });
@@ -487,8 +487,8 @@ function initTour() {
     id: "neighborhood-intro",
     title: "Every Neighborhood Tells a Different Version",
     text: `
-      <p>The structural patterns you've seen — licensing, host concentration, listing density — play out differently across D.C.'s neighborhoods.</p>
-      <p>Here's how that looks in one of the city's more active short-term rental corridors.</p>
+      <p>The citywide patterns look different on the ground.</p>
+      <p>Let's zoom in.</p>
     `,
     attachTo: { element: "#neighborhoods-control", on: "bottom" },
     popperOptions: {
@@ -507,8 +507,9 @@ function initTour() {
     id: "neighborhood-demo",
     title: "Adams Morgan — Kalorama — Lanier Heights",
     text: `
-            <p>Here, only about 3 in 10 listings carry an STR license — well below the city average. And nearly 4 in 5 belong to hosts who operate multiple D.C. properties.</p>
-            <p>The patterns the tour traced look different in every neighborhood. Select any one on the map or in the dropdown to see its version.</p>
+            <p>Here, only about 3 in 10 listings carry an STR license — while nearly 4 in 5 belong to multi-property hosts.</p>
+            <p>One neighborhood can look very different from the citywide picture.</p>
+            <p>Select any neighborhood to explore its version of the story.</p>
           `,
     attachTo: { element: "#neighborhood-stats-card", on: "top" },
     popperOptions: {
@@ -533,7 +534,7 @@ function initTour() {
   tour.addStep({
     id: "relative-demo",
     title: "Same Market, Different Baseline",
-    text: `<p>The map is about to shift — one tool worth seeing.</p>`,
+    text: `<p>One last way to look at the map.</p>`,
     beforeShowPromise() {
       // Reset from the neighborhood demo; wait for the map to settle before starting
       selectNeighborhood("top");
@@ -562,7 +563,8 @@ function initTour() {
               classes: "cc-tour-map-step",
               title: "Absolute vs. Relative",
               text: `
-                <p>Relative mode compares each neighborhood against the D.C. average. The diverging colors show which neighborhoods are above or below the city norm. The same metric, a different question.</p>
+                <p>Relative mode compares each neighborhood with the D.C. average.</p>
+                <p>Same market. Different question.</p>
               `,
               buttons: [nextBtn()],
             });
@@ -578,10 +580,10 @@ function initTour() {
     id: "handoff",
     title: "Now It's Yours",
     text: `
-      <p>You've seen the major structural patterns in the post-reset market: a more licensed market overall, persistent host concentration, and sharp variation by neighborhood.</p>
-      <p><strong>The dashboard</strong> lets you explore further — six metrics, two views (absolute values or compared to the D.C. average), every neighborhood.</p>
-      <p><strong>The case study</strong> provides the temporal analysis — the quarter-by-quarter data behind what happened.</p>
-      <p class="cc-tour-closing"><em>What changed is visible. What caused every individual change is not.<br>Capital Crashpad lets you explore the market that emerged afterward.</em></p>
+      <p>You've seen the pattern: the market contracted, licensing increased, host concentration persisted, and the changes varied sharply across neighborhoods.</p>
+      <p><strong>The dashboard</strong> lets you explore those patterns yourself — across six metrics, every neighborhood, and two ways of comparing them.</p>
+      <p><strong>The case study</strong> goes deeper into how the market changed over time.</p>
+      <p class="cc-tour-closing"><em>What changed is visible. What caused every individual change is not.</em></p>
     `,
     beforeShowPromise() {
       resetDashboard();
