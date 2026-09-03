@@ -79,6 +79,10 @@ function initTour() {
     });
   }
 
+  function scrollToPlot() {
+    return scrollToEl("#plot-container", isMobile() ? 0.3 : 0.5);
+  }
+
   // ── Button spotlight functions ───────────────────────────────────────────────────
 
   function highlightElement(selector, duration = 1100) {
@@ -107,10 +111,12 @@ function initTour() {
       return highlightElement(selector, duration);
     }
 
-    return scrollToEl(selector, 0.65)
-      .then(() => highlightElement(selector, duration))
-      // .then(() => _delay(250))
-      .then(() => scrollToMapTop());
+    return (
+      scrollToEl(selector, 0.65)
+        .then(() => highlightElement(selector, duration))
+        // .then(() => _delay(250))
+        .then(() => scrollToMapTop())
+    );
   }
 
   function spotlightChoroplethButton(buttonId, duration = 1100) {
@@ -118,10 +124,12 @@ function initTour() {
   }
 
   function spotlightRelativeToggle(duration = 1200) {
-    return scrollToEl(".slider-wrapper", 0.65)
-      .then(() => highlightElement(".slider-wrapper", duration))
-      // .then(() => _delay(250))
-      .then(() => scrollToMapTop());
+    return (
+      scrollToEl(".slider-wrapper", 0.65)
+        .then(() => highlightElement(".slider-wrapper", duration))
+        // .then(() => _delay(250))
+        .then(() => scrollToMapTop())
+    );
   }
 
   // ── Dashboard helpers ──────────────────────────────────────────────────
@@ -340,7 +348,7 @@ function initTour() {
       modifiers: [{ name: "offset", options: { offset: [0, 8] } }],
     },
     beforeShowPromise() {
-      return scrollToEl("#plot-container", 0.5);
+      return scrollToPlot();
     },
     buttons: [nextBtn()],
   });
@@ -415,7 +423,7 @@ function initTour() {
       modifiers: [{ name: "offset", options: { offset: [0, 8] } }],
     },
     beforeShowPromise() {
-      return scrollToEl("#plot-container", 0.5);
+      return scrollToPlot();
     },
     buttons: [nextBtn()],
   });
