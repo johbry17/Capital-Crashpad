@@ -22,6 +22,11 @@ function initTour() {
   // Skips dashboard reset when user dismisses from the welcome step
   let _skipReset = false;
 
+  // Mobile detection helper
+  function isMobile() {
+    return window.innerWidth <= 600;
+  }
+
   // ── Async helpers ──────────────────────────────────────────────────────
 
   function _delay(ms) {
@@ -72,6 +77,51 @@ function initTour() {
       window.scrollTo({ top: targetTop, behavior: "smooth" });
       setTimeout(resolve, 650);
     });
+  }
+
+  // ── Button spotlight functions ───────────────────────────────────────────────────
+
+  function highlightElement(selector, duration = 1100) {
+    return new Promise((resolve) => {
+      const el = document.querySelector(selector);
+
+      if (!el) {
+        resolve();
+        return;
+      }
+
+      el.classList.add("cc-tour-highlight");
+
+      // Force a repaint so the transition reliably starts.
+      void el.offsetWidth;
+
+      setTimeout(() => {
+        el.classList.remove("cc-tour-highlight");
+        resolve();
+      }, duration);
+    });
+  }
+
+  function spotlightControl(selector, duration = 1100) {
+    if (!isMobile()) {
+      return highlightElement(selector, duration);
+    }
+
+    return scrollToEl(selector, 0.65)
+      .then(() => highlightElement(selector, duration))
+      // .then(() => _delay(250))
+      .then(() => scrollToMapTop());
+  }
+
+  function spotlightChoroplethButton(buttonId, duration = 1100) {
+    return spotlightControl(`#${buttonId}`, duration);
+  }
+
+  function spotlightRelativeToggle(duration = 1200) {
+    return scrollToEl(".slider-wrapper", 0.65)
+      .then(() => highlightElement(".slider-wrapper", duration))
+      // .then(() => _delay(250))
+      .then(() => scrollToMapTop());
   }
 
   // ── Dashboard helpers ──────────────────────────────────────────────────
@@ -152,11 +202,6 @@ function initTour() {
     return id;
   }
 
-  function _nextStep(expectedStepId) {
-    if (tourCancelled) return;
-    if (tour.getCurrentStep()?.id === expectedStepId) tour.next();
-  }
-
   function _clearTourTimers() {
     tourTimers.forEach((id) => clearTimeout(id));
     tourTimers = [];
@@ -232,7 +277,7 @@ function initTour() {
     id: "welcome",
     title: "When Platforms Clean House",
     text: `
-      <p>In Q2 2024, approximately 1,800 listings disappeared from Washington, D.C.'s Airbnb market in a single quarter — concurrent with Airbnb's expansion of identity verification and hosting quality standards.</p>
+      <p>In Q2 2024, approximately 1,800 listings disappeared from Washington, D.C.'s Airbnb market in a single quarter — coinciding with Airbnb's expansion of identity verification and hosting quality standards.</p>
       <p>This tour examines the market that remained: the structural changes visible in the data, neighborhood by neighborhood.</p>
     `,
     beforeShowPromise() {
@@ -262,8 +307,20 @@ function initTour() {
       <p>D.C. requires a license for short-term rentals of 30 nights or fewer. After the contraction, the share of active listings with that license increased. Neighborhoods shaded darker show higher compliance in the current data.</p>
     `,
     beforeShowPromise() {
-      setMetric("license_compliance", "License Compliance");
-      return scrollToMapTop();
+      return scrollToMapTop()
+        .then(() => {
+          if (isMobile()) {
+            return scrollToEl("#choropleth-control", 0.65);
+          }
+          return _delay(0);
+        })
+        .then(() =>
+          spotlightChoroplethButton("license-compliance-button", 1200),
+        )
+        .then(() => {
+          setMetric("license_compliance", "License Compliance");
+          return _delay(400);
+        });
     },
     buttons: [nextBtn()],
   });
@@ -279,7 +336,6 @@ function initTour() {
       <p>In the current market, unlicensed listings require those 31-night minimums almost exclusively — just long enough to fall outside the licensing requirement. Licensed listings spread across shorter stays.</p>
       <p class="cc-tour-caveat">The data shows the pattern. It does not tell us the motivation behind each individual listing's exit.</p>
     `,
-    // attachTo: { element: "#secondary-controls", on: "top" },
     popperOptions: {
       modifiers: [{ name: "offset", options: { offset: [0, 8] } }],
     },
@@ -302,29 +358,46 @@ function initTour() {
   });
 
   tour.getById("multi-hosts-map").on("show", () => {
-    // Live metric switch — map recolors in front of the user
     _tourTimeout(
       "multi-hosts-map",
       () => {
-        setMetric("multi_listing_pct", "% Multi-Property Hosts");
-        _tourTimeout(
-          "multi-hosts-map",
-          () => {
-            const step = tour.getById("multi-hosts-map");
-            if (step)
-              step.updateStepOptions({
-                classes: "cc-tour-map-step",
-                text: `
-              <p>Among the listings that remain, portfolio operators — hosts with two or more D.C. listings — are a measurable presence in specific neighborhoods.</p>
-              <p>The market changed in scale. The pattern of who holds listings did not.</p>
-            `,
-                buttons: [nextBtn()],
-              });
-          },
-          1600,
-        );
+        if (isMobile()) {
+          scrollToEl("#choropleth-control", 0.65)
+            .then(() =>
+              spotlightChoroplethButton("multi-listing-pct-button", 1100),
+            )
+            .then(() => {
+              setMetric("multi_listing_pct", "% Multi-Property Hosts");
+              return _delay(350);
+            });
+        } else {
+          spotlightChoroplethButton("multi-listing-pct-button", 1100).then(
+            () => {
+              setMetric("multi_listing_pct", "% Multi-Property Hosts");
+            },
+          );
+        }
       },
-      1500,
+      900,
+    );
+
+    _tourTimeout(
+      "multi-hosts-map",
+      () => {
+        const step = tour.getById("multi-hosts-map");
+
+        if (step) {
+          step.updateStepOptions({
+            classes: "cc-tour-map-step",
+            text: `
+            <p>Among the listings that remain, portfolio operators — hosts with two or more D.C. listings — are a measurable presence in specific neighborhoods.</p>
+            <p>The market changed in scale. The pattern of who holds listings did not.</p>
+          `,
+            buttons: [nextBtn()],
+          });
+        }
+      },
+      3000,
     );
   });
 
@@ -338,12 +411,11 @@ function initTour() {
       <p>The Lorenz curve measures how unevenly revenue is distributed across hosts. The number on the chart — the Gini coefficient — summarizes the gap: 0 is perfect equality, 1 is total concentration.</p>
       <p>Before the Q2 reset, roughly half of projected revenue flowed to about 10% of hosts. After the contraction, the distribution barely moved. The market shrank; the concentration did not.</p>
     `,
-    // attachTo: { element: "#secondary-controls", on: "top" },
     popperOptions: {
       modifiers: [{ name: "offset", options: { offset: [0, 8] } }],
     },
     beforeShowPromise() {
-      return scrollToEl("#plot-container", 0.25);
+      return scrollToEl("#plot-container", 0.5);
     },
     buttons: [nextBtn()],
   });
@@ -363,24 +435,42 @@ function initTour() {
     _tourTimeout(
       "density-map",
       () => {
-        setMetric("listings_per_1000", "Listings per 1,000 Residents");
-        _tourTimeout(
-          "density-map",
-          () => {
-            const step = tour.getById("density-map");
-            if (step)
-              step.updateStepOptions({
-                classes: "cc-tour-map-step",
-                text: `
-              <p>Listing density — active Airbnbs per 1,000 residents — varies sharply by neighborhood. Dense corridors near downtown look very different from residential wards further from the center.</p>
-            `,
-                buttons: [nextBtn()],
-              });
-          },
-          1600,
-        );
+        if (isMobile()) {
+          scrollToEl("#choropleth-control", 0.65)
+            .then(() =>
+              spotlightChoroplethButton("listings-per-1000-button", 1100),
+            )
+            .then(() => {
+              setMetric("listings_per_1000", "Listings per 1,000 Residents");
+              return _delay(350);
+            });
+        } else {
+          spotlightChoroplethButton("listings-per-1000-button", 1100).then(
+            () => {
+              setMetric("listings_per_1000", "Listings per 1,000 Residents");
+            },
+          );
+        }
       },
-      1500,
+      900,
+    );
+
+    _tourTimeout(
+      "density-map",
+      () => {
+        const step = tour.getById("density-map");
+
+        if (step) {
+          step.updateStepOptions({
+            classes: "cc-tour-map-step",
+            text: `
+            <p>Listing density — active Airbnbs per 1,000 residents — varies sharply by neighborhood. Dense corridors near downtown look very different from residential wards further from the center.</p>
+          `,
+            buttons: [nextBtn()],
+          });
+        }
+      },
+      3000,
     );
   });
 
@@ -418,7 +508,7 @@ function initTour() {
     },
     beforeShowPromise() {
       return (
-        _delay(350)
+        _delay(350) // moment delay before selecting and zooming
           .then(() => selectAndWaitForZoom(DEMO_NEIGHBORHOOD))
           // Wait for the map to finish zooming before scrolling to the stats card
           .then(() => _delay(1000))
@@ -453,19 +543,25 @@ function initTour() {
     _tourTimeout(
       "relative-demo",
       () => {
-        // Live toggle — map recolors to diverging scale in front of the user
-        setRelativeToggle(true);
-        const step = tour.getById("relative-demo");
-        if (step)
-          step.updateStepOptions({
-            title: "Absolute vs. Relative",
-            text: `
-            <p>Relative mode compares each neighborhood against the D.C. average. The diverging colors show which neighborhoods are above or below the city norm. The same metric, a different question.</p>
-          `,
-          });
-        _tourTimeout("relative-demo", () => _nextStep("relative-demo"), 8000);
+        // Scroll to and spotlight the relative toggle before switching it on
+        spotlightRelativeToggle().then(() => {
+          setRelativeToggle(true);
+
+          const step = tour.getById("relative-demo");
+
+          if (step) {
+            step.updateStepOptions({
+              classes: "cc-tour-map-step",
+              title: "Absolute vs. Relative",
+              text: `
+                <p>Relative mode compares each neighborhood against the D.C. average. The diverging colors show which neighborhoods are above or below the city norm. The same metric, a different question.</p>
+              `,
+              buttons: [nextBtn()],
+            });
+          }
+        });
       },
-      2500,
+      1800,
     );
   });
 
