@@ -18,6 +18,7 @@ function initTour() {
 
   // ── Tour state ─────────────────────────────────────────────────────────
   let tour = null;
+  let autoStartTimer = null;
   let tourCancelled = false;
   let tourTimers = [];
   let interactionBlocker = null;
@@ -202,10 +203,13 @@ function initTour() {
   // ── Timer helpers ────────────────────────────────
   // Step-scoped: callback silenced if tour was cancelled or step has changed
 
+  function isCurrentStep(stepId) {
+    return !tourCancelled && tour?.getCurrentStep()?.id === stepId;
+  }
+
   function _tourTimeout(stepId, fn, delayMs) {
     const id = setTimeout(() => {
-      if (tourCancelled) return;
-      if (tour.getCurrentStep()?.id !== stepId) return;
+      if (!isCurrentStep(stepId)) return;
       fn();
     }, delayMs);
     tourTimers.push(id);
@@ -254,7 +258,7 @@ function initTour() {
 
   function createTour() {
     // ── Tour instance ──────────────────────────────────────────────────────
-    tour = new Shepherd.Tour({
+    const tour = new Shepherd.Tour({
       useModalOverlay: false,
       keyboardNavigation: true,
       defaultStepOptions: {
@@ -394,12 +398,14 @@ function initTour() {
                 spotlightChoroplethButton("multi-listing-pct-button", 1100),
               )
               .then(() => {
+                if (!isCurrentStep("multi-hosts-map")) return;
                 setMetric("multi_listing_pct", "% Multi-Property Hosts");
                 return _delay(350);
               });
           } else {
             spotlightChoroplethButton("multi-listing-pct-button", 1100).then(
               () => {
+                if (!isCurrentStep("multi-hosts-map")) return;
                 setMetric("multi_listing_pct", "% Multi-Property Hosts");
               },
             );
@@ -485,12 +491,14 @@ function initTour() {
                 spotlightChoroplethButton("listings-per-1000-button", 1100),
               )
               .then(() => {
+                if (!isCurrentStep("density-map")) return;
                 setMetric("listings_per_1000", "Listings per 1,000 Residents");
                 return _delay(350);
               });
           } else {
             spotlightChoroplethButton("listings-per-1000-button", 1100).then(
               () => {
+                if (!isCurrentStep("density-map")) return;
                 setMetric("listings_per_1000", "Listings per 1,000 Residents");
               },
             );
@@ -576,6 +584,7 @@ function initTour() {
         selectNeighborhood("top");
         return waitForMapMove()
           .then(() => {
+            if (!isCurrentStep("relative-demo")) return;
             setMetric("license_compliance", "License Compliance");
             return setRelativeToggle(false);
           })
@@ -590,6 +599,7 @@ function initTour() {
         () => {
           // Scroll to and spotlight the relative toggle before switching it on
           spotlightRelativeToggle().then(() => {
+            if (!isCurrentStep("relative-demo")) return;
             setRelativeToggle(true);
 
             const step = tour.getById("relative-demo");
@@ -641,23 +651,32 @@ function initTour() {
       _cleanupTourState();
       if (!_skipReset) resetDashboard();
       _skipReset = false;
-      tour = null;
     });
 
     tour.on("complete", () => {
       _cleanupTourState();
       resetDashboard();
-      tour = null;
     });
 
     return tour;
   }
-  
+
   // ── Tour trigger button ────────────────────────────────────────────────
   const triggerBtn = document.getElementById("take-tour-btn");
   if (triggerBtn) {
     triggerBtn.addEventListener("click", () => {
-      if (tour.isActive()) return;
+      // On first load, `tour` may still be null if autostart is disabled
+      // (e.g. the tour has already been seen). Only block the click when
+      // an existing tour instance is actually active.
+      if (tour?.isActive()) return;
+
+      // Prevent a pending first-visit autostart from launching a second
+      // tour after the user manually starts one.
+      if (autoStartTimer) {
+        clearTimeout(autoStartTimer);
+        autoStartTimer = null;
+      }
+
       tourCancelled = false;
       _skipReset = false;
 
@@ -668,16 +687,20 @@ function initTour() {
 
   // ── Auto-show on first visit ───────────────────────────────────────────
 
-  // const TOUR_SEEN_KEY = "ccTourSeen";
-  // if (!localStorage.getItem(TOUR_SEEN_KEY)) {
-  //   localStorage.setItem(TOUR_SEEN_KEY, "1");
+  // Only auto-start the tour once per browser.
+  // The "Take the Tour" button remains available on subsequent visits.
+  const TOUR_SEEN_KEY = "ccTourSeen";
+  if (!localStorage.getItem(TOUR_SEEN_KEY)) {
+    localStorage.setItem(TOUR_SEEN_KEY, "1");
+
     // Delay allows Leaflet tiles and initial chart renders to settle
-    setTimeout(() => {
+    autoStartTimer = setTimeout(() => {
+      autoStartTimer = null;
       tourCancelled = false;
       _skipReset = false;
 
-       tour = createTour();
-       tour.start();
+      tour = createTour();
+      tour.start();
     }, 1400);
-  // }
+  }
 }
