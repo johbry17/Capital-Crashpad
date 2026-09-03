@@ -17,6 +17,7 @@ function initTour() {
     "NW-mid Kalorama Heights, Adams Morgan, Lanier Heights";
 
   // ── Tour state ─────────────────────────────────────────────────────────
+  let tour = null;
   let tourCancelled = false;
   let tourTimers = [];
   let interactionBlocker = null;
@@ -253,7 +254,7 @@ function initTour() {
 
   function createTour() {
     // ── Tour instance ──────────────────────────────────────────────────────
-    let tour = new Shepherd.Tour({
+    tour = new Shepherd.Tour({
       useModalOverlay: false,
       keyboardNavigation: true,
       defaultStepOptions: {
@@ -651,6 +652,7 @@ function initTour() {
 
     return tour;
   }
+  
   // ── Tour trigger button ────────────────────────────────────────────────
   const triggerBtn = document.getElementById("take-tour-btn");
   if (triggerBtn) {
