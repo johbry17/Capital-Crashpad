@@ -62,7 +62,10 @@ function initTour() {
     return new Promise((resolve) => {
       const mapEl = document.querySelector(".map-container");
       const navbar = document.querySelector(".navbar");
-      if (!mapEl) { resolve(); return; }
+      if (!mapEl) {
+        resolve();
+        return;
+      }
       const navH = navbar ? navbar.offsetHeight : 50;
       const rect = mapEl.getBoundingClientRect();
       const targetTop = Math.max(0, window.scrollY + rect.top - navH - 4);
@@ -136,7 +139,7 @@ function initTour() {
     setMetric("license_compliance", "License Compliance");
   }
 
-  // ── Timer helpers (Floodlines pattern) ────────────────────────────────
+  // ── Timer helpers ────────────────────────────────
   // Step-scoped: callback silenced if tour was cancelled or step has changed
 
   function _tourTimeout(stepId, fn, delayMs) {
@@ -231,8 +234,6 @@ function initTour() {
     text: `
       <p>In Q2 2024, approximately 1,800 listings disappeared from Washington, D.C.'s Airbnb market in a single quarter — concurrent with Airbnb's expansion of identity verification and hosting quality standards.</p>
       <p>This tour examines the market that remained: the structural changes visible in the data, neighborhood by neighborhood.</p>
-      <p class="cc-tour-caveat">What we can observe: how the market's size, composition, and structure changed. What this analysis cannot determine: why each individual listing disappeared.</p>
-      <p><em>About two minutes. No clicking required.</em></p>
     `,
     beforeShowPromise() {
       resetDashboard();
@@ -255,10 +256,10 @@ function initTour() {
   // Floating card keeps the map unobstructed on both desktop and mobile.
   tour.addStep({
     id: "licensing-map",
+    classes: "cc-tour-map-step",
     title: "A More Licensed Market",
     text: `
-      <p>After the contraction, the share of active listings associated with D.C. Short-Term Rental licenses increased. Neighborhoods shaded darker show higher compliance in the current data.</p>
-      <p>The market became smaller — and the listings that remained were more likely to be associated with a D.C. STR license.</p>
+      <p>D.C. requires a license for short-term rentals of 30 nights or fewer. After the contraction, the share of active listings with that license increased. Neighborhoods shaded darker show higher compliance in the current data.</p>
     `,
     beforeShowPromise() {
       setMetric("license_compliance", "License Compliance");
@@ -271,18 +272,19 @@ function initTour() {
   // Tooltip anchored to #secondary-controls below the chart; chart fully visible above.
   tour.addStep({
     id: "min-stays",
+    classes: "cc-tour-map-step",
     title: "The 31-Night Pattern",
     text: `
-      <p>Listings cluster at two points: short stays (1–3 nights) and exactly 31-night minimums — just over D.C.'s 30-night STR licensing threshold.</p>
-      <p>Unlicensed listings skew heavily toward the 31-night cluster. About 1,200 of the ~1,800 removed listings fell into that extended-stay category.</p>
+      <p>Listings cluster at two points: short stays (1–3 nights) and exactly 31-night minimums — just beyond D.C.'s 30-night licensing threshold.</p>
+      <p>In the current market, unlicensed listings require those 31-night minimums almost exclusively — just long enough to fall outside the licensing requirement. Licensed listings spread across shorter stays.</p>
       <p class="cc-tour-caveat">The data shows the pattern. It does not tell us the motivation behind each individual listing's exit.</p>
     `,
-    attachTo: { element: "#secondary-controls", on: "top" },
+    // attachTo: { element: "#secondary-controls", on: "top" },
     popperOptions: {
       modifiers: [{ name: "offset", options: { offset: [0, 8] } }],
     },
     beforeShowPromise() {
-      return scrollToEl("#plot-container", 0.25);
+      return scrollToEl("#plot-container", 0.5);
     },
     buttons: [nextBtn()],
   });
@@ -293,40 +295,50 @@ function initTour() {
   tour.addStep({
     id: "multi-hosts-map",
     title: "Concentration Persisted",
-    text: `<p>The market didn't just shrink — it reoriented. Watch the map.</p>`,
+    text: `<p>The market didn't just shrink — it reoriented.</p>`,
     beforeShowPromise() {
       return scrollToMapTop();
     },
-    buttons: [nextBtn()],
   });
 
   tour.getById("multi-hosts-map").on("show", () => {
     // Live metric switch — map recolors in front of the user
-    _tourTimeout("multi-hosts-map", () => {
-      setMetric("multi_listing_pct", "% Multi-Property Hosts");
-      _tourTimeout("multi-hosts-map", () => {
-        const step = tour.getById("multi-hosts-map");
-        if (step)
-          step.updateStepOptions({
-            text: `
+    _tourTimeout(
+      "multi-hosts-map",
+      () => {
+        setMetric("multi_listing_pct", "% Multi-Property Hosts");
+        _tourTimeout(
+          "multi-hosts-map",
+          () => {
+            const step = tour.getById("multi-hosts-map");
+            if (step)
+              step.updateStepOptions({
+                classes: "cc-tour-map-step",
+                text: `
               <p>Among the listings that remain, portfolio operators — hosts with two or more D.C. listings — are a measurable presence in specific neighborhoods.</p>
               <p>The market changed in scale. The pattern of who holds listings did not.</p>
             `,
-          });
-      }, 1600);
-    }, 1500);
+                buttons: [nextBtn()],
+              });
+          },
+          1600,
+        );
+      },
+      1500,
+    );
   });
 
   // ── Step 5: Lorenz Curve ───────────────────────────────────────────────
   // Tooltip anchored to #secondary-controls below the chart; chart fully visible above.
   tour.addStep({
     id: "lorenz-curve",
+    classes: "cc-tour-map-step",
     title: "Who Controls the Earnings",
     text: `
-      <p>The Lorenz curve measures revenue inequality across hosts. The diagonal line represents perfect equality. The further the curve bends away from it, the more concentrated the earnings.</p>
-      <p>The Gini coefficient summarizes that gap. Among the listings that remained in the post-reset market, revenue concentration across hosts was substantial.</p>
+      <p>The Lorenz curve measures how unevenly revenue is distributed across hosts. The number on the chart — the Gini coefficient — summarizes the gap: 0 is perfect equality, 1 is total concentration.</p>
+      <p>Before the Q2 reset, roughly half of projected revenue flowed to about 10% of hosts. After the contraction, the distribution barely moved. The market shrank; the concentration did not.</p>
     `,
-    attachTo: { element: "#secondary-controls", on: "top" },
+    // attachTo: { element: "#secondary-controls", on: "top" },
     popperOptions: {
       modifiers: [{ name: "offset", options: { offset: [0, 8] } }],
     },
@@ -341,27 +353,35 @@ function initTour() {
   tour.addStep({
     id: "density-map",
     title: "Not Uniform Across the City",
-    text: `<p>Every neighborhood tells a different version of the story. Watch the map shift.</p>`,
+    text: `<p>Every neighborhood tells a different version of the story.</p>`,
     beforeShowPromise() {
       return scrollToMapTop();
     },
-    buttons: [nextBtn()],
   });
 
   tour.getById("density-map").on("show", () => {
-    _tourTimeout("density-map", () => {
-      setMetric("listings_per_1000", "Listings per 1,000 Residents");
-      _tourTimeout("density-map", () => {
-        const step = tour.getById("density-map");
-        if (step)
-          step.updateStepOptions({
-            text: `
-              <p>Listing density — active Airbnbs per 1,000 residents — varies sharply by neighborhood. Dense tourist corridors show patterns that differ substantially from residential wards further from the center.</p>
-              <p>The post-reset market is not just smaller; it is geographically distributed differently than before.</p>
+    _tourTimeout(
+      "density-map",
+      () => {
+        setMetric("listings_per_1000", "Listings per 1,000 Residents");
+        _tourTimeout(
+          "density-map",
+          () => {
+            const step = tour.getById("density-map");
+            if (step)
+              step.updateStepOptions({
+                classes: "cc-tour-map-step",
+                text: `
+              <p>Listing density — active Airbnbs per 1,000 residents — varies sharply by neighborhood. Dense corridors near downtown look very different from residential wards further from the center.</p>
             `,
-          });
-      }, 1600);
-    }, 1500);
+                buttons: [nextBtn()],
+              });
+          },
+          1600,
+        );
+      },
+      1500,
+    );
   });
 
   // ── Step 7: Neighborhood Interaction Intro ─────────────────────────────
@@ -369,9 +389,8 @@ function initTour() {
     id: "neighborhood-intro",
     title: "Every Neighborhood Tells a Different Version",
     text: `
-      <p>The structural patterns you've seen — licensing rates, host concentration, listing density — play out differently across D.C.'s neighborhoods.</p>
-      <p>Select any neighborhood on the map, or use the dropdown above, and the entire dashboard recalculates: the map zooms, statistics update, and the chart rebuilds for that place.</p>
-      <p>Here's how that looks in one of D.C.'s most active short-term rental corridors.</p>
+      <p>The structural patterns you've seen — licensing, host concentration, listing density — play out differently across D.C.'s neighborhoods.</p>
+      <p>Here's how that looks in one of the city's more active short-term rental corridors.</p>
     `,
     attachTo: { element: "#neighborhoods-control", on: "bottom" },
     popperOptions: {
@@ -389,30 +408,25 @@ function initTour() {
   tour.addStep({
     id: "neighborhood-demo",
     title: "Adams Morgan — Kalorama — Lanier Heights",
-    text: `<p>The dashboard is recalculating…</p>`,
+    text: `
+            <p>Here, only about 3 in 10 listings carry an STR license — well below the city average. And nearly 4 in 5 belong to hosts who operate multiple D.C. properties.</p>
+            <p>The patterns the tour traced look different in every neighborhood. Select any one on the map or in the dropdown to see its version.</p>
+          `,
     attachTo: { element: "#neighborhood-stats-card", on: "top" },
     popperOptions: {
       modifiers: [{ name: "offset", options: { offset: [0, 8] } }],
     },
     beforeShowPromise() {
-      return selectAndWaitForZoom(DEMO_NEIGHBORHOOD)
-        .then(() => scrollToEl("#neighborhood-stats-card", 0.45))
-        .then(() => _delay(350));
+      return (
+        _delay(350)
+          .then(() => selectAndWaitForZoom(DEMO_NEIGHBORHOOD))
+          // Wait for the map to finish zooming before scrolling to the stats card
+          .then(() => _delay(1000))
+          .then(() => scrollToEl("#neighborhood-stats-card", 0.45))
+          .then(() => _delay(350))
+      );
     },
     buttons: [nextBtn()],
-  });
-
-  tour.getById("neighborhood-demo").on("show", () => {
-    _tourTimeout("neighborhood-demo", () => {
-      const step = tour.getById("neighborhood-demo");
-      if (step)
-        step.updateStepOptions({
-          text: `
-            <p>Every metric recalculated for this neighborhood: license compliance, host concentration, estimated occupancy. The chart below shows the minimum-stay distribution for these listings specifically.</p>
-            <p>Select any neighborhood on the map or in the dropdown above to see the same for any corner of D.C.</p>
-          `,
-        });
-    }, 1500);
   });
 
   // ── Step 9: Absolute / Relative Demonstration ──────────────────────────
@@ -420,7 +434,7 @@ function initTour() {
   // Visual demonstration auto-advances.
   tour.addStep({
     id: "relative-demo",
-    title: "Before You Explore",
+    title: "Same Market, Different Baseline",
     text: `<p>The map is about to shift — one tool worth seeing.</p>`,
     beforeShowPromise() {
       // Reset from the neighborhood demo; wait for the map to settle before starting
@@ -436,59 +450,34 @@ function initTour() {
   });
 
   tour.getById("relative-demo").on("show", () => {
-    _tourTimeout("relative-demo", () => {
-      // Live toggle — map recolors to diverging scale in front of the user
-      setRelativeToggle(true);
-      const step = tour.getById("relative-demo");
-      if (step)
-        step.updateStepOptions({
-          title: "Absolute vs. Relative",
-          text: `
-            <p>Relative mode compares each neighborhood against the D.C. average — blue is below average, orange is above. The same metric, a different question.</p>
-            <p>Toggle freely between Absolute and Relative using the control below the map.</p>
+    _tourTimeout(
+      "relative-demo",
+      () => {
+        // Live toggle — map recolors to diverging scale in front of the user
+        setRelativeToggle(true);
+        const step = tour.getById("relative-demo");
+        if (step)
+          step.updateStepOptions({
+            title: "Absolute vs. Relative",
+            text: `
+            <p>Relative mode compares each neighborhood against the D.C. average. The diverging colors show which neighborhoods are above or below the city norm. The same metric, a different question.</p>
           `,
-        });
-      _tourTimeout("relative-demo", () => _nextStep("relative-demo"), 8000);
-    }, 2500);
+          });
+        _tourTimeout("relative-demo", () => _nextStep("relative-demo"), 8000);
+      },
+      2500,
+    );
   });
 
-  // ── Step 10: Brief metric demonstration before handoff ────────────────
-  // Concise visual beat: one more live metric switch, then straight to handoff.
-  tour.addStep({
-    id: "median-price-demo",
-    title: "The Same Dashboard, a Different Question",
-    text: `<p>Six metrics. Two views. Every neighborhood.</p>`,
-    beforeShowPromise() {
-      return setRelativeToggle(false).then(() => {
-        setMetric("median_price", "Median Price");
-        return scrollToMapTop();
-      });
-    },
-  });
-
-  tour.getById("median-price-demo").on("show", () => {
-    _tourTimeout("median-price-demo", () => {
-      const step = tour.getById("median-price-demo");
-      if (step)
-        step.updateStepOptions({
-          text: `
-            <p>Each of the six metrics reshapes the map and the chart below it. Median Price, Reviews per Month, Host Concentration — same dashboard, different questions.</p>
-            <p>The dashboard is the instrument. The exploration is yours.</p>
-          `,
-        });
-      _tourTimeout("median-price-demo", () => _nextStep("median-price-demo"), 5000);
-    }, 2000);
-  });
-
-  // ── Step 11: Handoff ───────────────────────────────────────────────────
+  // ── Step 10: Handoff ─────────────────────────────────────────────────
   tour.addStep({
     id: "handoff",
     title: "Now It's Yours",
     text: `
-      <p><strong>The tour</strong> traced the major structural patterns visible in the post-reset market: licensing, minimum-stay patterns, revenue concentration, geographic density.</p>
-      <p><strong>The dashboard</strong> is for exploration: every neighborhood, every metric, every view.</p>
-      <p><strong>The case study</strong> provides the deeper temporal analysis — the quarter-by-quarter data behind the structural break.</p>
-      <p class="cc-tour-closing"><em>What changed is visible. What caused every individual change is not.<br>Capital Crashpad lets you explore the market that emerged afterward — neighborhood by neighborhood, metric by metric.</em></p>
+      <p>You've seen the major structural patterns in the post-reset market: a more licensed market overall, persistent host concentration, and sharp variation by neighborhood.</p>
+      <p><strong>The dashboard</strong> lets you explore further — six metrics, two views (absolute values or compared to the D.C. average), every neighborhood.</p>
+      <p><strong>The case study</strong> provides the temporal analysis — the quarter-by-quarter data behind what happened.</p>
+      <p class="cc-tour-closing"><em>What changed is visible. What caused every individual change is not.<br>Capital Crashpad lets you explore the market that emerged afterward.</em></p>
     `,
     beforeShowPromise() {
       resetDashboard();
@@ -530,10 +519,10 @@ function initTour() {
 
   // ── Auto-show on first visit ───────────────────────────────────────────
 
-  const TOUR_SEEN_KEY = "ccTourSeen";
-  if (!localStorage.getItem(TOUR_SEEN_KEY)) {
-    localStorage.setItem(TOUR_SEEN_KEY, "1");
-    // Delay allows Leaflet tiles and initial chart renders to settle
-    setTimeout(() => tour.start(), 1400);
-  }
+  // const TOUR_SEEN_KEY = "ccTourSeen";
+  // if (!localStorage.getItem(TOUR_SEEN_KEY)) {
+  //   localStorage.setItem(TOUR_SEEN_KEY, "1");
+  // Delay allows Leaflet tiles and initial chart renders to settle
+  setTimeout(() => tour.start(), 1400);
+  // }
 }
