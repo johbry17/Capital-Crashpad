@@ -542,8 +542,8 @@ function initTour() {
       id: "neighborhood-demo",
       title: "Adams Morgan — Kalorama — Lanier Heights",
       text: `
-            <p>Here, only about 3 in 10 listings carry an STR license — while nearly 4 in 5 belong to multi-property hosts.</p>
-            <p>One neighborhood can look very different from the citywide picture.</p>
+            <p>Here, only about 3 in 10 listings carry an STR license. Nearly 4 in 5 belong to multi-property hosts.</p>
+            <p>A very different market from the citywide average.</p>
             <p>Select any neighborhood to explore its version of the story.</p>
           `,
       attachTo: { element: "#neighborhood-stats-card", on: "top" },
