@@ -39,6 +39,9 @@ Promise.all([
 
   // create the map
   createMap();
+
+  // Initialize guided tour after map and data are ready
+  if (typeof initTour === "function") initTour();
 });
 
 // populate scrape date
