@@ -52,6 +52,7 @@ This project sits at the intersection of housing policy, platform governance, an
 
 Interactive Dashboard:
 
+- Guided data-storytelling tour built with Shepherd.js
 - Multi-metric neighborhood comparison
 - Dynamic titles tied to analytical questions
 - Density vs scale visualizations
