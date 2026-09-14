@@ -45,6 +45,8 @@ function initTour() {
         resolve();
         return;
       }
+
+      // If the element exists, calculate its target scroll position.
       const rect = el.getBoundingClientRect();
       const targetTop = Math.max(
         0,
@@ -53,6 +55,8 @@ function initTour() {
           rect.height / 2 -
           window.innerHeight * viewportFraction,
       );
+
+      // Wait for the smooth scroll to settle before continuing the choreography.
       window.scrollTo({ top: targetTop, behavior: "smooth" });
       setTimeout(resolve, 650);
     });
@@ -74,14 +78,18 @@ function initTour() {
         resolve();
         return;
       }
+      // If the map element exists, calculate its target scroll position.
       const navH = navbar ? navbar.offsetHeight : 50;
       const rect = mapEl.getBoundingClientRect();
       const targetTop = Math.max(0, window.scrollY + rect.top - navH - 4);
+
+      // Wait for the smooth scroll to settle before continuing the choreography.
       window.scrollTo({ top: targetTop, behavior: "smooth" });
       setTimeout(resolve, 650);
     });
   }
 
+  // Scrolls the plot container into view, adjusting for mobile vs desktop viewport fraction.
   function scrollToPlot() {
     return scrollToEl("#plot-container", isMobile() ? 0.4 : 0.5);
   }
@@ -160,6 +168,7 @@ function initTour() {
       const finish = () => {
         if (!settled) {
           settled = true;
+          // Brief pause lets the map finish rendering after Leaflet's moveen
           setTimeout(resolve, 150);
         }
       };
@@ -185,9 +194,12 @@ function initTour() {
     if (!toggle) return _delay(0);
     toggle.checked = relative;
     toggle.dispatchEvent(new Event("change"));
+    // Allow the map and associated UI to update before the next tour action.
     return _delay(450);
   }
 
+  // Resets the dashboard to its default state,
+  // including the relative toggle, neighborhood selection, and metric.
   function resetDashboard() {
     if (mapState.isRelative) {
       const toggle = document.getElementById("toggle-relative");
@@ -203,12 +215,16 @@ function initTour() {
   // ── Timer helpers ────────────────────────────────
   // Step-scoped: callback silenced if tour was cancelled or step has changed
 
+  // Delayed tour callbacks can fire after the user navigates away from a step.
+  // isCurrentStep() prevents those stale callbacks from changing dashboard state
+  // or updating a no-longer-visible Shepherd step.
   function isCurrentStep(stepId) {
     return !tourCancelled && tour?.getCurrentStep()?.id === stepId;
   }
 
   function _tourTimeout(stepId, fn, delayMs) {
     const id = setTimeout(() => {
+      // Silently discard callbacks from cancelled tours or previous steps.
       if (!isCurrentStep(stepId)) return;
       fn();
     }, delayMs);
@@ -251,6 +267,7 @@ function initTour() {
   }
 
   function _cleanupTourState() {
+    // Invalidate any pending asynchronous tour work before clearing its timers
     tourCancelled = true;
     _clearTourTimers();
     _removeInteractionBlocker();
@@ -258,6 +275,9 @@ function initTour() {
 
   function createTour() {
     // ── Tour instance ──────────────────────────────────────────────────────
+    // Each invocation creates a fresh Shepherd instance.
+    // The outer `tour` variable holds the currently active instance so that
+    // the trigger, autostart logic, and step guards can access it.
     const tour = new Shepherd.Tour({
       useModalOverlay: false,
       keyboardNavigation: true,
@@ -312,8 +332,9 @@ function initTour() {
     });
 
     // ── Step 2: License Compliance ─────────────────────────────────────────
-    // Metric is set before step shows; map is the visual subject.
-    // Floating card keeps the map unobstructed on both desktop and mobile.
+    // The map is the visual subject. The control is spotlighted briefly to
+    // establish what metric is being shown, then the map remains unobstructed.
+
     tour.addStep({
       id: "licensing-map",
       classes: "cc-tour-map-step",
@@ -355,6 +376,7 @@ function initTour() {
       },
     });
 
+    // Reveal the analytical finding after a brief delay.
     tour.getById("min-stays").on("show", () => {
       _tourTimeout(
         "min-stays",
@@ -378,7 +400,7 @@ function initTour() {
 
     // ── Step 4: Multi-Property Hosts ───────────────────────────────────────
     // Map arrives showing the previous metric; switches live after a pause.
-    // Floating card keeps map fully visible on all screen sizes.
+
     tour.addStep({
       id: "multi-hosts-map",
       title: "Concentration Persisted",
@@ -414,6 +436,7 @@ function initTour() {
         900,
       );
 
+      // Reveal the interpretation after the metric has had time to settle.
       _tourTimeout(
         "multi-hosts-map",
         () => {
@@ -434,7 +457,7 @@ function initTour() {
     });
 
     // ── Step 5: Lorenz Curve ───────────────────────────────────────────────
-    // Tooltip anchored to #secondary-controls below the chart; chart fully visible above.
+
     tour.addStep({
       id: "lorenz-curve",
       title: "Who Controls the Earnings",
@@ -449,6 +472,7 @@ function initTour() {
       },
     });
 
+    // Reveal the interpretation of the Lorenz Curve after a brief delay.
     tour.getById("lorenz-curve").on("show", () => {
       _tourTimeout(
         "lorenz-curve",
@@ -471,7 +495,8 @@ function initTour() {
     });
 
     // ── Step 6: Listing Density ────────────────────────────────────────────
-    // Map arrives showing the previous metric; switches live after a pause.
+    // As in Step 4, map arrives showing the previous metric; switches live after a pause.
+
     tour.addStep({
       id: "density-map",
       title: "Not Uniform Across the City",
@@ -545,8 +570,12 @@ function initTour() {
     });
 
     // ── Step 8: Adams Morgan Demo ──────────────────────────────────────────
-    // beforeShowPromise handles the selection and waits for Leaflet zoom completion.
-    // DC reset is deferred to step 9's beforeShowPromise so it happens after user advances.
+    // Selects the demo neighborhood automatically, then waits for Leaflet to
+    // finish zooming before positioning the Shepherd card on the stats card.
+    //
+    // The dashboard reset is intentionally deferred to step 9 so the user can
+    // briefly see the neighborhood-level state before moving to the comparison step.
+
     tour.addStep({
       id: "neighborhood-demo",
       title: "Adams Morgan — Kalorama — Lanier Heights",
@@ -573,18 +602,22 @@ function initTour() {
     });
 
     // ── Step 9: Absolute / Relative Demonstration ──────────────────────────
-    // Resets from the Adams Morgan demo first; then demonstrates the toggle live.
-    // Visual demonstration auto-advances.
+    // Reset from the neighborhood demo first, then demonstrate the relative
+    // comparison mode. The visual switch happens automatically.
+
     tour.addStep({
       id: "relative-demo",
       title: "Same Market, Different Baseline",
       text: `<p>One last way to look at the map.</p>`,
       beforeShowPromise() {
-        // Reset from the neighborhood demo; wait for the map to settle before starting
+        // Reset from the neighborhood demo and wait for the map to settle
+        // before starting the relative comparison demonstration.
         selectNeighborhood("top");
         return waitForMapMove()
           .then(() => {
+            // Safeguard
             if (!isCurrentStep("relative-demo")) return;
+
             setMetric("license_compliance", "License Compliance");
             return setRelativeToggle(false);
           })
@@ -599,7 +632,9 @@ function initTour() {
         () => {
           // Scroll to and spotlight the relative toggle before switching it on
           spotlightRelativeToggle().then(() => {
+            // Safeguard
             if (!isCurrentStep("relative-demo")) return;
+
             setRelativeToggle(true);
 
             const step = tour.getById("relative-demo");
@@ -648,12 +683,15 @@ function initTour() {
 
     // ── Lifecycle ──────────────────────────────────────────────────────────
     tour.on("cancel", () => {
+      // Invalidate pending callbacks and restore the dashboard unless the user
+      // explicitly chose "I'll explore on my own" from the welcome step.
       _cleanupTourState();
       if (!_skipReset) resetDashboard();
       _skipReset = false;
     });
 
     tour.on("complete", () => {
+      // Invalidate pending callbacks and restore the dashboard after the tour is completed.
       _cleanupTourState();
       resetDashboard();
     });
@@ -665,13 +703,13 @@ function initTour() {
   const triggerBtn = document.getElementById("take-tour-btn");
   if (triggerBtn) {
     triggerBtn.addEventListener("click", () => {
-      // On first load, `tour` may still be null if autostart is disabled
-      // (e.g. the tour has already been seen). Only block the click when
-      // an existing tour instance is actually active.
+      // `tour` can legitimately be null when autostart is disabled because
+      // the user has already seen the tour. Optional chaining makes the
+      // manual trigger safe in that state.
       if (tour?.isActive()) return;
 
-      // Prevent a pending first-visit autostart from launching a second
-      // tour after the user manually starts one.
+      // If the user manually starts the tour before the delayed autostart fires,
+      // cancel the pending timer so it cannot launch a second tour.
       if (autoStartTimer) {
         clearTimeout(autoStartTimer);
         autoStartTimer = null;
@@ -680,6 +718,7 @@ function initTour() {
       tourCancelled = false;
       _skipReset = false;
 
+      // Create a fresh tour instance for each launch.
       tour = createTour();
       tour.start();
     });
@@ -689,18 +728,19 @@ function initTour() {
 
   // Only auto-start the tour once per browser.
   // The "Take the Tour" button remains available on subsequent visits.
-  const TOUR_SEEN_KEY = "ccTourSeen";
-  if (!localStorage.getItem(TOUR_SEEN_KEY)) {
-    localStorage.setItem(TOUR_SEEN_KEY, "1");
+  // const TOUR_SEEN_KEY = "ccTourSeen";
+  // if (!localStorage.getItem(TOUR_SEEN_KEY)) {
+  //   localStorage.setItem(TOUR_SEEN_KEY, "1");
 
-    // Delay allows Leaflet tiles and initial chart renders to settle
-    autoStartTimer = setTimeout(() => {
-      autoStartTimer = null;
-      tourCancelled = false;
-      _skipReset = false;
+  // Delay allows Leaflet tiles and initial chart renders to settle.
+  // The timer is stored so a manual launch can cancel it.
+  autoStartTimer = setTimeout(() => {
+    autoStartTimer = null;
+    tourCancelled = false;
+    _skipReset = false;
 
-      tour = createTour();
-      tour.start();
-    }, 1400);
-  }
+    tour = createTour();
+    tour.start();
+  }, 1400);
+  // } // closes if (!localStorage.getItem(TOUR_SEEN_KEY)), intentionally disabled
 }
