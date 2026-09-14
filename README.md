@@ -112,7 +112,7 @@ Navigate between:
 - Regenerate summary views
 - Export CSVs for GitHub Pages  
 
-The case study export pipeline is archived; future updates apply only to the interactive dashboard.
+The case study export pipeline is static due to time-bound SQL queries; future updates apply only to the interactive dashboard.
 
 ## Gallery
 
@@ -143,22 +143,22 @@ _Median Airbnb price per neighborhood, relative to the citywide median._
 
 **Case Study:**
 ![Line chart showing drop and rebound in Airbnb listings after verification expansion](./resources/images/case_study_listing_drop.png)  
-_Sharp decline and partial rebound in Airbnb listings following verification expansion._  
+_Sharp decline and partial rebound in Airbnb listings following Airbnb's expanded verification and quality removals._  
 
 ![Line chart showing increase in licensed Airbnb listings](./resources/images/case_study_license_change.png)  
-_Increase in the share of licensed Airbnb listings after enforcement._  
+_Increase in the share of licensed Airbnb listings following the Q2 2024 contraction._  
 
 ![Line chart showing revenue drop in extended-stay Airbnb listings](./resources/images/case_study_revenue_drop.png)  
-_Revenue decline in extended-stay Airbnb listings post-verification._  
+_Projected revenue per listing declined most sharply among extended-stay listings after the Q2 2024 contraction._  
 
 ![Bar chart showing decline in unlicensed extended-stay Airbnb listings](./resources/images/case_study_license_minimum_nights.png)  
-_Decrease in unlicensed extended-stay listings after policy change._  
+_Unlicensed listings requiring 31+ night stays declined disproportionately during the Q2 2024 contraction._  
 
 ![Lorenz curve of Airbnb host revenue concentration before and after verification, showing no change](./resources/images/case_study_lorenz.png)  
-_Lorenz curves showing persistent concentration of Airbnb revenue among top hosts before and after verification._  
+_Revenue concentration remained highly skewed toward the largest hosts before and after the Q2 2024 contraction._  
 
 ![Bubble chart showing neighborhoods with higher licensing and availability](./resources/images/case_study_bubble_neighborhoods.png)  
-_Neighborhoods with higher licensing rates and greater listing availability._  
+_The Q2 2024 contraction was broad, with nearly every D.C. neighborhood losing active listings._  
 
 ## Data & Methodology
 
