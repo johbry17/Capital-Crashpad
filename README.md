@@ -119,29 +119,6 @@ The case study export pipeline is static due to time-bound SQL queries; future u
 
 Below are key visualizations from the dashboard and case study:
 
-**Dashboard:**
-![Violin plot of nightly prices and availability for the upcoming year, with median annotated](./resources/images/price_violin_plot.png)  
-_Distribution of nightly prices and availability for Airbnb listings, highlighting the median value._  
-
-![Bar plot of minimum nights required for Airbnb listings, colored by license status](./resources/images/minimum_nights_plot.png)  
-_Minimum nights required for Airbnb listings, segmented by license status._  
-
-**Interactive Map:**
-![Choropleth map showing total Airbnb listings by neighborhood in Washington, D.C., relative to the average](./resources/images/map_total_listings.png)  
-_Total Airbnb listings by neighborhood, compared to the citywide average._  
-
-![Map showing license status of Airbnb listings in a neighborhood](./resources/images/map_neighborhood_license.png)  
-_License status of Airbnb listings within a selected neighborhood._  
-
-![Map showing Airbnb property types in neighborhood](./resources/images/map_neighborhood_property.png)  
-_Distribution of Airbnb property types in a highlighted neighborhood._  
-
-![Choropleth map of license compliance percentage per neighborhood](./resources/images/map_license.png)  
-_Percentage of licensed Airbnb listings in each neighborhood._  
-
-![Choropleth map of Airbnb median price per neighborhood, relative to the citywide median](./resources/images/map_median_price.png)  
-_Median Airbnb price per neighborhood, relative to the citywide median._  
-
 **Case Study:**
 ![Line chart showing drop and rebound in Airbnb listings after verification expansion](./resources/images/case_study_listing_drop.png)  
 _Sharp decline and partial rebound in Airbnb listings following Airbnb's expanded verification and quality removals._  
@@ -160,6 +137,29 @@ _Revenue concentration remained highly skewed toward the largest hosts before an
 
 ![Bubble chart showing neighborhoods with higher licensing and availability](./resources/images/case_study_bubble_neighborhoods.png)  
 _The Q2 2024 contraction was broad, with nearly every D.C. neighborhood losing active listings._  
+
+**Dashboard:**
+![Violin plot of nightly prices and availability for the upcoming year, with median annotated](./resources/images/price_violin_plot.png)  
+_Distribution of nightly prices and availability for Airbnb listings, highlighting the median value._  
+
+![Bar plot of minimum nights required for Airbnb listings, colored by license status](./resources/images/minimum_nights_plot.png)  
+_Minimum nights required for Airbnb listings, segmented by license status._  
+
+**Interactive Map:**
+![Choropleth map of license compliance percentage per neighborhood](./resources/images/map_license.png)  
+_Percentage of licensed Airbnb listings in each neighborhood._  
+
+![Choropleth map of Airbnb median price per neighborhood, relative to the citywide median](./resources/images/map_median_price.png)  
+_Median Airbnb price per neighborhood, relative to the citywide median._  
+
+![Choropleth map showing total Airbnb listings by neighborhood in Washington, D.C., relative to the average](./resources/images/map_total_listings.png)  
+_Total Airbnb listings by neighborhood, compared to the citywide average._  
+
+![Map showing license status of Airbnb listings in a neighborhood](./resources/images/map_neighborhood_license.png)  
+_License status of Airbnb listings within a selected neighborhood._  
+
+![Map showing Airbnb property types in neighborhood](./resources/images/map_neighborhood_property.png)  
+_Distribution of Airbnb property types in a highlighted neighborhood._  
 
 ## Data & Methodology
 
